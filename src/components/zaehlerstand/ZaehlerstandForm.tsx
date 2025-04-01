@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Camera, X } from "lucide-react";
 
 // Form schema with validation
 const zaehlerstandSchema = z.object({
@@ -60,6 +61,10 @@ export const ZaehlerstandForm = ({
   onZaehlerstandChange,
   availableZaehler,
 }: ZaehlerstandFormProps) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  
   // Initialize form with validation
   const form = useForm<ZaehlerstandFormValues>({
     resolver: zodResolver(zaehlerstandSchema),
@@ -82,6 +87,7 @@ export const ZaehlerstandForm = ({
         kommentar: zaehlerstand.kommentar || "",
         foto: zaehlerstand.foto,
       });
+      setPreviewUrl(zaehlerstand.foto);
     } else {
       form.reset({
         zaehlerId: availableZaehler[0]?.id || 0,
@@ -90,8 +96,41 @@ export const ZaehlerstandForm = ({
         kommentar: "",
         foto: null,
       });
+      setPreviewUrl(null);
     }
   }, [zaehlerstand, form, availableZaehler]);
+
+  // Funktion zum Hochladen einer Bilddatei
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setPreviewUrl(result);
+      form.setValue("foto", result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Funktion zum Auslösen des Datei-Uploads
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Funktion zum Auslösen der Kamera
+  const triggerCamera = () => {
+    cameraInputRef.current?.click();
+  };
+
+  // Funktion zum Entfernen des Fotos
+  const removePhoto = () => {
+    setPreviewUrl(null);
+    form.setValue("foto", null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+  };
 
   // Handle form submission
   const onSubmit = (values: ZaehlerstandFormValues) => {
@@ -187,6 +226,72 @@ export const ZaehlerstandForm = ({
                       value={field.value || ""}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="foto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Foto</FormLabel>
+                  <div className="space-y-2">
+                    {previewUrl ? (
+                      <div className="relative w-full rounded-md overflow-hidden">
+                        <img 
+                          src={previewUrl} 
+                          alt="Zählerstand" 
+                          className="w-full h-auto max-h-48 object-contain border rounded-md"
+                        />
+                        <button 
+                          type="button" 
+                          onClick={removePhoto}
+                          className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1 rounded-full hover:bg-destructive/90"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={triggerFileUpload}
+                          className="flex-1"
+                        >
+                          Foto auswählen
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={triggerCamera}
+                          className="flex-1"
+                        >
+                          <Camera className="mr-2" size={16} />
+                          Foto aufnehmen
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      ref={cameraInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

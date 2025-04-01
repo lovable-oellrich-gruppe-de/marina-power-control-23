@@ -1,9 +1,25 @@
 
+import { useState } from "react";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
 import { ZaehlerstandForm } from "@/components/zaehlerstand/ZaehlerstandForm";
 import { getZaehlerstandColumns } from "@/components/zaehlerstand/ZaehlerstandColumns";
 import { useZaehlerstand } from "@/hooks/useZaehlerstand";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { Zaehlerstand } from "@/types";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 const ZaehlerstaendePage = () => {
   const {
@@ -19,7 +35,50 @@ const ZaehlerstaendePage = () => {
     handleSave
   } = useZaehlerstand();
   
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [zaehlerstandToDelete, setZaehlerstandToDelete] = useState<Zaehlerstand | null>(null);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
+  
   const columns = getZaehlerstandColumns();
+  
+  const confirmDelete = (zaehlerstand: Zaehlerstand) => {
+    setZaehlerstandToDelete(zaehlerstand);
+    setDeleteDialogOpen(true);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (zaehlerstandToDelete) {
+      handleDelete(zaehlerstandToDelete);
+    }
+    setDeleteDialogOpen(false);
+    setZaehlerstandToDelete(null);
+  };
+  
+  const openPhotoDialog = (photoUrl: string) => {
+    setCurrentPhoto(photoUrl);
+    setPhotoDialogOpen(true);
+  };
+  
+  // Angepasste Spalten mit Foto-Anzeige
+  const enhancedColumns = [
+    ...columns.slice(0, -1), // Alle Spalten außer der letzten (Foto)
+    {
+      header: "Foto",
+      accessorKey: "foto",
+      cell: (row: Zaehlerstand) => {
+        if (!row.foto) return "Nicht vorhanden";
+        return (
+          <button 
+            onClick={() => openPhotoDialog(row.foto as string)}
+            className="text-marina-600 hover:text-marina-800 underline"
+          >
+            Anzeigen
+          </button>
+        );
+      }
+    }
+  ];
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,10 +88,10 @@ const ZaehlerstaendePage = () => {
         
         <DataTable
           data={zaehlerstaende}
-          columns={columns}
+          columns={enhancedColumns}
           onAdd={handleAdd}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={confirmDelete}
           searchable
         />
         
@@ -44,6 +103,40 @@ const ZaehlerstaendePage = () => {
           onZaehlerstandChange={setEditingZaehlerstand}
           availableZaehler={availableZaehler}
         />
+        
+        {/* Dialog für Löschen-Bestätigung */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Zählerstand löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie den Zählerstand vom {zaehlerstandToDelete?.datum} für Zähler 
+                {zaehlerstandToDelete?.zaehler?.zaehlernummer ? ` "${zaehlerstandToDelete.zaehler.zaehlernummer}"` : ""} 
+                wirklich löschen?
+                Dieser Vorgang kann nicht rückgängig gemacht werden.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Löschen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Dialog für Foto-Anzeige */}
+        <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
+          <DialogContent className="sm:max-w-[600px] flex items-center justify-center p-1">
+            {currentPhoto && (
+              <img 
+                src={currentPhoto} 
+                alt="Zählerstand" 
+                className="max-w-full max-h-[80vh] object-contain"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
