@@ -22,6 +22,7 @@ export const getZaehlerstandColumns = (): Column<Zaehlerstand>[] => [
   },
   { 
     header: "Foto", 
+    accessorKey: "foto", // Adding the required accessorKey property
     cell: (row: Zaehlerstand) => row.foto ? "Vorhanden" : "Nicht vorhanden"
   }
 ];
