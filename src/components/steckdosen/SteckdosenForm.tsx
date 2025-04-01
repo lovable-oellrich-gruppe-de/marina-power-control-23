@@ -35,9 +35,9 @@ const dummyBereiche: Bereich[] = [
 const steckdosenFormSchema = z.object({
   nummer: z.string().min(1, "Nummer ist erforderlich"),
   vergeben: z.boolean().default(false),
-  mieterId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
-  zaehlerId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
-  bereichId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
+  mieterId: z.union([z.number(), z.null()]).nullable(),
+  zaehlerId: z.union([z.number(), z.null()]).nullable(),
+  bereichId: z.union([z.number(), z.null()]).nullable(),
   schluesselnummer: z.string().optional(),
   hinweis: z.string().optional(),
 });
@@ -64,9 +64,9 @@ export function SteckdosenForm({
     defaultValues: {
       nummer: initialData?.nummer || "",
       vergeben: initialData?.vergeben || false,
-      mieterId: initialData?.mieterId ? String(initialData.mieterId) : "",
-      zaehlerId: initialData?.zaehlerId ? String(initialData.zaehlerId) : "",
-      bereichId: initialData?.bereichId ? String(initialData.bereichId) : "",
+      mieterId: initialData?.mieterId || null,
+      zaehlerId: initialData?.zaehlerId || null,
+      bereichId: initialData?.bereichId || null,
       schluesselnummer: initialData?.schluesselnummer || "",
       hinweis: initialData?.hinweis || "",
     },
@@ -78,9 +78,9 @@ export function SteckdosenForm({
       form.reset({
         nummer: initialData?.nummer || "",
         vergeben: initialData?.vergeben || false,
-        mieterId: initialData?.mieterId ? String(initialData.mieterId) : "",
-        zaehlerId: initialData?.zaehlerId ? String(initialData.zaehlerId) : "",
-        bereichId: initialData?.bereichId ? String(initialData.bereichId) : "",
+        mieterId: initialData?.mieterId || null,
+        zaehlerId: initialData?.zaehlerId || null,
+        bereichId: initialData?.bereichId || null,
         schluesselnummer: initialData?.schluesselnummer || "",
         hinweis: initialData?.hinweis || "",
       });
@@ -154,8 +154,8 @@ export function SteckdosenForm({
                 <FormItem>
                   <FormLabel>Mieter</FormLabel>
                   <Select 
-                    value={field.value ? field.value.toString() : ""}
-                    onValueChange={field.onChange}
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -163,7 +163,7 @@ export function SteckdosenForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Keinen Mieter zuweisen</SelectItem>
+                      <SelectItem value="null">Keinen Mieter zuweisen</SelectItem>
                       {dummyMieter.map((mieter) => (
                         <SelectItem key={mieter.id} value={mieter.id?.toString() || ""}>
                           {mieter.vorname} {mieter.nachname} - {mieter.bootsname}
@@ -183,8 +183,8 @@ export function SteckdosenForm({
                 <FormItem>
                   <FormLabel>Zähler</FormLabel>
                   <Select 
-                    value={field.value ? field.value.toString() : ""}
-                    onValueChange={field.onChange}
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -192,7 +192,7 @@ export function SteckdosenForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Keinen Zähler zuweisen</SelectItem>
+                      <SelectItem value="null">Keinen Zähler zuweisen</SelectItem>
                       {dummyZaehler.map((zaehler) => (
                         <SelectItem key={zaehler.id} value={zaehler.id?.toString() || ""}>
                           {zaehler.zaehlernummer}
@@ -212,8 +212,8 @@ export function SteckdosenForm({
                 <FormItem>
                   <FormLabel>Bereich</FormLabel>
                   <Select 
-                    value={field.value ? field.value.toString() : ""}
-                    onValueChange={field.onChange}
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -221,7 +221,7 @@ export function SteckdosenForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Keinen Bereich zuweisen</SelectItem>
+                      <SelectItem value="null">Keinen Bereich zuweisen</SelectItem>
                       {dummyBereiche.map((bereich) => (
                         <SelectItem key={bereich.id} value={bereich.id?.toString() || ""}>
                           {bereich.name}
