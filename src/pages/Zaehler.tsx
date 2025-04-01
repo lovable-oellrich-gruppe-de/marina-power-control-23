@@ -1,9 +1,21 @@
 
+import { useState } from "react";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
 import { ZaehlerForm } from "@/components/zaehler/ZaehlerForm";
 import { getZaehlerColumns } from "@/components/zaehler/ZaehlerColumns";
 import { useZaehler } from "@/hooks/useZaehler";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { Zaehler } from "@/types";
 
 const ZaehlerPage = () => {
   const {
@@ -18,7 +30,23 @@ const ZaehlerPage = () => {
     handleSave
   } = useZaehler();
   
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [zaehlerToDelete, setZaehlerToDelete] = useState<Zaehler | null>(null);
+  
   const columns = getZaehlerColumns();
+  
+  const confirmDelete = (zaehler: Zaehler) => {
+    setZaehlerToDelete(zaehler);
+    setDeleteDialogOpen(true);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (zaehlerToDelete) {
+      handleDelete(zaehlerToDelete);
+    }
+    setDeleteDialogOpen(false);
+    setZaehlerToDelete(null);
+  };
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,7 +59,7 @@ const ZaehlerPage = () => {
           columns={columns}
           onAdd={handleAdd}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={confirmDelete}
           searchable
         />
         
@@ -42,6 +70,24 @@ const ZaehlerPage = () => {
           onSave={handleSave}
           onZaehlerChange={setEditingZaehler}
         />
+        
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Zähler löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie den Zähler "{zaehlerToDelete?.zaehlernummer}" wirklich löschen?
+                Dieser Vorgang kann nicht rückgängig gemacht werden.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Löschen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
