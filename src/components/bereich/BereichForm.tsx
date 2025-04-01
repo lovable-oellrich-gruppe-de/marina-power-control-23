@@ -68,8 +68,8 @@ export const BereichForm = ({
   // Handle form submission
   const onSubmit = (values: BereichFormValues) => {
     onSave({
-      ...values,
       id: bereich?.id,
+      name: values.name, // This is ensured to be present by our validation
     });
   };
 
