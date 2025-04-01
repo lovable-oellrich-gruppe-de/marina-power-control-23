@@ -1,21 +1,43 @@
 
-import { useState } from "react";
-import { Steckdose } from "@/types";
+import { useState, useEffect } from "react";
+import { Steckdose, Mieter, Zaehler, Bereich } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Check, X } from "lucide-react";
 
+// Testdaten für Mieter, Zähler und Bereiche
+const dummyMieter: Mieter[] = [
+  { id: 1, vorname: "Max", nachname: "Mustermann", strasse: "Hafenstr.", hausnummer: "1", email: "max@beispiel.de", telefon: "12345", mobil: "67890", hinweis: "", bootsname: "Wellentänzer" },
+  { id: 2, vorname: "Erika", nachname: "Musterfrau", strasse: "Seemannsgasse", hausnummer: "42", email: "erika@beispiel.de", telefon: "54321", mobil: "09876", hinweis: "", bootsname: "Windrausch" }
+];
+
+const dummyZaehler: Zaehler[] = [
+  { id: 1, zaehlernummer: "Z-001", installiertAm: "2023-01-15", letzteWartung: "2023-12-01", hinweis: "Neu installiert" },
+  { id: 2, zaehlernummer: "Z-002", installiertAm: "2023-02-20", letzteWartung: "2023-11-15", hinweis: "" },
+  { id: 3, zaehlernummer: "Z-003", installiertAm: "2023-03-10", letzteWartung: "2023-10-30", hinweis: "Baldig zur Wartung" }
+];
+
+const dummyBereiche: Bereich[] = [
+  { id: 1, name: "Steg A" },
+  { id: 2, name: "Steg B" },
+  { id: 3, name: "Steg C" }
+];
+
 // Schema für die Validierung des Formulars
 const steckdosenFormSchema = z.object({
   nummer: z.string().min(1, "Nummer ist erforderlich"),
   vergeben: z.boolean().default(false),
+  mieterId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
+  zaehlerId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
+  bereichId: z.string().nullable().transform(val => val === "" ? null : Number(val)),
   schluesselnummer: z.string().optional(),
   hinweis: z.string().optional(),
 });
@@ -42,10 +64,28 @@ export function SteckdosenForm({
     defaultValues: {
       nummer: initialData?.nummer || "",
       vergeben: initialData?.vergeben || false,
+      mieterId: initialData?.mieterId ? String(initialData.mieterId) : "",
+      zaehlerId: initialData?.zaehlerId ? String(initialData.zaehlerId) : "",
+      bereichId: initialData?.bereichId ? String(initialData.bereichId) : "",
       schluesselnummer: initialData?.schluesselnummer || "",
       hinweis: initialData?.hinweis || "",
     },
   });
+
+  // Form zurücksetzen, wenn sich initialData ändert
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        nummer: initialData?.nummer || "",
+        vergeben: initialData?.vergeben || false,
+        mieterId: initialData?.mieterId ? String(initialData.mieterId) : "",
+        zaehlerId: initialData?.zaehlerId ? String(initialData.zaehlerId) : "",
+        bereichId: initialData?.bereichId ? String(initialData.bereichId) : "",
+        schluesselnummer: initialData?.schluesselnummer || "",
+        hinweis: initialData?.hinweis || "",
+      });
+    }
+  }, [initialData, open, form]);
 
   const handleSubmit = (values: SteckdosenFormValues) => {
     onSubmit(values);
@@ -102,6 +142,93 @@ export function SteckdosenForm({
                     />
                   </FormControl>
                   <FormLabel>Vergeben</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="mieterId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mieter</FormLabel>
+                  <Select 
+                    value={field.value ? field.value.toString() : ""}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Mieter auswählen" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Keinen Mieter zuweisen</SelectItem>
+                      {dummyMieter.map((mieter) => (
+                        <SelectItem key={mieter.id} value={mieter.id?.toString() || ""}>
+                          {mieter.vorname} {mieter.nachname} - {mieter.bootsname}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="zaehlerId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zähler</FormLabel>
+                  <Select 
+                    value={field.value ? field.value.toString() : ""}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Zähler auswählen" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Keinen Zähler zuweisen</SelectItem>
+                      {dummyZaehler.map((zaehler) => (
+                        <SelectItem key={zaehler.id} value={zaehler.id?.toString() || ""}>
+                          {zaehler.zaehlernummer}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="bereichId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bereich</FormLabel>
+                  <Select 
+                    value={field.value ? field.value.toString() : ""}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bereich auswählen" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Keinen Bereich zuweisen</SelectItem>
+                      {dummyBereiche.map((bereich) => (
+                        <SelectItem key={bereich.id} value={bereich.id?.toString() || ""}>
+                          {bereich.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
