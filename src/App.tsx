@@ -9,6 +9,7 @@ import MieterPage from "./pages/Mieter";
 import SteckdosenPage from "./pages/Steckdosen";
 import ZaehlerPage from "./pages/Zaehler";
 import BereichePage from "./pages/Bereiche";
+import ZaehlerstaendePage from "./pages/Zaehlerstaende";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,7 @@ const App = () => (
           <Route path="/steckdosen" element={<SteckdosenPage />} />
           <Route path="/zaehler" element={<ZaehlerPage />} />
           <Route path="/bereiche" element={<BereichePage />} />
-          {/* Die anderen Seiten werden später hinzugefügt */}
+          <Route path="/zaehlerstaende" element={<ZaehlerstaendePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
