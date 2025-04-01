@@ -1,4 +1,5 @@
 
+import React, { useEffect } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,7 +53,7 @@ export const BereichForm = ({
   });
 
   // Update form when bereich changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (bereich) {
       form.reset({
         name: bereich.name,
