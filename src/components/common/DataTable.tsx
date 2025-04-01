@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Table, 
@@ -19,7 +18,7 @@ import {
   Trash2
 } from "lucide-react";
 
-interface Column<T> {
+export interface Column<T> {
   header: string;
   accessorKey: keyof T | ((row: T) => string | number);
   cell?: (row: T) => React.ReactNode;

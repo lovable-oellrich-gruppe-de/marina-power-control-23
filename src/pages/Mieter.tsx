@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
 import { Mieter } from "@/types";
+import { Column } from "@/components/common/DataTable";
 
 const MieterPage = () => {
   const { toast } = useToast();
@@ -42,12 +43,15 @@ const MieterPage = () => {
   const [editingMieter, setEditingMieter] = useState<Mieter | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  const columns = [
-    { header: "ID", accessorKey: "id" },
-    { header: "Name", accessorKey: (row: Mieter) => `${row.vorname} ${row.nachname}` },
-    { header: "E-Mail", accessorKey: "email" },
-    { header: "Telefon", accessorKey: "telefon" },
-    { header: "Bootsname", accessorKey: "bootsname" }
+  const columns: Column<Mieter>[] = [
+    { header: "ID", accessorKey: "id" as keyof Mieter },
+    { 
+      header: "Name", 
+      accessorKey: (row: Mieter) => `${row.vorname} ${row.nachname}` 
+    },
+    { header: "E-Mail", accessorKey: "email" as keyof Mieter },
+    { header: "Telefon", accessorKey: "telefon" as keyof Mieter },
+    { header: "Bootsname", accessorKey: "bootsname" as keyof Mieter }
   ];
   
   const handleAdd = () => {
@@ -243,3 +247,4 @@ const MieterPage = () => {
 };
 
 export default MieterPage;
+
