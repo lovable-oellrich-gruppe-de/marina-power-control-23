@@ -88,7 +88,7 @@ export function useZaehler() {
       // Neuen Zähler hinzufügen
       const newZaehler = {
         ...zaehler,
-        id: Math.max(0, ...zaehler.map(z => z.id)) + 1
+        id: Math.max(0, ...zaehler.map((z: Zaehler) => z.id)) + 1
       };
       
       setZaehler(prevZaehler => [...prevZaehler, newZaehler]);

@@ -100,7 +100,7 @@ export function useMieter() {
       // Neuen Mieter hinzufügen
       const newMieter = {
         ...mieter,
-        id: Math.max(0, ...mieter.map(m => m.id || 0)) + 1
+        id: Math.max(0, ...mieter.map((m: Mieter) => m.id || 0)) + 1
       };
       
       setMieter(prevMieter => [...prevMieter, newMieter]);
