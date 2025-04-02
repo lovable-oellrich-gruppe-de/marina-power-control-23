@@ -55,6 +55,15 @@ export interface Zaehlerstand {
   stand: string; // Verwendet als String für präzise Dezimalzahlen
 }
 
+// Benutzer Typ
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user';
+  avatar?: string;
+}
+
 // API Antwort Typ
 export interface ApiResponse<T> {
   data: T;
