@@ -11,12 +11,14 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  getAllUsers: () => Promise<User[]>;
+  updateUser: (userId: string, userData: { name: string; role: 'admin' | 'user' }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Mock-Benutzer für die Demozwecke
-const mockUsers = [
+const mockUsersInitial = [
   {
     id: '1',
     email: 'admin@marina-power.de',
@@ -38,6 +40,20 @@ const mockUsers = [
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mockUsers, setMockUsers] = useState(() => {
+    // Laden von Benutzern aus dem localStorage, falls vorhanden
+    const storedUsers = localStorage.getItem('marina-power-users');
+    if (storedUsers) {
+      try {
+        return JSON.parse(storedUsers);
+      } catch (error) {
+        localStorage.removeItem('marina-power-users');
+        return mockUsersInitial;
+      }
+    }
+    return mockUsersInitial;
+  });
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -54,6 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setIsLoading(false);
   }, []);
+  
+  // Mock-Benutzer im localStorage speichern, wenn sie sich ändern
+  useEffect(() => {
+    localStorage.setItem('marina-power-users', JSON.stringify(mockUsers));
+  }, [mockUsers]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -98,11 +119,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: (mockUsers.length + 1).toString(),
         email,
         name,
+        password, // In einer echten Anwendung würde das Passwort gehasht werden
         role: 'user' as const,
+        avatar: ''
       };
       
-      setUser(newUser);
-      localStorage.setItem('marina-power-user', JSON.stringify(newUser));
+      setMockUsers([...mockUsers, newUser]);
+      
+      const { password: _, ...userWithoutPassword } = newUser;
+      setUser(userWithoutPassword);
+      localStorage.setItem('marina-power-user', JSON.stringify(userWithoutPassword));
       
       toast({
         title: 'Erfolgreich registriert',
@@ -129,6 +155,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       description: 'Sie wurden erfolgreich abgemeldet.',
     });
   };
+  
+  const getAllUsers = async (): Promise<User[]> => {
+    // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
+    return mockUsers.map(({ password, ...user }) => user);
+  };
+  
+  const updateUser = async (
+    userId: string, 
+    userData: { name: string; role: 'admin' | 'user' }
+  ): Promise<User> => {
+    // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
+    const userIndex = mockUsers.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new Error('Benutzer nicht gefunden');
+    }
+    
+    const updatedMockUsers = [...mockUsers];
+    updatedMockUsers[userIndex] = {
+      ...updatedMockUsers[userIndex],
+      name: userData.name,
+      role: userData.role,
+    };
+    
+    setMockUsers(updatedMockUsers);
+    
+    // Wenn der aktuelle Benutzer aktualisiert wurde, aktualisiere auch den User-State
+    if (user && user.id === userId) {
+      const updatedUser = {
+        ...user,
+        name: userData.name,
+        role: userData.role,
+      };
+      setUser(updatedUser);
+      localStorage.setItem('marina-power-user', JSON.stringify(updatedUser));
+    }
+    
+    const { password, ...updatedUserWithoutPassword } = updatedMockUsers[userIndex];
+    return updatedUserWithoutPassword;
+  };
 
   return (
     <AuthContext.Provider
@@ -138,7 +204,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
-        logout
+        logout,
+        getAllUsers,
+        updateUser
       }}
     >
       {children}

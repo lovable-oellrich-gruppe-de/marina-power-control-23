@@ -13,6 +13,7 @@ import SteckdosenPage from "./pages/Steckdosen";
 import ZaehlerPage from "./pages/Zaehler";
 import BereichePage from "./pages/Bereiche";
 import ZaehlerstaendePage from "./pages/Zaehlerstaende";
+import UserManagementPage from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -72,6 +73,11 @@ const AppRoutes = () => {
       <Route path="/profile" element={
         <ProtectedRoute>
           <Profile />
+        </ProtectedRoute>
+      } />
+      <Route path="/users" element={
+        <ProtectedRoute requiredRole="admin">
+          <UserManagementPage />
         </ProtectedRoute>
       } />
       
