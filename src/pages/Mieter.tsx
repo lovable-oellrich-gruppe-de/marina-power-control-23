@@ -40,7 +40,7 @@ const MieterPage = () => {
           mieter={editingMieter as Mieter}
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          onSave={() => handleSave(editingMieter as Mieter)}
+          onSave={() => handleSave(editingMieter)}
           onMieterChange={setEditingMieter}
         />
       </main>

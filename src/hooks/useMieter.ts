@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Mieter } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -86,21 +87,22 @@ export function useMieter() {
   };
 
   // Mieter speichern (neu oder aktualisiert)
-  const handleSave = (mieter: Mieter) => {
-    if (mieter.id) {
+  const handleSave = (mieterData: Partial<Mieter>) => {
+    if (mieterData.id) {
       // Mieter aktualisieren
-      setMieter(prevMieter => prevMieter.map(m => m.id === mieter.id ? mieter : m));
+      setMieter(prevMieter => prevMieter.map(m => m.id === mieterData.id ? {...m, ...mieterData} as Mieter : m));
       
       toast({
         title: "Mieter aktualisiert",
-        description: `Mieter "${mieter.vorname} ${mieter.nachname}" wurde erfolgreich aktualisiert.`,
+        description: `Mieter "${mieterData.vorname} ${mieterData.nachname}" wurde erfolgreich aktualisiert.`,
       });
     } else {
       // Neuen Mieter hinzufügen
+      const newId = Math.max(0, ...mieter.map(m => m.id || 0)) + 1;
       const newMieter = {
-        ...mieter,
-        id: Math.max(0, ...mieter.map(m => m.id || 0)) + 1
-      };
+        ...mieterData,
+        id: newId
+      } as Mieter;
       
       setMieter(prevMieter => [...prevMieter, newMieter]);
       

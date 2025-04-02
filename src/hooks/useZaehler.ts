@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Zaehler } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -74,21 +75,22 @@ export function useZaehler() {
   };
 
   // Zähler speichern (neu oder aktualisiert)
-  const handleSave = (zaehler: Zaehler) => {
-    if (zaehler.id) {
+  const handleSave = (zaehlerData: Partial<Zaehler>) => {
+    if (zaehlerData.id) {
       // Zähler aktualisieren
-      setZaehler(prevZaehler => prevZaehler.map(z => z.id === zaehler.id ? zaehler : z));
+      setZaehler(prevZaehler => prevZaehler.map(z => z.id === zaehlerData.id ? {...z, ...zaehlerData} as Zaehler : z));
       
       toast({
         title: "Zähler aktualisiert",
-        description: `Zähler "${zaehler.zaehlernummer}" wurde erfolgreich aktualisiert.`,
+        description: `Zähler "${zaehlerData.zaehlernummer}" wurde erfolgreich aktualisiert.`,
       });
     } else {
       // Neuen Zähler hinzufügen
+      const newId = Math.max(0, ...zaehler.map(z => z.id)) + 1;
       const newZaehler = {
-        ...zaehler,
-        id: Math.max(0, ...zaehler.map(z => z.id)) + 1
-      };
+        ...zaehlerData,
+        id: newId
+      } as Zaehler;
       
       setZaehler(prevZaehler => [...prevZaehler, newZaehler]);
       
