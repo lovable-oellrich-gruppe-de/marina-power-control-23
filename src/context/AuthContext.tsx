@@ -1,8 +1,9 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { authService } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -18,91 +19,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock-Benutzer für die Demozwecke
-const mockUsersInitial = [
-  {
-    id: '1',
-    email: 'admin@marina-power.de',
-    name: 'Admin',
-    password: 'admin123',
-    role: 'admin' as const,
-    status: 'active' as const,
-    avatar: ''
-  },
-  {
-    id: '2',
-    email: 'benutzer@marina-power.de',
-    name: 'Benutzer',
-    password: 'benutzer123',
-    role: 'user' as const,
-    status: 'active' as const,
-    avatar: ''
-  }
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mockUsers, setMockUsers] = useState(() => {
-    // Laden von Benutzern aus dem localStorage, falls vorhanden
-    const storedUsers = localStorage.getItem('marina-power-users');
-    if (storedUsers) {
-      try {
-        return JSON.parse(storedUsers);
-      } catch (error) {
-        localStorage.removeItem('marina-power-users');
-        return mockUsersInitial;
-      }
-    }
-    return mockUsersInitial;
-  });
-  
   const navigate = useNavigate();
   const { toast } = useToast();
   
   // Beim Laden der Anwendung prüfen, ob ein Benutzer im localStorage gespeichert ist
   useEffect(() => {
-    const storedUser = localStorage.getItem('marina-power-user');
+    const storedUser = authService.getSavedUser();
     if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        localStorage.removeItem('marina-power-user');
-      }
+      setUser(storedUser);
     }
     setIsLoading(false);
   }, []);
-  
-  // Mock-Benutzer im localStorage speichern, wenn sie sich ändern
-  useEffect(() => {
-    localStorage.setItem('marina-power-users', JSON.stringify(mockUsers));
-  }, [mockUsers]);
 
   const login = async (email: string, password: string) => {
     try {
-      // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
-      const foundUser = mockUsers.find(
-        (u) => u.email === email && u.password === password
-      );
-      
-      if (!foundUser) {
-        throw new Error('Ungültige Anmeldeinformationen');
-      }
-      
-      if (foundUser.status === 'pending') {
-        throw new Error('Ihr Konto wurde noch nicht freigeschaltet. Bitte wenden Sie sich an einen Administrator.');
-      }
-      
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('marina-power-user', JSON.stringify(userWithoutPassword));
-      
-      toast({
-        title: 'Erfolgreich angemeldet',
-        description: `Willkommen zurück, ${userWithoutPassword.name}!`,
-      });
-      
+      const loggedInUser = await authService.login({ email, password });
+      setUser(loggedInUser);
       navigate('/');
     } catch (error) {
       toast({
@@ -116,29 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      // Prüfen, ob die E-Mail bereits existiert
-      if (mockUsers.some((u) => u.email === email)) {
-        throw new Error('Diese E-Mail-Adresse wird bereits verwendet');
-      }
-      
-      // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
-      const newUser = {
-        id: (mockUsers.length + 1).toString(),
-        email,
-        name,
-        password, // In einer echten Anwendung würde das Passwort gehasht werden
-        role: 'user' as const,
-        status: 'pending' as const, // Neuer Benutzer ist standardmäßig "pending"
-        avatar: ''
-      };
-      
-      setMockUsers([...mockUsers, newUser]);
-      
-      toast({
-        title: 'Registrierung erfolgreich',
-        description: 'Ihr Konto wurde erstellt und wartet auf Freischaltung durch einen Administrator.',
-      });
-      
+      await authService.register({ email, password, name });
       navigate('/login');
     } catch (error) {
       toast({
@@ -151,63 +64,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem('marina-power-user');
     navigate('/login');
-    toast({
-      title: 'Abgemeldet',
-      description: 'Sie wurden erfolgreich abgemeldet.',
-    });
   };
   
   const getAllUsers = async (): Promise<User[]> => {
-    // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
-    return mockUsers.map(({ password, ...user }) => user);
+    return authService.getAllUsers();
   };
   
   const updateUser = async (
     userId: string, 
     userData: { name: string; role: 'admin' | 'user'; status?: 'active' | 'pending' }
   ): Promise<User> => {
-    // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    
-    if (userIndex === -1) {
-      throw new Error('Benutzer nicht gefunden');
-    }
-    
-    const updatedMockUsers = [...mockUsers];
-    updatedMockUsers[userIndex] = {
-      ...updatedMockUsers[userIndex],
-      name: userData.name,
-      role: userData.role,
-      ...(userData.status && { status: userData.status }),
-    };
-    
-    setMockUsers(updatedMockUsers);
+    const updatedUser = await authService.updateUser(userId, userData);
     
     // Wenn der aktuelle Benutzer aktualisiert wurde, aktualisiere auch den User-State
     if (user && user.id === userId) {
-      const updatedUser = {
+      const currentUserUpdated = {
         ...user,
         name: userData.name,
         role: userData.role,
         ...(userData.status && { status: userData.status }),
       };
-      setUser(updatedUser);
-      localStorage.setItem('marina-power-user', JSON.stringify(updatedUser));
+      setUser(currentUserUpdated);
+      authService.saveUser(currentUserUpdated);
     }
     
-    const { password, ...updatedUserWithoutPassword } = updatedMockUsers[userIndex];
-    return updatedUserWithoutPassword;
+    return updatedUser;
   };
   
   const activateUser = async (userId: string): Promise<User> => {
-    return updateUser(userId, { 
-      name: mockUsers.find(u => u.id === userId)?.name || '', 
-      role: mockUsers.find(u => u.id === userId)?.role || 'user',
-      status: 'active'
-    });
+    return authService.activateUser(userId);
   };
 
   return (
@@ -229,10 +117,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth muss innerhalb eines AuthProviders verwendet werden');
-  }
-  return context;
-};
+// Hook wird in separate Datei verschoben
+export { AuthContext };
