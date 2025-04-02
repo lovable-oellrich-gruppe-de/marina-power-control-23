@@ -20,6 +20,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { Column } from "@/components/common/DataTable";
 
 const ZaehlerstaendePage = () => {
   const {
@@ -60,12 +61,12 @@ const ZaehlerstaendePage = () => {
     setPhotoDialogOpen(true);
   };
   
-  // Angepasste Spalten mit Foto-Anzeige
-  const enhancedColumns = [
+  // Angepasste Spalten mit Foto-Anzeige als explizit typische Column<Zaehlerstand>
+  const enhancedColumns: Column<Zaehlerstand>[] = [
     ...columns.slice(0, -1), // Alle Spalten außer der letzten (Foto)
     {
       header: "Foto",
-      accessorKey: "foto",
+      accessorKey: (row: Zaehlerstand) => row.foto || "none", // Accessor als Funktion um TypeScript zu befriedigen
       cell: (row: Zaehlerstand) => {
         if (!row.foto) return "Nicht vorhanden";
         return (
