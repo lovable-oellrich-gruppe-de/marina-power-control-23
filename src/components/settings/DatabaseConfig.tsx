@@ -61,7 +61,7 @@ export function DatabaseConfig() {
   
   // Verbindung herstellen
   const onSubmit = async (values: DbConfigFormValues) => {
-    const success = await initializeDbConnection(values);
+    const success = await initializeDbConnection(values as DbConfig);
     setConnected(success);
   };
   
