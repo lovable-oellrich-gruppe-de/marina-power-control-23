@@ -10,6 +10,11 @@ export interface DatabaseConfig {
   port: number;
 }
 
+// API-URL für Datenbankverbindungen
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/db' // Im Produktionsmodus: Relativer Pfad für Proxy durch NGINX
+  : 'http://localhost:3001/api/db'; // Im Entwicklungsmodus: Vollständiger Pfad
+
 // Initialer Konfigurationsversuch aus dem localStorage
 export const getDbConfig = (): DatabaseConfig | null => {
   const storedConfig = localStorage.getItem('marina-db-config');
@@ -33,12 +38,36 @@ export const saveDbConfig = (config: DatabaseConfig): void => {
 // Status der Konfiguration
 let isConnectedState = false;
 
+// Verbindung prüfen
+export const checkConnectionStatus = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/status`);
+    const data = await response.json();
+    isConnectedState = data.connected;
+    return isConnectedState;
+  } catch (error) {
+    console.error('Fehler beim Prüfen der Verbindung:', error);
+    isConnectedState = false;
+    return false;
+  }
+};
+
 // Verbindung testen
 export const initializeDbConnection = async (config: DatabaseConfig): Promise<boolean> => {
   try {
-    // In einer echten Anwendung würden wir hier einen API-Aufruf machen, 
-    // um die Datenbankverbindung zu testen
-    // Für dieses Beispiel simulieren wir einen erfolgreichen Verbindungsaufbau
+    const response = await fetch(`${API_BASE_URL}/connect`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Fehler bei der Verbindung zur Datenbank');
+    }
     
     // Konfiguration speichern
     saveDbConfig(config);
@@ -64,25 +93,40 @@ export const initializeDbConnection = async (config: DatabaseConfig): Promise<bo
   }
 };
 
-// Datenbankanfrage ausführen (Mock-Implementierung)
+// Datenbankanfrage ausführen
 export const query = async <T>(sql: string, params?: any[]): Promise<T> => {
   if (!isConnectedState) {
-    const config = getDbConfig();
-    if (!config) {
-      throw new Error('Keine Datenbankverbindung konfiguriert');
-    }
+    const status = await checkConnectionStatus();
     
-    const success = await initializeDbConnection(config);
-    if (!success) {
-      throw new Error('Fehler beim Verbinden zur Datenbank');
+    if (!status) {
+      const config = getDbConfig();
+      if (!config) {
+        throw new Error('Keine Datenbankverbindung konfiguriert');
+      }
+      
+      const success = await initializeDbConnection(config);
+      if (!success) {
+        throw new Error('Fehler beim Verbinden zur Datenbank');
+      }
     }
   }
   
   try {
-    // In einer echten Anwendung würden wir hier einen API-Aufruf machen
-    // Für dieses Beispiel geben wir ein leeres Array zurück
-    console.log('SQL-Anfrage:', sql, params);
-    return [] as unknown as T;
+    const response = await fetch(`${API_BASE_URL}/query`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sql, params }),
+    });
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Fehler bei der Datenbankabfrage');
+    }
+    
+    return data.data as T;
   } catch (error) {
     console.error('SQL-Ausführungsfehler:', error);
     toast({
@@ -101,9 +145,25 @@ export const isConnected = (): boolean => {
 
 // Verbindung trennen
 export const closeDbConnection = async (): Promise<void> => {
-  isConnectedState = false;
-  toast({
-    title: "Datenbankverbindung getrennt",
-    description: "Die Verbindung zur MariaDB wurde getrennt."
-  });
+  try {
+    await fetch(`${API_BASE_URL}/disconnect`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    isConnectedState = false;
+    toast({
+      title: "Datenbankverbindung getrennt",
+      description: "Die Verbindung zur MariaDB wurde getrennt."
+    });
+  } catch (error) {
+    console.error('Fehler beim Trennen der Verbindung:', error);
+    toast({
+      variant: "destructive",
+      title: "Fehler",
+      description: "Fehler beim Trennen der Datenbankverbindung."
+    });
+  }
 };
