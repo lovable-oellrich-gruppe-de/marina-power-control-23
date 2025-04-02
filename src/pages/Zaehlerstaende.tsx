@@ -1,8 +1,7 @@
+
 import { useState } from "react";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
-import { ZaehlerstandForm } from "@/components/zaehlerstand/ZaehlerstandForm";
-import { getZaehlerstandColumns } from "@/components/zaehlerstand/ZaehlerstandColumns";
 import { useZaehlerstand } from "@/hooks/useZaehlerstand";
 import { 
   AlertDialog,
@@ -15,19 +14,49 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Zaehlerstand } from "@/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { ZaehlerstandForm } from "@/components/zaehlerstand/ZaehlerstandForm";
+import { formatDateString } from "@/lib/dateUtils";
 import { Column } from "@/components/common/DataTable";
+
+// Zählerstände-Spalten für die Datentabelle
+const getZaehlerstaendeColumns = (): Column<Zaehlerstand>[] => [
+  { 
+    header: "Zähler", 
+    accessorKey: (row: Zaehlerstand) => row.zaehler?.zaehlernummer || "-" 
+  },
+  { 
+    header: "Steckdose", 
+    accessorKey: (row: Zaehlerstand) => row.steckdose?.nummer || "-" 
+  },
+  { 
+    header: "Datum", 
+    accessorKey: (row: Zaehlerstand) => formatDateString(row.datum) 
+  },
+  { 
+    header: "Stand (kWh)", 
+    accessorKey: "stand" 
+  },
+  { 
+    header: "Verbrauch (kWh)", 
+    accessorKey: (row: Zaehlerstand) => row.verbrauch?.toFixed(2) || "-" 
+  },
+  { 
+    header: "Abgelesen von", 
+    accessorKey: (row: Zaehlerstand) => row.abgelesenVon?.name || "-" 
+  },
+  { 
+    header: "Status", 
+    accessorKey: (row: Zaehlerstand) => row.istAbgerechnet ? "Abgerechnet" : "Offen" 
+  },
+  { 
+    header: "Hinweis", 
+    accessorKey: "hinweis" 
+  }
+];
 
 const ZaehlerstaendePage = () => {
   const {
     zaehlerstaende,
-    availableZaehler,
     editingZaehlerstand,
     isDialogOpen,
     setEditingZaehlerstand,
@@ -40,10 +69,8 @@ const ZaehlerstaendePage = () => {
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [zaehlerstandToDelete, setZaehlerstandToDelete] = useState<Zaehlerstand | null>(null);
-  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
-  const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
   
-  const columns = getZaehlerstandColumns();
+  const columns = getZaehlerstaendeColumns();
   
   const confirmDelete = (zaehlerstand: Zaehlerstand) => {
     setZaehlerstandToDelete(zaehlerstand);
@@ -58,30 +85,6 @@ const ZaehlerstaendePage = () => {
     setZaehlerstandToDelete(null);
   };
   
-  const openPhotoDialog = (photoUrl: string) => {
-    setCurrentPhoto(photoUrl);
-    setPhotoDialogOpen(true);
-  };
-  
-  const enhancedColumns: Column<Zaehlerstand>[] = [
-    ...columns.slice(0, -1),
-    {
-      header: "Foto",
-      accessorKey: (row: Zaehlerstand) => row.foto || "none",
-      cell: (row: Zaehlerstand) => {
-        if (!row.foto) return "Nicht vorhanden";
-        return (
-          <button 
-            onClick={() => openPhotoDialog(row.foto as string)}
-            className="text-marina-600 hover:text-marina-800 underline"
-          >
-            Anzeigen
-          </button>
-        );
-      }
-    }
-  ];
-  
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
@@ -90,7 +93,7 @@ const ZaehlerstaendePage = () => {
         
         <DataTable
           data={zaehlerstaende}
-          columns={enhancedColumns}
+          columns={columns}
           onAdd={handleAdd}
           onEdit={handleEdit}
           onDelete={confirmDelete}
@@ -98,12 +101,10 @@ const ZaehlerstaendePage = () => {
         />
         
         <ZaehlerstandForm
-          zaehlerstand={editingZaehlerstand}
-          isOpen={isDialogOpen}
+          open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          onSave={handleSave}
-          onZaehlerstandChange={setEditingZaehlerstand}
-          availableZaehler={availableZaehler}
+          onSubmit={handleSave}
+          initialData={editingZaehlerstand}
         />
         
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -111,9 +112,7 @@ const ZaehlerstaendePage = () => {
             <AlertDialogHeader>
               <AlertDialogTitle>Zählerstand löschen</AlertDialogTitle>
               <AlertDialogDescription>
-                Möchten Sie den Zählerstand vom {zaehlerstandToDelete?.datum} für Zähler 
-                {zaehlerstandToDelete?.zaehler?.zaehlernummer ? ` "${zaehlerstandToDelete.zaehler.zaehlernummer}"` : ""} 
-                wirklich löschen?
+                Möchten Sie diesen Zählerstand wirklich löschen?
                 Dieser Vorgang kann nicht rückgängig gemacht werden.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -125,27 +124,6 @@ const ZaehlerstaendePage = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        
-        <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] flex flex-col items-center justify-center">
-            <DialogHeader>
-              <DialogTitle>Zählerstand Foto</DialogTitle>
-              <DialogDescription>
-                Foto vom Zählerstand in Vollansicht
-              </DialogDescription>
-            </DialogHeader>
-            
-            {currentPhoto && (
-              <div className="w-full max-h-[70vh] overflow-auto mt-2">
-                <img 
-                  src={currentPhoto} 
-                  alt="Zählerstand" 
-                  className="max-w-full object-contain"
-                />
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </main>
     </div>
   );

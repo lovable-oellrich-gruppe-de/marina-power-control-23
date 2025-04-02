@@ -1,7 +1,8 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Zaehlerstand, Zaehler } from "@/types";
+import { Zaehlerstand, User } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useZaehlerstand = () => {
   // Beispiel-/Testdaten für Zählerstände
@@ -9,156 +10,153 @@ export const useZaehlerstand = () => {
     { 
       id: 1, 
       zaehlerId: 1, 
-      zaehler: { 
-        id: 1, 
-        zaehlernummer: "Z-001", 
-        installiertAm: "2023-01-15", 
-        letzteWartung: "2023-12-01", 
-        hinweis: "" 
-      },
+      steckdoseId: 1, 
       datum: "2023-12-15", 
-      foto: null, 
-      kommentar: "Erstablesung", 
-      stand: "0.00" 
+      stand: 1250.5, 
+      vorherigerId: null, 
+      verbrauch: null, 
+      abgelesenVonId: "user_1", 
+      fotoUrl: null, 
+      istAbgerechnet: false, 
+      hinweis: "Erstablesung"
     },
     { 
       id: 2, 
       zaehlerId: 1, 
-      zaehler: { 
-        id: 1, 
-        zaehlernummer: "Z-001", 
-        installiertAm: "2023-01-15", 
-        letzteWartung: "2023-12-01", 
-        hinweis: "" 
-      },
+      steckdoseId: 1, 
       datum: "2024-01-15", 
-      foto: "/placeholder.svg", 
-      kommentar: "Regelmäßige Ablesung", 
-      stand: "150.50" 
+      stand: 1320.8, 
+      vorherigerId: 1, 
+      verbrauch: 70.3, 
+      abgelesenVonId: "user_1", 
+      fotoUrl: null, 
+      istAbgerechnet: false, 
+      hinweis: ""
     },
     { 
       id: 3, 
       zaehlerId: 2, 
-      zaehler: { 
-        id: 2, 
-        zaehlernummer: "Z-002", 
-        installiertAm: "2023-02-20", 
-        letzteWartung: "2023-11-15", 
-        hinweis: "" 
-      },
-      datum: "2024-01-15", 
-      foto: null, 
-      kommentar: "", 
-      stand: "75.25" 
-    }
-  ]);
-
-  // Beispiel-/Testdaten für verfügbare Zähler
-  const [availableZaehler, setAvailableZaehler] = useState<Zaehler[]>([
-    { 
-      id: 1, 
-      zaehlernummer: "Z-001", 
-      installiertAm: "2023-01-15", 
-      letzteWartung: "2023-12-01", 
-      hinweis: "" 
-    },
-    { 
-      id: 2, 
-      zaehlernummer: "Z-002", 
-      installiertAm: "2023-02-20", 
-      letzteWartung: "2023-11-15", 
-      hinweis: "" 
-    },
-    { 
-      id: 3, 
-      zaehlernummer: "Z-003", 
-      installiertAm: "2023-05-10", 
-      letzteWartung: "2023-10-20", 
-      hinweis: "",
-      istAusgebaut: false
+      steckdoseId: 2, 
+      datum: "2024-01-10", 
+      stand: 55.2, 
+      vorherigerId: null, 
+      verbrauch: null, 
+      abgelesenVonId: "user_2", 
+      fotoUrl: null, 
+      istAbgerechnet: false, 
+      hinweis: "Neuer Zähler"
     }
   ]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingZaehlerstand, setEditingZaehlerstand] = useState<Zaehlerstand | undefined>(undefined);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleAdd = () => {
+    const today = new Date().toISOString().split('T')[0];
+    
     setEditingZaehlerstand({
-      zaehlerId: availableZaehler[0]?.id || 0,
-      datum: new Date().toISOString().split('T')[0],
-      foto: null,
-      kommentar: "",
-      stand: "0.00"
+      datum: today,
+      stand: 0,
+      zaehlerId: null,
+      steckdoseId: null,
+      vorherigerId: null,
+      verbrauch: null,
+      abgelesenVonId: user?.id || null,
+      fotoUrl: null,
+      istAbgerechnet: false,
+      hinweis: ""
     });
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (zaehlerstandItem: Zaehlerstand) => {
-    setEditingZaehlerstand(zaehlerstandItem);
+  const handleEdit = (zaehlerstand: Zaehlerstand) => {
+    setEditingZaehlerstand(zaehlerstand);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (zaehlerstandItem: Zaehlerstand) => {
-    setZaehlerstaende(current => current.filter(item => item.id !== zaehlerstandItem.id));
+  const handleDelete = (zaehlerstand: Zaehlerstand) => {
+    if (zaehlerstand.istAbgerechnet) {
+      toast({
+        title: "Fehler",
+        description: "Abgerechnete Zählerstände können nicht gelöscht werden.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setZaehlerstaende(current => current.filter(item => item.id !== zaehlerstand.id));
     toast({
       title: "Zählerstand gelöscht",
-      description: `Zählerstand vom ${formatDateString(zaehlerstandItem.datum)} wurde erfolgreich gelöscht.`
+      description: `Zählerstand mit ID ${zaehlerstand.id} wurde erfolgreich gelöscht.`
     });
+  };
+
+  const berechneDeltaZuVorherigem = (zaehlerstand: Zaehlerstand): number | null => {
+    if (!zaehlerstand.vorherigerId) return null;
+    
+    const vorheriger = zaehlerstaende.find(z => z.id === zaehlerstand.vorherigerId);
+    if (!vorheriger) return null;
+    
+    return zaehlerstand.stand - vorheriger.stand;
   };
 
   const handleSave = (data: Zaehlerstand) => {
-    // Finde den ausgewählten Zähler
-    const selectedZaehler = availableZaehler.find(z => z.id === data.zaehlerId);
-    
     if (editingZaehlerstand?.id) {
       // Bearbeiten eines vorhandenen Zählerstands
       setZaehlerstaende(current =>
-        current.map(item =>
-          item.id === editingZaehlerstand.id 
-            ? { ...data, id: item.id, zaehler: selectedZaehler } 
-            : item
-        )
+        current.map(item => {
+          if (item.id === editingZaehlerstand.id) {
+            const updatedItem = { ...data, id: item.id };
+            // Verbrauch neu berechnen
+            updatedItem.verbrauch = berechneDeltaZuVorherigem(updatedItem);
+            return updatedItem;
+          }
+          return item;
+        })
       );
       toast({
         title: "Zählerstand aktualisiert",
-        description: `Zählerstand für ${selectedZaehler?.zaehlernummer || ''} vom ${formatDateString(data.datum)} wurde erfolgreich aktualisiert.`
+        description: `Zählerstand für Datum ${data.datum} wurde erfolgreich aktualisiert.`
       });
     } else {
       // Hinzufügen eines neuen Zählerstands
       const newId = Math.max(0, ...zaehlerstaende.map(z => z.id || 0)) + 1;
-      setZaehlerstaende(current => [
-        ...current, 
-        { ...data, id: newId, zaehler: selectedZaehler }
-      ]);
+      
+      // Vorherigen Zählerstand finden (neuester Zählerstand für denselben Zähler)
+      let vorherigerId = null;
+      let verbrauch = null;
+      
+      if (data.zaehlerId) {
+        const zaehlerstaendeDesZaehlers = zaehlerstaende
+          .filter(z => z.zaehlerId === data.zaehlerId)
+          .sort((a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime());
+        
+        if (zaehlerstaendeDesZaehlers.length > 0) {
+          vorherigerId = zaehlerstaendeDesZaehlers[0].id;
+          verbrauch = data.stand - zaehlerstaendeDesZaehlers[0].stand;
+        }
+      }
+      
+      const newZaehlerstand = { 
+        ...data, 
+        id: newId, 
+        vorherigerId, 
+        verbrauch 
+      };
+      
+      setZaehlerstaende(current => [...current, newZaehlerstand]);
       toast({
         title: "Zählerstand hinzugefügt",
-        description: `Zählerstand für ${selectedZaehler?.zaehlernummer || ''} vom ${formatDateString(data.datum)} wurde erfolgreich hinzugefügt.`
+        description: `Neuer Zählerstand für Datum ${data.datum} wurde erfolgreich hinzugefügt.`
       });
     }
     setIsDialogOpen(false);
   };
 
-  // Hilfsfunktion zur Formatierung von Datumswerten im Toast
-  const formatDateString = (dateString: string): string => {
-    if (!dateString) return "-";
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-    } catch (error) {
-      console.error("Fehler beim Formatieren des Datums:", error);
-      return dateString;
-    }
-  };
-
   return {
     zaehlerstaende,
-    availableZaehler,
     editingZaehlerstand,
     isDialogOpen,
     setEditingZaehlerstand,

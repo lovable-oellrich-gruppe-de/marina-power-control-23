@@ -1,4 +1,3 @@
-
 // Mieter Typ
 export interface Mieter {
   id?: number;
@@ -47,12 +46,19 @@ export interface Steckdose {
 // Zählerstand Typ
 export interface Zaehlerstand {
   id?: number;
-  zaehlerId: number;
-  zaehler?: Zaehler;
+  zaehlerId: number | null;
+  steckdoseId: number | null;
   datum: string;
-  foto: string | null;
-  kommentar: string;
-  stand: string; // Verwendet als String für präzise Dezimalzahlen
+  stand: number;
+  vorherigerId: number | null;
+  verbrauch: number | null;
+  abgelesenVonId: string | null;
+  fotoUrl: string | null;
+  istAbgerechnet: boolean;
+  hinweis: string;
+  zaehler?: Zaehler;
+  steckdose?: Steckdose;
+  abgelesenVon?: User;
 }
 
 // Benutzer Typ
