@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, User, Power, Gauge, MapPin, Home, LogOut, Settings, Users } from "lucide-react";
+import { Menu, X, User, Power, Gauge, MapPin, Home, LogOut, Settings, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
