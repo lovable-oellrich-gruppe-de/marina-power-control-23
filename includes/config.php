@@ -24,8 +24,7 @@ error_reporting(E_ALL);
 date_default_timezone_set('Europe/Berlin');
 
 // Sitzung starten - dies MUSS vor jeglicher Ausgabe erfolgen
-// Hinweis: Stellen Sie sicher, dass keine Ausgabe vor dieser Zeile erfolgt
-if(!isset($_SESSION)) {
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
