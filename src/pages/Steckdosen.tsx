@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
@@ -13,9 +14,11 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Steckdose } from "@/types";
+import { SteckdosenForm } from "@/components/steckdosen/SteckdosenForm";
+import { Column } from "@/components/common/DataTable";
 
 // Steckdosen-Spalten für die Datentabelle
-const getSteckdosenColumns = () => [
+const getSteckdosenColumns = (): Column<Steckdose>[] => [
   { 
     header: "Nummer", 
     accessorKey: "nummer" 
@@ -93,7 +96,12 @@ const SteckdosenPage = () => {
           searchable
         />
         
-        {/* Hier würde das SteckdosenForm-Komponente geladen werden */}
+        <SteckdosenForm
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onSubmit={handleSave}
+          initialData={editingSteckdose}
+        />
         
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
