@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 // Form schema with validation
 const bereichSchema = z.object({
   name: z.string().min(1, { message: "Name ist erforderlich" }),
+  description: z.string().default(""),
 });
 
 type BereichFormValues = z.infer<typeof bereichSchema>;
@@ -49,6 +50,7 @@ export const BereichForm = ({
     resolver: zodResolver(bereichSchema),
     defaultValues: {
       name: bereich?.name || "",
+      description: bereich?.description || "",
     },
   });
 
@@ -57,10 +59,12 @@ export const BereichForm = ({
     if (bereich) {
       form.reset({
         name: bereich.name,
+        description: bereich.description,
       });
     } else {
       form.reset({
         name: "",
+        description: "",
       });
     }
   }, [bereich, form]);
@@ -69,7 +73,8 @@ export const BereichForm = ({
   const onSubmit = (values: BereichFormValues) => {
     onSave({
       id: bereich?.id,
-      name: values.name, // This is ensured to be present by our validation
+      name: values.name,
+      description: values.description,
     });
   };
 
@@ -89,6 +94,19 @@ export const BereichForm = ({
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Name des Bereichs" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Beschreibung</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Beschreibung des Bereichs" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

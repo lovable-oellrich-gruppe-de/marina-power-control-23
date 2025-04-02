@@ -15,20 +15,20 @@ import { Check, X } from "lucide-react";
 
 // Testdaten für Mieter, Zähler und Bereiche
 const dummyMieter: Mieter[] = [
-  { id: 1, vorname: "Max", nachname: "Mustermann", strasse: "Hafenstr.", hausnummer: "1", email: "max@beispiel.de", telefon: "12345", mobil: "67890", hinweis: "", bootsname: "Wellentänzer" },
-  { id: 2, vorname: "Erika", nachname: "Musterfrau", strasse: "Seemannsgasse", hausnummer: "42", email: "erika@beispiel.de", telefon: "54321", mobil: "09876", hinweis: "", bootsname: "Windrausch" }
+  { id: 1, vorname: "Max", nachname: "Mustermann", strasse: "Hafenstr.", hausnummer: "1", email: "max@beispiel.de", telefon: "12345", mobil: "67890", address: "Hafenstr. 1", bootName: "Wellentänzer", stellplatzNr: "A1", vertragStart: "2023-01-01", vertragEnde: "2023-12-31", notes: "", hinweis: "", bootsname: "Wellentänzer" },
+  { id: 2, vorname: "Erika", nachname: "Musterfrau", strasse: "Seemannsgasse", hausnummer: "42", email: "erika@beispiel.de", telefon: "54321", mobil: "09876", address: "Seemannsgasse 42", bootName: "Windrausch", stellplatzNr: "B2", vertragStart: "2023-01-01", vertragEnde: "2023-12-31", notes: "", hinweis: "", bootsname: "Windrausch" }
 ];
 
 const dummyZaehler: Zaehler[] = [
-  { id: 1, zaehlernummer: "Z-001", installiertAm: "2023-01-15", letzteWartung: "2023-12-01", hinweis: "Neu installiert" },
-  { id: 2, zaehlernummer: "Z-002", installiertAm: "2023-02-20", letzteWartung: "2023-11-15", hinweis: "" },
-  { id: 3, zaehlernummer: "Z-003", installiertAm: "2023-03-10", letzteWartung: "2023-10-30", hinweis: "Baldig zur Wartung" }
+  { id: 1, zaehlernummer: "Z-001", installiertAm: "2023-01-15", letzteWartung: "2023-12-01", notes: "Neu installiert", hinweis: "", istAusgebaut: false },
+  { id: 2, zaehlernummer: "Z-002", installiertAm: "2023-02-20", letzteWartung: "2023-11-15", notes: "", hinweis: "", istAusgebaut: false },
+  { id: 3, zaehlernummer: "Z-003", installiertAm: "2023-03-10", letzteWartung: "2023-10-30", notes: "Baldig zur Wartung", hinweis: "", istAusgebaut: false }
 ];
 
 const dummyBereiche: Bereich[] = [
-  { id: 1, name: "Steg A" },
-  { id: 2, name: "Steg B" },
-  { id: 3, name: "Steg C" }
+  { id: 1, name: "Steg A", description: "" },
+  { id: 2, name: "Steg B", description: "" },
+  { id: 3, name: "Steg C", description: "" }
 ];
 
 // Schema für die Validierung des Formulars

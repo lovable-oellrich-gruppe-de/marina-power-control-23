@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Zaehlerstand, Zaehler, Steckdose } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -17,9 +16,9 @@ import { ZaehlerstandAdditionalFields } from "./ZaehlerstandAdditionalFields";
 
 // Testdaten für Zähler und Steckdosen
 const dummyZaehler: Zaehler[] = [
-  { id: 1, zaehlernummer: "Z-001", installiertAm: "2023-01-15", letzteWartung: "2023-12-01", hinweis: "Neu installiert" },
-  { id: 2, zaehlernummer: "Z-002", installiertAm: "2023-02-20", letzteWartung: "2023-11-15", hinweis: "" },
-  { id: 3, zaehlernummer: "Z-003", installiertAm: "2023-03-10", letzteWartung: "2023-10-30", hinweis: "Bald zur Wartung" }
+  { id: 1, zaehlernummer: "Z-001", installiertAm: "2023-01-15", letzteWartung: "2023-12-01", notes: "Neu installiert", hinweis: "", istAusgebaut: false },
+  { id: 2, zaehlernummer: "Z-002", installiertAm: "2023-02-20", letzteWartung: "2023-11-15", notes: "", hinweis: "", istAusgebaut: false },
+  { id: 3, zaehlernummer: "Z-003", installiertAm: "2023-03-10", letzteWartung: "2023-10-30", notes: "Bald zur Wartung", hinweis: "", istAusgebaut: false }
 ];
 
 const dummySteckdosen: Steckdose[] = [
@@ -115,12 +114,12 @@ export function ZaehlerstandForm({
     const zaehlerstandData: Zaehlerstand = {
       id: initialData?.id,
       zaehlerId: values.zaehlerId, // Da dies ein Pflichtfeld ist, stellen wir sicher, dass es immer gesetzt ist
-      steckdoseId: values.steckdoseId || null,
+      steckdoseId: values.steckdoseId || 0, // Convert to number
       datum: values.datum,
       stand: values.stand,
       vorherigerId: initialData?.vorherigerId || null,
       verbrauch: initialData?.verbrauch || null,
-      abgelesenVonId: user?.id || null,
+      abgelesenVonId: user?.id?.toString() || "", // Convert to string
       fotoUrl: photoBase64,
       istAbgerechnet: values.istAbgerechnet,
       hinweis: values.hinweis || ""
