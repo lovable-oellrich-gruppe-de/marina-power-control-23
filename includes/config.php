@@ -20,9 +20,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Sitzung starten
-session_start();
-
 // Zeitzonen-Einstellung
 date_default_timezone_set('Europe/Berlin');
+
+// Sitzung starten - dies MUSS vor jeglicher Ausgabe erfolgen
+// Hinweis: Stellen Sie sicher, dass keine Ausgabe vor dieser Zeile erfolgt
+if(!isset($_SESSION)) {
+    session_start();
+}
 ?>
