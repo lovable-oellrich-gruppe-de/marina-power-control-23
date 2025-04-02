@@ -1,3 +1,4 @@
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";

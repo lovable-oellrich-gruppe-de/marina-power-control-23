@@ -64,7 +64,7 @@ const MieterPage = () => {
         />
         
         <MieterForm
-          mieter={editingMieter}
+          mieter={editingMieter as Mieter}
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onSave={handleSave}

@@ -5,9 +5,9 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock-Daten für Bereiche
 const initialBereiche: Bereich[] = [
-  { id: 1, name: 'Hauptsteg', beschreibung: 'Zentraler Steg mit 20 Anschlüssen' },
-  { id: 2, name: 'Nordsteg', beschreibung: 'Nördlicher Steg mit 15 Anschlüssen' },
-  { id: 3, name: 'Südsteg', beschreibung: 'Südlicher Steg mit 18 Anschlüssen' },
+  { id: 1, name: 'Hauptsteg', description: 'Zentraler Steg mit 20 Anschlüssen' },
+  { id: 2, name: 'Nordsteg', description: 'Nördlicher Steg mit 15 Anschlüssen' },
+  { id: 3, name: 'Südsteg', description: 'Südlicher Steg mit 18 Anschlüssen' },
 ];
 
 export function useBereich() {

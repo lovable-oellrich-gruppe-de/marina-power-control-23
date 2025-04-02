@@ -11,12 +11,12 @@ const initialMieter: Mieter[] = [
     nachname: 'Mustermann', 
     email: 'max@example.com',
     telefon: '0123456789',
-    adresse: 'Musterstraße 1, 12345 Musterstadt',
+    address: 'Musterstraße 1, 12345 Musterstadt',
     bootName: 'Sea Spirit',
     stellplatzNr: 'A-42',
     vertragStart: '2023-01-01',
     vertragEnde: '2023-12-31',
-    hinweis: ''
+    notes: ''
   },
   { 
     id: 2, 
@@ -24,12 +24,12 @@ const initialMieter: Mieter[] = [
     nachname: 'Schmidt', 
     email: 'anna@example.com',
     telefon: '0987654321',
-    adresse: 'Beispielweg 7, 54321 Beispielstadt',
+    address: 'Beispielweg 7, 54321 Beispielstadt',
     bootName: 'Water Dream',
     stellplatzNr: 'B-17',
     vertragStart: '2023-03-01',
     vertragEnde: '2024-02-29',
-    hinweis: 'Zahlt vierteljährlich'
+    notes: 'Zahlt vierteljährlich'
   },
   { 
     id: 3, 
@@ -37,12 +37,12 @@ const initialMieter: Mieter[] = [
     nachname: 'Müller', 
     email: 'peter@example.com',
     telefon: '01765432198',
-    adresse: 'Teststraße 42, 98765 Testhausen',
+    address: 'Teststraße 42, 98765 Testhausen',
     bootName: 'Wind Chaser',
     stellplatzNr: 'C-08',
     vertragStart: '2023-05-15',
     vertragEnde: '2023-10-15',
-    hinweis: 'Saisonmieter'
+    notes: 'Saisonmieter'
   }
 ];
 

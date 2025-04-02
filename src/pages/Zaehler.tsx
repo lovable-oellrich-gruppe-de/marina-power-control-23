@@ -64,7 +64,7 @@ const ZaehlerPage = () => {
         />
         
         <ZaehlerForm
-          zaehler={editingZaehler}
+          zaehler={editingZaehler as Zaehler}
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onSave={handleSave}

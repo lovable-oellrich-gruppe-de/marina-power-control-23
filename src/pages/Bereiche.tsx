@@ -4,6 +4,7 @@ import NavBar from "@/components/layout/NavBar";
 import { BereichForm } from "@/components/bereich/BereichForm";
 import { getBereichColumns } from "@/components/bereich/BereichColumns";
 import { useBereich } from "@/hooks/useBereich";
+import { Bereich } from "@/types";
 
 const BereichePage = () => {
   const {
@@ -36,7 +37,7 @@ const BereichePage = () => {
         />
         
         <BereichForm
-          bereich={editingBereich}
+          bereich={editingBereich as Bereich}
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onSave={handleSave}
