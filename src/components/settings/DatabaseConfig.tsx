@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { initializeDbConnection, isConnected, closeDbConnection, DatabaseConfig as DbConfig } from "@/services/dbService";
+import { initializeDbConnection, isConnected, closeDbConnection, DatabaseConfig as DbConfig, getDbConfig } from "@/services/dbService";
 
 // Validierungsschema
 const dbConfigSchema = z.object({
@@ -47,20 +47,15 @@ export function DatabaseConfig() {
     setConnected(isConnected());
     
     // Vorhandene Konfiguration laden
-    const storedConfig = localStorage.getItem('marina-db-config');
-    if (storedConfig) {
-      try {
-        const config = JSON.parse(storedConfig);
-        form.reset({
-          host: config.host || "localhost",
-          port: config.port || 3306,
-          user: config.user || "",
-          password: config.password || "",
-          database: config.database || "marina_power",
-        });
-      } catch (error) {
-        console.error('Fehler beim Laden der Konfiguration:', error);
-      }
+    const config = getDbConfig();
+    if (config) {
+      form.reset({
+        host: config.host,
+        port: config.port,
+        user: config.user,
+        password: config.password,
+        database: config.database,
+      });
     }
   }, [form]);
   

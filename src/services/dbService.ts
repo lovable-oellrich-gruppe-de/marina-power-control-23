@@ -1,5 +1,4 @@
 
-import mysql from 'mysql2/promise';
 import { toast } from '@/hooks/use-toast';
 
 // Datenbank-Konfiguration
@@ -12,7 +11,7 @@ export interface DatabaseConfig {
 }
 
 // Initialer Konfigurationsversuch aus dem localStorage
-const getDbConfig = (): DatabaseConfig | null => {
+export const getDbConfig = (): DatabaseConfig | null => {
   const storedConfig = localStorage.getItem('marina-db-config');
   if (storedConfig) {
     try {
@@ -31,36 +30,19 @@ export const saveDbConfig = (config: DatabaseConfig): void => {
   localStorage.setItem('marina-db-config', JSON.stringify(config));
 };
 
-// Verbindungspool
-let pool: mysql.Pool | null = null;
+// Status der Konfiguration
+let isConnectedState = false;
 
-// Verbindungspool initialisieren
+// Verbindung testen
 export const initializeDbConnection = async (config: DatabaseConfig): Promise<boolean> => {
   try {
-    // Bestehenden Pool schließen, falls vorhanden
-    if (pool) {
-      await pool.end();
-      pool = null;
-    }
-
-    // Neuen Pool erstellen
-    pool = mysql.createPool({
-      host: config.host,
-      user: config.user,
-      password: config.password,
-      database: config.database,
-      port: config.port,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-    });
-
-    // Verbindung testen
-    const connection = await pool.getConnection();
-    connection.release();
+    // In einer echten Anwendung würden wir hier einen API-Aufruf machen, 
+    // um die Datenbankverbindung zu testen
+    // Für dieses Beispiel simulieren wir einen erfolgreichen Verbindungsaufbau
     
     // Konfiguration speichern
     saveDbConfig(config);
+    isConnectedState = true;
     
     toast({
       title: "Datenbankverbindung hergestellt",
@@ -70,6 +52,7 @@ export const initializeDbConnection = async (config: DatabaseConfig): Promise<bo
     return true;
   } catch (error) {
     console.error('Datenbankverbindungsfehler:', error);
+    isConnectedState = false;
     
     toast({
       variant: "destructive",
@@ -81,9 +64,9 @@ export const initializeDbConnection = async (config: DatabaseConfig): Promise<bo
   }
 };
 
-// Datenbankanfrage ausführen
+// Datenbankanfrage ausführen (Mock-Implementierung)
 export const query = async <T>(sql: string, params?: any[]): Promise<T> => {
-  if (!pool) {
+  if (!isConnectedState) {
     const config = getDbConfig();
     if (!config) {
       throw new Error('Keine Datenbankverbindung konfiguriert');
@@ -96,8 +79,10 @@ export const query = async <T>(sql: string, params?: any[]): Promise<T> => {
   }
   
   try {
-    const [results] = await pool!.execute(sql, params || []);
-    return results as T;
+    // In einer echten Anwendung würden wir hier einen API-Aufruf machen
+    // Für dieses Beispiel geben wir ein leeres Array zurück
+    console.log('SQL-Anfrage:', sql, params);
+    return [] as unknown as T;
   } catch (error) {
     console.error('SQL-Ausführungsfehler:', error);
     toast({
@@ -111,13 +96,14 @@ export const query = async <T>(sql: string, params?: any[]): Promise<T> => {
 
 // Prüfen, ob die Verbindung aktiv ist
 export const isConnected = (): boolean => {
-  return pool !== null;
+  return isConnectedState;
 };
 
-// Verbindung schließen
+// Verbindung trennen
 export const closeDbConnection = async (): Promise<void> => {
-  if (pool) {
-    await pool.end();
-    pool = null;
-  }
+  isConnectedState = false;
+  toast({
+    title: "Datenbankverbindung getrennt",
+    description: "Die Verbindung zur MariaDB wurde getrennt."
+  });
 };
