@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/layout/NavBar';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import {
   Table,

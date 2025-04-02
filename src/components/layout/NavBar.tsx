@@ -1,8 +1,7 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { NavItem } from "./NavItem";
 import { UserMenu } from "./UserMenu";
 import { MobileNav } from "./MobileNav";
