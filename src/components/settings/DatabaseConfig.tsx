@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { initializeDbConnection, isConnected, closeDbConnection } from "@/services/dbService";
+import { initializeDbConnection, isConnected, closeDbConnection, DatabaseConfig as DbConfig } from "@/services/dbService";
 
 // Validierungsschema
 const dbConfigSchema = z.object({

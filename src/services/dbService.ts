@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 import { toast } from '@/hooks/use-toast';
 
 // Datenbank-Konfiguration
-interface DatabaseConfig {
+export interface DatabaseConfig {
   host: string;
   user: string;
   password: string;

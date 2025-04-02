@@ -1,14 +1,15 @@
+
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'user';
+  requireAdmin?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requiredRole 
+  requireAdmin = false
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -20,8 +21,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Wenn eine Rolle erforderlich ist, überprüfen wir, ob der Benutzer diese hat
-  if (requiredRole && user?.role !== requiredRole && requiredRole === 'admin') {
+  // Wenn Admin-Rechte erforderlich sind, überprüfen wir, ob der Benutzer Admin ist
+  if (requireAdmin && user?.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
 
