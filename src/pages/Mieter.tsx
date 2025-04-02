@@ -30,9 +30,9 @@ const MieterPage = () => {
         <DataTable
           data={mieter}
           columns={columns}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onAdd={() => handleAdd()}
+          onEdit={(mieter: Mieter) => handleEdit(mieter)}
+          onDelete={(mieter: Mieter) => handleDelete(mieter)}
           searchable
         />
         

@@ -10,21 +10,27 @@ const initialZaehler: Zaehler[] = [
     zaehlernummer: 'Z-001', 
     installiertAm: '2023-01-15', 
     letzteWartung: '2023-12-01',
-    notes: 'Neu installiert'
+    notes: 'Neu installiert',
+    istAusgebaut: false,
+    hinweis: ''
   },
   { 
     id: 2, 
     zaehlernummer: 'Z-002', 
     installiertAm: '2023-02-20', 
     letzteWartung: '2023-11-15',
-    notes: ''
+    notes: '',
+    istAusgebaut: false,
+    hinweis: ''
   },
   { 
     id: 3, 
     zaehlernummer: 'Z-003', 
     installiertAm: '2023-03-10', 
     letzteWartung: '2023-10-30',
-    notes: 'Bald zur Wartung'
+    notes: 'Bald zur Wartung',
+    istAusgebaut: false,
+    hinweis: ''
   }
 ];
 
@@ -82,7 +88,7 @@ export function useZaehler() {
       // Neuen Zähler hinzufügen
       const newZaehler = {
         ...zaehler,
-        id: Math.max(0, ...zaehler.map(z => z.id || 0)) + 1
+        id: Math.max(0, ...zaehler.map(z => z.id)) + 1
       };
       
       setZaehler(prevZaehler => [...prevZaehler, newZaehler]);

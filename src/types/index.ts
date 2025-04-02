@@ -21,12 +21,17 @@ export interface Mieter {
   nachname: string;
   email: string;
   telefon: string;
+  mobil?: string;
+  strasse?: string;
+  hausnummer?: string;
   address: string;
   bootName: string;
+  bootsname?: string; // Legacy compatibility
   stellplatzNr: string;
   vertragStart: string;
   vertragEnde: string;
   notes: string;
+  hinweis?: string; // Legacy compatibility
 }
 
 // Zaehler types
@@ -36,6 +41,8 @@ export interface Zaehler {
   installiertAm: string;
   letzteWartung: string;
   notes: string;
+  istAusgebaut?: boolean;
+  hinweis?: string; // Legacy compatibility
 }
 
 // Steckdose types
@@ -44,8 +51,11 @@ export interface Steckdose {
   nummer: string;
   vergeben: boolean;
   mieterId: number | null;
+  mieter?: Mieter; // Added relation
   zaehlerId: number | null;
+  zaehler?: Zaehler; // Added relation
   bereichId: number;
+  bereich?: Bereich; // Added relation
   schluesselnummer: string;
   hinweis: string;
 }
@@ -54,12 +64,15 @@ export interface Steckdose {
 export interface Zaehlerstand {
   id: number;
   zaehlerId: number;
+  zaehler?: Zaehler;
   steckdoseId: number;
+  steckdose?: Steckdose;
   datum: string;
   stand: number;
   vorherigerId: number | null;
   verbrauch: number | null;
   abgelesenVonId: string;
+  abgelesenVon?: User;
   fotoUrl: string | null;
   istAbgerechnet: boolean;
   hinweis: string;
