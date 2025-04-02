@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, User, Power, Zap, Gauge, MapPin, Home, LogOut, Settings } from "lucide-react";
+import { Menu, X, User, Power, Gauge, MapPin, Home, LogOut, Settings, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -42,6 +42,42 @@ const NavBar = () => {
     logout();
   };
 
+  const handleUserManagementClick = () => {
+    navigate('/users');
+  };
+
+  // Admin-spezifische Menüpunkte
+  const renderAdminMenuItems = () => {
+    if (user?.role !== 'admin') return null;
+
+    if (isMobile) {
+      return (
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            handleUserManagementClick();
+          }}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-foreground hover:bg-marina-50"
+        >
+          <Users className="h-5 w-5" />
+          <span>Benutzerverwaltung</span>
+        </button>
+      );
+    }
+
+    return (
+      <Link
+        to="/users"
+        className={`flex items-center gap-2 rounded-md px-3 py-2 ${
+          location.pathname === '/users' ? activeLink : inactiveLink
+        }`}
+      >
+        <Users className="h-5 w-5" />
+        <span>Benutzerverwaltung</span>
+      </Link>
+    );
+  };
+
   if (isMobile) {
     return (
       <div className="sticky top-0 z-50 bg-white shadow-sm">
@@ -71,6 +107,7 @@ const NavBar = () => {
                       <span>{item.name}</span>
                     </Link>
                   ))}
+                  {user?.role === 'admin' && renderAdminMenuItems()}
                   <div className="mt-4 border-t pt-4">
                     <button
                       onClick={() => {
@@ -123,6 +160,12 @@ const NavBar = () => {
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem onClick={handleUserManagementClick}>
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>Benutzerverwaltung</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -154,6 +197,7 @@ const NavBar = () => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            {user?.role === 'admin' && renderAdminMenuItems()}
           </nav>
         </div>
         <div className="flex items-center gap-2">
@@ -181,6 +225,12 @@ const NavBar = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Profil</span>
               </DropdownMenuItem>
+              {user?.role === 'admin' && (
+                <DropdownMenuItem onClick={handleUserManagementClick}>
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>Benutzerverwaltung</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
