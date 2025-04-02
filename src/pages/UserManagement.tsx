@@ -28,11 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
 
 const UserManagement = () => {
-  const { getAllUsers, updateUser, user: currentUser } = useAuth();
+  const { getAllUsers, updateUser, activateUser, user: currentUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -40,6 +41,7 @@ const UserManagement = () => {
   const [newUserData, setNewUserData] = useState({
     name: '',
     role: 'user' as 'admin' | 'user',
+    status: 'pending' as 'active' | 'pending',
   });
 
   useEffect(() => {
@@ -56,6 +58,7 @@ const UserManagement = () => {
     setNewUserData({
       name: user.name,
       role: user.role,
+      status: user.status,
     });
     setIsEditDialogOpen(true);
   };
@@ -82,6 +85,24 @@ const UserManagement = () => {
     }
   };
 
+  const handleActivateUser = async (userId: string) => {
+    try {
+      const updatedUser = await activateUser(userId);
+      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+      
+      toast({
+        title: 'Benutzer freigeschaltet',
+        description: `Benutzer ${updatedUser.name} wurde erfolgreich freigeschaltet.`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Fehler',
+        description: 'Der Benutzer konnte nicht freigeschaltet werden.',
+      });
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <NavBar />
@@ -97,6 +118,7 @@ const UserManagement = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>E-Mail</TableHead>
                   <TableHead>Rolle</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
@@ -116,14 +138,35 @@ const UserManagement = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditClick(user)}
-                        disabled={user.id === currentUser?.id}
-                      >
-                        Bearbeiten
-                      </Button>
+                      <span className={`inline-block px-2 py-1 rounded text-xs ${
+                        user.status === 'active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {user.status === 'active' ? 'Aktiv' : 'Ausstehend'}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-x-2">
+                        {user.status === 'pending' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleActivateUser(user.id)}
+                            className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+                          >
+                            Freischalten
+                          </Button>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditClick(user)}
+                          disabled={user.id === currentUser?.id}
+                        >
+                          Bearbeiten
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -176,6 +219,24 @@ const UserManagement = () => {
                   <SelectContent>
                     <SelectItem value="user">Benutzer</SelectItem>
                     <SelectItem value="admin">Administrator</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select 
+                  value={newUserData.status} 
+                  onValueChange={(value) => 
+                    setNewUserData({...newUserData, status: value as 'active' | 'pending'})
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Aktiv</SelectItem>
+                    <SelectItem value="pending">Ausstehend</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

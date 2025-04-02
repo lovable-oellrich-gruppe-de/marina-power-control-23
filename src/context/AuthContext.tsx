@@ -12,7 +12,8 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   getAllUsers: () => Promise<User[]>;
-  updateUser: (userId: string, userData: { name: string; role: 'admin' | 'user' }) => Promise<User>;
+  updateUser: (userId: string, userData: { name: string; role: 'admin' | 'user'; status?: 'active' | 'pending' }) => Promise<User>;
+  activateUser: (userId: string) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +26,7 @@ const mockUsersInitial = [
     name: 'Admin',
     password: 'admin123',
     role: 'admin' as const,
+    status: 'active' as const,
     avatar: ''
   },
   {
@@ -33,6 +35,7 @@ const mockUsersInitial = [
     name: 'Benutzer',
     password: 'benutzer123',
     role: 'user' as const,
+    status: 'active' as const,
     avatar: ''
   }
 ];
@@ -87,6 +90,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Ungültige Anmeldeinformationen');
       }
       
+      if (foundUser.status === 'pending') {
+        throw new Error('Ihr Konto wurde noch nicht freigeschaltet. Bitte wenden Sie sich an einen Administrator.');
+      }
+      
       const { password: _, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem('marina-power-user', JSON.stringify(userWithoutPassword));
@@ -121,21 +128,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name,
         password, // In einer echten Anwendung würde das Passwort gehasht werden
         role: 'user' as const,
+        status: 'pending' as const, // Neuer Benutzer ist standardmäßig "pending"
         avatar: ''
       };
       
       setMockUsers([...mockUsers, newUser]);
       
-      const { password: _, ...userWithoutPassword } = newUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('marina-power-user', JSON.stringify(userWithoutPassword));
-      
       toast({
-        title: 'Erfolgreich registriert',
-        description: `Willkommen, ${name}!`,
+        title: 'Registrierung erfolgreich',
+        description: 'Ihr Konto wurde erstellt und wartet auf Freischaltung durch einen Administrator.',
       });
       
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -163,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const updateUser = async (
     userId: string, 
-    userData: { name: string; role: 'admin' | 'user' }
+    userData: { name: string; role: 'admin' | 'user'; status?: 'active' | 'pending' }
   ): Promise<User> => {
     // In einer echten Anwendung würde hier eine API-Anfrage stattfinden
     const userIndex = mockUsers.findIndex(u => u.id === userId);
@@ -177,6 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...updatedMockUsers[userIndex],
       name: userData.name,
       role: userData.role,
+      ...(userData.status && { status: userData.status }),
     };
     
     setMockUsers(updatedMockUsers);
@@ -187,6 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...user,
         name: userData.name,
         role: userData.role,
+        ...(userData.status && { status: userData.status }),
       };
       setUser(updatedUser);
       localStorage.setItem('marina-power-user', JSON.stringify(updatedUser));
@@ -194,6 +200,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const { password, ...updatedUserWithoutPassword } = updatedMockUsers[userIndex];
     return updatedUserWithoutPassword;
+  };
+  
+  const activateUser = async (userId: string): Promise<User> => {
+    return updateUser(userId, { 
+      name: mockUsers.find(u => u.id === userId)?.name || '', 
+      role: mockUsers.find(u => u.id === userId)?.role || 'user',
+      status: 'active'
+    });
   };
 
   return (
@@ -206,7 +220,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         getAllUsers,
-        updateUser
+        updateUser,
+        activateUser
       }}
     >
       {children}

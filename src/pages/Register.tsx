@@ -32,6 +32,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 const Register = () => {
   const { register } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -47,12 +48,34 @@ const Register = () => {
     setIsSubmitting(true);
     try {
       await register(data.email, data.password, data.name);
+      setRegistered(true);
     } catch (error) {
       console.error('Registration error:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (registered) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-muted/20 p-4">
+        <div className="w-full max-w-md space-y-6 rounded-lg border bg-card p-6 shadow-lg">
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl font-bold text-marina-800">Registrierung erfolgreich</h1>
+            <p className="text-muted-foreground">
+              Ihr Konto wurde erstellt und muss nun von einem Administrator freigeschaltet werden.
+              Sie werden per E-Mail benachrichtigt, sobald Ihr Konto freigeschalten wurde.
+            </p>
+          </div>
+          <Link to="/login">
+            <Button className="w-full bg-marina-600 hover:bg-marina-700">
+              Zurück zur Anmeldung
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/20 p-4">

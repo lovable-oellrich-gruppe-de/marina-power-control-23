@@ -61,6 +61,7 @@ export interface User {
   email: string;
   name: string;
   role: 'admin' | 'user';
+  status: 'active' | 'pending';
   avatar?: string;
 }
 
