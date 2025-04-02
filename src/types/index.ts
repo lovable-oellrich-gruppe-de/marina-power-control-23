@@ -1,3 +1,4 @@
+
 // Mieter Typ
 export interface Mieter {
   id?: number;
@@ -46,7 +47,7 @@ export interface Steckdose {
 // Zählerstand Typ
 export interface Zaehlerstand {
   id?: number;
-  zaehlerId: number | null;
+  zaehlerId: number;
   steckdoseId: number | null;
   datum: string;
   stand: number;

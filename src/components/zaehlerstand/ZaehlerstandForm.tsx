@@ -132,13 +132,19 @@ export function ZaehlerstandForm({
   };
 
   const handleSubmit = (values: ZaehlerstandFormValues) => {
+    // Stellen Sie sicher, dass alle erforderlichen Felder gesetzt sind
     const zaehlerstandData: Zaehlerstand = {
-      ...values,
+      id: initialData?.id,
+      zaehlerId: values.zaehlerId, // Da dies ein Pflichtfeld ist, stellen wir sicher, dass es immer gesetzt ist
+      steckdoseId: values.steckdoseId || null,
+      datum: values.datum,
+      stand: values.stand,
       vorherigerId: initialData?.vorherigerId || null,
       verbrauch: initialData?.verbrauch || null,
       abgelesenVonId: user?.id || null,
-      id: initialData?.id,
-      fotoUrl: photoBase64
+      fotoUrl: photoBase64,
+      istAbgerechnet: values.istAbgerechnet,
+      hinweis: values.hinweis || ""
     };
     
     onSubmit(zaehlerstandData);
