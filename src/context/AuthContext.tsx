@@ -1,209 +1,194 @@
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { useToast } from '@/hooks/use-toast';
 
-// Mock user data for demonstration
-const mockUsers: User[] = [
-  {
-    id: 'admin1',
-    email: 'admin@marina-power.de',
-    name: 'Administrator',
-    role: 'admin',
-    status: 'active',
-  },
-  {
-    id: 'user1',
-    email: 'benutzer@marina-power.de',
-    name: 'Normaler Benutzer',
-    role: 'user',
-    status: 'active',
-  },
-  {
-    id: 'user2',
-    email: 'neu@marina-power.de',
-    name: 'Neuer Benutzer',
-    role: 'user',
-    status: 'pending',
-  },
-];
-
+// Define the shape of our Auth context
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  updateUser: (userId: string, userData: Partial<User>) => Promise<User>;
-  activateUser: (userId: string) => Promise<User>;
+  loading: boolean;
+  error: string | null;
   getAllUsers: () => Promise<User[]>;
+  updateUser: (user: User) => Promise<void>;
+  activateUser: (userId: number) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// Create the context with a default value
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: async () => {},
+  register: async () => {},
+  logout: () => {},
+  loading: false,
+  error: null,
+  getAllUsers: async () => [],
+  updateUser: async () => {},
+  activateUser: async () => {},
+});
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
-  // Prüfen, ob ein Benutzer bereits angemeldet ist
+  // Check if user is logged in on initial load
   useEffect(() => {
-    const storedUser = localStorage.getItem('marina-user');
-    if (storedUser) {
+    const checkAuth = async () => {
       try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Fehler beim Parsen des gespeicherten Benutzers:', error);
-        localStorage.removeItem('marina-user');
+        // Mock auth check - replace with actual API call in production
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setError("Fehler bei der Authentifizierungsüberprüfung");
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
+  // Login function
   const login = async (email: string, password: string) => {
     setLoading(true);
-
-    // In einer echten App würde hier eine API-Anfrage stattfinden
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const foundUser = mockUsers.find(u => 
-      u.email.toLowerCase() === email.toLowerCase() && u.status === 'active'
-    );
-
-    if (foundUser) {
-      // Simuliere erfolgreiches Login mit festem Passwort "password"
-      if (password === 'password') {
-        localStorage.setItem('marina-user', JSON.stringify(foundUser));
-        setUser(foundUser);
-        toast({
-          title: "Erfolgreich angemeldet",
-          description: `Willkommen zurück, ${foundUser.name}!`,
-        });
-        navigate('/');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Fehler bei der Anmeldung",
-          description: "Ungültiges Passwort",
-        });
-      }
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Fehler bei der Anmeldung",
-        description: "Benutzer nicht gefunden oder nicht aktiviert",
-      });
-    }
-
-    setLoading(false);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('marina-user');
-    setUser(null);
-    navigate('/login');
-    toast({
-      title: "Abgemeldet",
-      description: "Ihr Konto wurde erfolgreich abgemeldet",
-    });
-  };
-
-  const register = async (email: string, password: string, name: string) => {
-    setLoading(true);
-
-    // In einer echten App würde hier eine API-Anfrage stattfinden
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const existingUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (existingUser) {
-      toast({
-        variant: "destructive",
-        title: "Registrierung fehlgeschlagen",
-        description: "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits",
-      });
-      setLoading(false);
-      throw new Error('Benutzer existiert bereits');
-    }
-
-    // Registrierung simulieren
-    const newUser: User = {
-      id: `user${Date.now()}`,
-      email,
-      name,
-      role: 'user',
-      status: 'pending', // Neu registrierte Benutzer müssen aktiviert werden
-    };
-
-    // In einer echten App würde der Benutzer in die Datenbank eingefügt werden
-    mockUsers.push(newUser);
-
-    setLoading(false);
-    return;
-  };
-
-  const updateUser = async (userId: string, userData: Partial<User>): Promise<User> => {
-    // In einer echten App würde hier eine API-Anfrage stattfinden
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
-      throw new Error('Benutzer nicht gefunden');
-    }
-
-    // Benutzer aktualisieren
-    const updatedUser = {
-      ...mockUsers[userIndex],
-      ...userData,
-    };
-    mockUsers[userIndex] = updatedUser;
-
-    return updatedUser;
-  };
-
-  const activateUser = async (userId: string): Promise<User> => {
-    // In einer echten App würde hier eine API-Anfrage stattfinden
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
-      throw new Error('Benutzer nicht gefunden');
-    }
-
-    // Benutzer aktivieren
-    mockUsers[userIndex].status = 'active';
-
-    return mockUsers[userIndex];
-  };
-
-  const getAllUsers = async (): Promise<User[]> => {
-    // In einer echten App würde hier eine API-Anfrage stattfinden
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    setError(null);
     
-    return [...mockUsers];
+    try {
+      // Mock login - replace with actual API call in production
+      // Simulating API delay
+      await new Promise(r => setTimeout(r, 800));
+      
+      if (email === "admin@marina.de" && password === "admin") {
+        const mockUser: User = {
+          id: 1,
+          name: "Admin User",
+          email: "admin@marina.de",
+          role: "admin"
+        };
+        setUser(mockUser);
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      } else if (email === "user@marina.de" && password === "user") {
+        const mockUser: User = {
+          id: 2,
+          name: "Regular User",
+          email: "user@marina.de",
+          role: "user"
+        };
+        setUser(mockUser);
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      } else {
+        throw new Error("Ungültige Anmeldedaten");
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Anmeldung fehlgeschlagen");
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Register function
+  const register = async (name: string, email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock registration - replace with actual API call in production
+      // Simulating API delay
+      await new Promise(r => setTimeout(r, 800));
+      
+      const mockUser: User = {
+        id: Math.floor(Math.random() * 1000) + 3,
+        name,
+        email,
+        role: "user"
+      };
+      
+      setUser(mockUser);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registrierung fehlgeschlagen");
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
+  // Admin: Get all users
+  const getAllUsers = async (): Promise<User[]> => {
+    // Mock user data - replace with actual API call in production
+    return [
+      {
+        id: 1,
+        name: "Admin User",
+        email: "admin@marina.de",
+        role: "admin"
+      },
+      {
+        id: 2,
+        name: "Regular User",
+        email: "user@marina.de",
+        role: "user"
+      },
+      {
+        id: 3,
+        name: "Test User",
+        email: "test@marina.de",
+        role: "user"
+      }
+    ];
+  };
+
+  // Admin: Update user
+  const updateUser = async (updatedUser: User): Promise<void> => {
+    // Mock API call - replace with actual API call in production
+    console.log("Updated user:", updatedUser);
+  };
+
+  // Admin: Activate user
+  const activateUser = async (userId: number): Promise<void> => {
+    // Mock API call - replace with actual API call in production
+    console.log("Activated user ID:", userId);
+  };
+
+  const value = {
+    user,
+    login,
+    register,
+    logout,
+    loading,
+    error,
+    getAllUsers,
+    updateUser,
+    activateUser
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      login, 
-      logout, 
-      register,
-      updateUser,
-      activateUser,
-      getAllUsers
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};

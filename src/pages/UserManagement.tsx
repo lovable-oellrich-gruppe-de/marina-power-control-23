@@ -2,256 +2,219 @@
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/layout/NavBar';
 import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 const UserManagement = () => {
-  const { getAllUsers, updateUser, activateUser, user: currentUser } = useAuth();
+  const { getAllUsers, updateUser, activateUser, user } = useAuth();
   const { toast } = useToast();
+  
   const [users, setUsers] = useState<User[]>([]);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [newUserData, setNewUserData] = useState({
-    name: '',
-    role: 'user' as 'admin' | 'user',
-    status: 'pending' as 'active' | 'pending',
-  });
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   useEffect(() => {
-    const loadUsers = async () => {
-      const allUsers = await getAllUsers();
-      setUsers(allUsers);
+    const fetchUsers = async () => {
+      try {
+        const userData = await getAllUsers();
+        setUsers(userData);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        toast({
+          title: 'Fehler',
+          description: 'Benutzer konnten nicht geladen werden',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
     };
     
-    loadUsers();
-  }, [getAllUsers]);
-
-  const handleEditClick = (user: User) => {
+    fetchUsers();
+  }, [getAllUsers, toast]);
+  
+  const handleEditUser = (user: User) => {
     setSelectedUser(user);
-    setNewUserData({
-      name: user.name,
-      role: user.role,
-      status: user.status,
-    });
-    setIsEditDialogOpen(true);
+    setIsDialogOpen(true);
   };
-
-  const handleUpdateUser = async () => {
+  
+  const handleSaveUser = async () => {
     if (!selectedUser) return;
     
     try {
-      const updatedUser = await updateUser(selectedUser.id, newUserData);
-      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+      await updateUser(selectedUser);
+      
+      setUsers((prevUsers) =>
+        prevUsers.map((u) => (u.id === selectedUser.id ? selectedUser : u))
+      );
       
       toast({
-        title: 'Benutzer aktualisiert',
-        description: `Benutzer ${updatedUser.name} wurde erfolgreich aktualisiert.`,
+        title: 'Erfolg',
+        description: 'Benutzer wurde aktualisiert',
       });
       
-      setIsEditDialogOpen(false);
-    } catch (error) {
+      setIsDialogOpen(false);
+    } catch (err) {
+      console.error('Error updating user:', err);
       toast({
-        variant: 'destructive',
         title: 'Fehler',
-        description: 'Der Benutzer konnte nicht aktualisiert werden.',
+        description: 'Benutzer konnte nicht aktualisiert werden',
+        variant: 'destructive',
       });
     }
   };
-
-  const handleActivateUser = async (userId: string) => {
+  
+  const handleActivateUser = async (userId: number) => {
     try {
-      const updatedUser = await activateUser(userId);
-      setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+      await activateUser(userId);
       
       toast({
-        title: 'Benutzer freigeschaltet',
-        description: `Benutzer ${updatedUser.name} wurde erfolgreich freigeschaltet.`,
+        title: 'Erfolg',
+        description: 'Benutzer wurde aktiviert',
       });
-    } catch (error) {
+    } catch (err) {
+      console.error('Error activating user:', err);
       toast({
-        variant: 'destructive',
         title: 'Fehler',
-        description: 'Der Benutzer konnte nicht freigeschaltet werden.',
+        description: 'Benutzer konnte nicht aktiviert werden',
+        variant: 'destructive',
       });
     }
   };
-
+  
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <main className="flex-1 p-4 md:p-6">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="text-2xl font-bold mb-6">Benutzerverwaltung</h1>
-          
-          <div className="bg-white rounded-lg shadow p-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>E-Mail</TableHead>
-                  <TableHead>Rolle</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-mono">{user.id}</TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <span className={`inline-block px-2 py-1 rounded text-xs ${
-                        user.role === 'admin' 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {user.role === 'admin' ? 'Administrator' : 'Benutzer'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`inline-block px-2 py-1 rounded text-xs ${
-                        user.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {user.status === 'active' ? 'Aktiv' : 'Ausstehend'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-x-2">
-                        {user.status === 'pending' && (
-                          <Button 
-                            variant="outline" 
+      <main className="container py-6">
+        <h1 className="text-3xl font-bold text-marina-800 mb-6">Benutzerverwaltung</h1>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Benutzer</CardTitle>
+            <CardDescription>
+              Verwalten Sie Benutzer und deren Berechtigungen
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-4">Benutzer werden geladen...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>E-Mail</TableHead>
+                    <TableHead>Rolle</TableHead>
+                    <TableHead className="text-right">Aktionen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'admin' ? 'default' : 'outline'}>
+                          {user.role === 'admin' ? 'Administrator' : 'Benutzer'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditUser(user)}
+                          >
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleActivateUser(user.id)}
-                            className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
                           >
-                            Freischalten
+                            Aktivieren
                           </Button>
-                        )}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditClick(user)}
-                          disabled={user.id === currentUser?.id}
-                        >
-                          Bearbeiten
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Benutzer bearbeiten</DialogTitle>
+              <DialogDescription>
+                Bearbeiten Sie die Benutzerinformationen und Berechtigungen
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedUser && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={selectedUser.name}
+                    onChange={(e) =>
+                      setSelectedUser({ ...selectedUser, name: e.target.value })
+                    }
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-Mail</Label>
+                  <Input
+                    id="email"
+                    value={selectedUser.email}
+                    onChange={(e) =>
+                      setSelectedUser({ ...selectedUser, email: e.target.value })
+                    }
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="role">Rolle</Label>
+                  <Select
+                    value={selectedUser.role}
+                    onValueChange={(value: 'admin' | 'user') =>
+                      setSelectedUser({ ...selectedUser, role: value })
+                    }
+                  >
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Rolle auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Administrator</SelectItem>
+                      <SelectItem value="user">Benutzer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Abbrechen
+              </Button>
+              <Button onClick={handleSaveUser}>Speichern</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
-
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Benutzer bearbeiten</DialogTitle>
-            <DialogDescription>
-              Bearbeiten Sie die Benutzerdetails unten.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedUser && (
-            <div className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">E-Mail</Label>
-                <Input 
-                  id="email" 
-                  value={selectedUser.email} 
-                  disabled 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input 
-                  id="name" 
-                  value={newUserData.name} 
-                  onChange={(e) => setNewUserData({...newUserData, name: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="role">Rolle</Label>
-                <Select 
-                  value={newUserData.role} 
-                  onValueChange={(value) => 
-                    setNewUserData({...newUserData, role: value as 'admin' | 'user'})
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Rolle auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">Benutzer</SelectItem>
-                    <SelectItem value="admin">Administrator</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={newUserData.status} 
-                  onValueChange={(value) => 
-                    setNewUserData({...newUserData, status: value as 'active' | 'pending'})
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Aktiv</SelectItem>
-                    <SelectItem value="pending">Ausstehend</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleUpdateUser}>
-              Speichern
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
