@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DataTable } from "@/components/common/DataTable";
 import NavBar from "@/components/layout/NavBar";
@@ -19,6 +18,9 @@ import { Zaehlerstand } from "@/types";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Column } from "@/components/common/DataTable";
 
@@ -61,12 +63,11 @@ const ZaehlerstaendePage = () => {
     setPhotoDialogOpen(true);
   };
   
-  // Angepasste Spalten mit Foto-Anzeige als explizit typische Column<Zaehlerstand>
   const enhancedColumns: Column<Zaehlerstand>[] = [
-    ...columns.slice(0, -1), // Alle Spalten außer der letzten (Foto)
+    ...columns.slice(0, -1),
     {
       header: "Foto",
-      accessorKey: (row: Zaehlerstand) => row.foto || "none", // Accessor als Funktion um TypeScript zu befriedigen
+      accessorKey: (row: Zaehlerstand) => row.foto || "none",
       cell: (row: Zaehlerstand) => {
         if (!row.foto) return "Nicht vorhanden";
         return (
@@ -105,7 +106,6 @@ const ZaehlerstaendePage = () => {
           availableZaehler={availableZaehler}
         />
         
-        {/* Dialog für Löschen-Bestätigung */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -126,15 +126,23 @@ const ZaehlerstaendePage = () => {
           </AlertDialogContent>
         </AlertDialog>
         
-        {/* Dialog für Foto-Anzeige */}
         <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] flex items-center justify-center p-1">
+          <DialogContent className="sm:max-w-[600px] flex flex-col items-center justify-center">
+            <DialogHeader>
+              <DialogTitle>Zählerstand Foto</DialogTitle>
+              <DialogDescription>
+                Foto vom Zählerstand in Vollansicht
+              </DialogDescription>
+            </DialogHeader>
+            
             {currentPhoto && (
-              <img 
-                src={currentPhoto} 
-                alt="Zählerstand" 
-                className="max-w-full max-h-[80vh] object-contain"
-              />
+              <div className="w-full max-h-[70vh] overflow-auto mt-2">
+                <img 
+                  src={currentPhoto} 
+                  alt="Zählerstand" 
+                  className="max-w-full object-contain"
+                />
+              </div>
             )}
           </DialogContent>
         </Dialog>

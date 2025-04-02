@@ -51,12 +51,13 @@ export const PhotoUpload = ({ photoUrl, onChange }: PhotoUploadProps) => {
           <div className="relative w-full rounded-md overflow-hidden">
             <img 
               src={photoUrl} 
-              alt="Zählerstand" 
+              alt="Zählerstand Foto" 
               className="w-full h-auto max-h-48 object-contain border rounded-md"
             />
             <button 
               type="button" 
               onClick={removePhoto}
+              aria-label="Foto entfernen"
               className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1 rounded-full hover:bg-destructive/90"
             >
               <X size={16} />
@@ -90,6 +91,7 @@ export const PhotoUpload = ({ photoUrl, onChange }: PhotoUploadProps) => {
           ref={fileInputRef}
           onChange={handleFileChange}
           className="hidden"
+          aria-hidden="true"
         />
         
         <input
@@ -99,6 +101,7 @@ export const PhotoUpload = ({ photoUrl, onChange }: PhotoUploadProps) => {
           ref={cameraInputRef}
           onChange={handleFileChange}
           className="hidden"
+          aria-hidden="true"
         />
       </div>
       <FormMessage />
