@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import NavBar from '@/components/layout/NavBar';
 
 import Index from '@/pages/Index';
 import Login from '@/pages/Login';
@@ -29,10 +28,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Index />
-                </>
+                <Index />
               </ProtectedRoute>
             }
           />
@@ -40,10 +36,7 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Profile />
-                </>
+                <Profile />
               </ProtectedRoute>
             }
           />
@@ -51,10 +44,7 @@ function App() {
             path="/mieter"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Mieter />
-                </>
+                <Mieter />
               </ProtectedRoute>
             }
           />
@@ -62,10 +52,7 @@ function App() {
             path="/steckdosen"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Steckdosen />
-                </>
+                <Steckdosen />
               </ProtectedRoute>
             }
           />
@@ -73,10 +60,7 @@ function App() {
             path="/zaehler"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Zaehler />
-                </>
+                <Zaehler />
               </ProtectedRoute>
             }
           />
@@ -84,10 +68,7 @@ function App() {
             path="/zaehlerstaende"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Zaehlerstaende />
-                </>
+                <Zaehlerstaende />
               </ProtectedRoute>
             }
           />
@@ -95,10 +76,7 @@ function App() {
             path="/bereiche"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Bereiche />
-                </>
+                <Bereiche />
               </ProtectedRoute>
             }
           />
@@ -106,10 +84,7 @@ function App() {
             path="/users"
             element={
               <ProtectedRoute requireAdmin>
-                <>
-                  <NavBar />
-                  <UserManagement />
-                </>
+                <UserManagement />
               </ProtectedRoute>
             }
           />
@@ -117,10 +92,7 @@ function App() {
             path="/settings"
             element={
               <ProtectedRoute>
-                <>
-                  <NavBar />
-                  <Settings />
-                </>
+                <Settings />
               </ProtectedRoute>
             }
           />
