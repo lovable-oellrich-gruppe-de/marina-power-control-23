@@ -23,7 +23,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Alle Mieter aus der Datenbank abrufen
-$mieter = $db->fetchAll("SELECT * FROM mieter ORDER BY nachname, vorname");
+$mieter = $db->fetchAll("SELECT * FROM mieter ORDER BY name, vorname");
 
 // Header einbinden
 require_once 'includes/header.php';
@@ -76,14 +76,14 @@ require_once 'includes/header.php';
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['id']) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?= htmlspecialchars($m['vorname'] . ' ' . $m['nachname']) ?>
+                                        <?= htmlspecialchars($m['vorname'] . ' ' . $m['name']) ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['email']) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['telefon']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['bootsname']) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['bootsname'] ?? '') ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="mieter_form.php?id=<?= $m['id'] ?>" class="text-marina-600 hover:text-marina-900 mr-3">Bearbeiten</a>
-                                        <a href="#" onclick="confirmDelete(<?= $m['id'] ?>, '<?= htmlspecialchars(addslashes($m['vorname'] . ' ' . $m['nachname'])) ?>')" class="text-red-600 hover:text-red-900">Löschen</a>
+                                        <a href="#" onclick="confirmDelete(<?= $m['id'] ?>, '<?= htmlspecialchars(addslashes($m['vorname'] . ' ' . $m['name'])) ?>')" class="text-red-600 hover:text-red-900">Löschen</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
