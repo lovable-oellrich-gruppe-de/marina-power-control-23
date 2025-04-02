@@ -1,21 +1,19 @@
 
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  
-  # Falls die angeforderte Ressource nicht existiert
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  
-  # Alle Anfragen an die index.html umleiten
-  RewriteRule ^ index.html [QSA,L]
+# PHP-Einstellungen
+<IfModule mod_php.c>
+  php_flag output_buffering On
+  php_value memory_limit 256M
+  php_value max_execution_time 300
+  php_flag display_errors Off
+  php_flag log_errors On
 </IfModule>
 
-# CORS aktivieren, falls benötigt
+# Sicherheitseinstellungen
 <IfModule mod_headers.c>
-  Header set Access-Control-Allow-Origin "*"
-  Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-  Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Authorization"
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
 # Cache-Einstellungen für statische Assets
@@ -29,4 +27,28 @@
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType application/x-javascript "access plus 1 month"
+</IfModule>
+
+# Fehlerseiten
+ErrorDocument 404 /404.php
+ErrorDocument 500 /500.php
+
+# Verzeichnisschutz
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # Schützen von Verzeichnissen
+  RewriteRule ^includes/ - [F,L]
+  RewriteRule ^server-config/ - [F,L]
+  
+  # PHP-Dateien direkt aufrufen
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.php -f
+  RewriteRule ^(.*)$ $1.php [L]
+  
+  # Bei nicht gefundenem Inhalt zur 404-Seite
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ 404.php [L]
 </IfModule>
