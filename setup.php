@@ -31,23 +31,51 @@ try {
     // Datenbank auswählen
     $conn->select_db(DB_NAME);
     
-    // SQL-Skripte ausführen
-    $sqlFiles = [
-        'server-config/setup_db.sql',
-        'setup_bereiche_tabelle.sql',
-        'setup_mieter_tabelle.sql',
+    // SQL-Hauptskript ausführen (enthält bereits alle Tabellendefinitionen)
+    $sqlFile = 'server-config/setup_db.sql';
+    
+    if (file_exists($sqlFile)) {
+        $sql = file_get_contents($sqlFile);
+        
+        // Mehrere SQL-Anweisungen aufteilen und ausführen
+        if ($sql) {
+            echo "<h3>Führe SQL-Hauptdatei aus: " . htmlspecialchars($sqlFile) . "</h3>";
+            
+            // SQL-Kommentare entfernen und in einzelne Anweisungen aufteilen
+            $sql = preg_replace('/--.*$/m', '', $sql);
+            $sqlStatements = explode(';', $sql);
+            
+            foreach ($sqlStatements as $statement) {
+                $statement = trim($statement);
+                if (!empty($statement)) {
+                    if ($conn->query($statement) === TRUE) {
+                        echo "<p>SQL ausgeführt: " . htmlspecialchars(substr($statement, 0, 50)) . "...</p>";
+                    } else {
+                        echo "<p class='error'>Fehler bei SQL-Anweisung: " . htmlspecialchars(substr($statement, 0, 50)) . "... - " . $conn->error . "</p>";
+                    }
+                }
+            }
+        } else {
+            echo "<p class='error'>Konnte SQL-Datei nicht lesen: " . htmlspecialchars($sqlFile) . "</p>";
+        }
+    } else {
+        echo "<p class='error'>SQL-Hauptdatei nicht gefunden: " . htmlspecialchars($sqlFile) . "</p>";
+    }
+    
+    // Zusätzliche Daten für Tabellen einfügen
+    $dataFiles = [
+        'setup_mieter_tabelle.sql',  // Enthält nur noch die INSERT-Statements für Mieter
         'setup_steckdosen_tabelle.sql',
         'setup_zaehler_tabelle.sql',
         'setup_zaehlerstaende_tabelle.sql'
     ];
     
-    foreach ($sqlFiles as $sqlFile) {
-        if (file_exists($sqlFile)) {
-            $sql = file_get_contents($sqlFile);
+    foreach ($dataFiles as $dataFile) {
+        if (file_exists($dataFile)) {
+            $sql = file_get_contents($dataFile);
             
-            // Mehrere SQL-Anweisungen aufteilen und ausführen
             if ($sql) {
-                echo "<h3>Führe SQL-Datei aus: " . htmlspecialchars($sqlFile) . "</h3>";
+                echo "<h3>Führe Daten-SQL-Datei aus: " . htmlspecialchars($dataFile) . "</h3>";
                 
                 // SQL-Kommentare entfernen und in einzelne Anweisungen aufteilen
                 $sql = preg_replace('/--.*$/m', '', $sql);
@@ -59,15 +87,13 @@ try {
                         if ($conn->query($statement) === TRUE) {
                             echo "<p>SQL ausgeführt: " . htmlspecialchars(substr($statement, 0, 50)) . "...</p>";
                         } else {
-                            echo "<p class='error'>Fehler bei SQL-Anweisung: " . htmlspecialchars(substr($statement, 0, 50)) . "... - " . $conn->error . "</p>";
+                            echo "<p class='warning'>Hinweis bei SQL-Anweisung: " . htmlspecialchars(substr($statement, 0, 50)) . "... - " . $conn->error . "</p>";
                         }
                     }
                 }
-            } else {
-                echo "<p class='error'>Konnte SQL-Datei nicht lesen: " . htmlspecialchars($sqlFile) . "</p>";
             }
         } else {
-            echo "<p class='warning'>SQL-Datei nicht gefunden: " . htmlspecialchars($sqlFile) . "</p>";
+            echo "<p class='warning'>Daten-SQL-Datei nicht gefunden: " . htmlspecialchars($dataFile) . "</p>";
         }
     }
     
