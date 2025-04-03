@@ -1,4 +1,3 @@
-
 <?php
 require_once 'db.php';
 
@@ -31,36 +30,8 @@ class Auth {
             ];
         }
         
-        // Passwortüberprüfung für Demo-Konten
-        $demoCredentials = [
-            'admin@marina-power.de' => 'admin123',
-            'benutzer@marina-power.de' => 'benutzer123'
-        ];
-        
-        // Für Demo-Zwecke: Wenn es sich um ein Demo-Konto handelt, direkter Passwortvergleich
-        if (array_key_exists($email, $demoCredentials) && $password === $demoCredentials[$email]) {
-            // Session-Daten setzen
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_email'] = $user['email'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_role'] = $user['rolle'];
-            $_SESSION['last_activity'] = time();
-            
-            // Erfolgreiche Anmeldung
-            return [
-                'success' => true,
-                'user' => [
-                    'id' => $user['id'],
-                    'email' => $user['email'],
-                    'name' => $user['name'],
-                    'role' => $user['rolle']
-                ]
-            ];
-        }
-        
-        // Für normale Konten: Wenn nicht im Demo-Modus, Passwort mit Hash vergleichen
-        // In einer Produktionsumgebung: password_verify($password, $user['passwort_hash'])
-        if ($password === $user['passwort_hash']) {
+        // Passwort überprüfen mit password_verify
+        if (password_verify($password, $user['passwort_hash'])) {
             // Session-Daten setzen
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
@@ -87,6 +58,11 @@ class Auth {
         ];
     }
     
+    // Passwort-Hash erstellen
+    public function hashPassword($password) {
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
+    
     // Benutzer registrieren
     public function register($email, $password, $name) {
         // Prüfen, ob E-Mail bereits existiert
@@ -100,9 +76,8 @@ class Auth {
             ];
         }
         
-        // In einer Produktionsumgebung würden wir password_hash verwenden
-        // $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $hashedPassword = $password; // Nur für Demo-Zwecke!
+        // Passwort hashen
+        $hashedPassword = $this->hashPassword($password);
         
         // Benutzer erstellen
         $sql = "INSERT INTO benutzer (id, email, passwort_hash, name, rolle, status) 
@@ -125,6 +100,16 @@ class Auth {
             'success' => false,
             'message' => 'Bei der Registrierung ist ein Fehler aufgetreten.'
         ];
+    }
+    
+    // Passwort aktualisieren
+    public function updatePassword($userId, $newPassword) {
+        $hashedPassword = $this->hashPassword($newPassword);
+        
+        $sql = "UPDATE benutzer SET passwort_hash = ? WHERE id = ?";
+        $this->db->query($sql, [$hashedPassword, $userId]);
+        
+        return $this->db->affectedRows() > 0;
     }
     
     // Prüfen, ob Benutzer angemeldet ist
