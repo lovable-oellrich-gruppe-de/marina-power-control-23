@@ -125,37 +125,33 @@ require_once 'includes/header.php';
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
                                             <?php if ($b['aktiv']): ?>
-                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=0" class="text-yellow-600 hover:text-yellow-900">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=0" class="text-yellow-600 hover:text-yellow-900" title="Deaktivieren">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
                                                         <circle cx="16" cy="12" r="3"></circle>
                                                     </svg>
-                                                    Deaktivieren
                                                 </a>
                                             <?php else: ?>
-                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=1" class="text-green-600 hover:text-green-900">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=1" class="text-green-600 hover:text-green-900" title="Aktivieren">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
                                                         <circle cx="8" cy="12" r="3"></circle>
                                                     </svg>
-                                                    Aktivieren
                                                 </a>
                                             <?php endif; ?>
-                                            <a href="bereiche_form.php?id=<?= $b['id'] ?>" class="text-marina-600 hover:text-marina-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <a href="bereiche_form.php?id=<?= $b['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                                 </svg>
-                                                Bearbeiten
                                             </a>
-                                            <a href="#" onclick="confirmDelete(<?= $b['id'] ?>, '<?= htmlspecialchars(addslashes($b['name'])) ?>', <?= $b['steckdosen_count'] ?>)" class="text-red-600 hover:text-red-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <a href="#" onclick="confirmDelete(<?= $b['id'] ?>, '<?= htmlspecialchars(addslashes($b['name'])) ?>', <?= $b['steckdosen_count'] ?>)" class="text-red-600 hover:text-red-900" title="Löschen">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <polyline points="3 6 5 6 21 6"></polyline>
                                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                                     <line x1="10" y1="11" x2="10" y2="17"></line>
                                                     <line x1="14" y1="11" x2="14" y2="17"></line>
                                                 </svg>
-                                                Löschen
                                             </a>
                                         </div>
                                     </td>
