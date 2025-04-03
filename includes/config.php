@@ -1,4 +1,3 @@
-
 <?php
 // Konfigurationsdatei für Marina Power Control
 
@@ -27,4 +26,3 @@ date_default_timezone_set('Europe/Berlin');
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-?>
