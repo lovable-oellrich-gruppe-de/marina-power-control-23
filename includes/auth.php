@@ -31,10 +31,36 @@ class Auth {
             ];
         }
         
-        // In einer Produktionsumgebung würden wir password_verify verwenden
-        // Für Demo-Zwecke verwenden wir einen direkten Vergleich
-        if ($user['passwort_hash'] === $password) { // In Produktion: password_verify($password, $user['passwort_hash'])
+        // Passwortüberprüfung für Demo-Konten
+        $demoCredentials = [
+            'admin@marina-power.de' => 'admin123',
+            'benutzer@marina-power.de' => 'benutzer123'
+        ];
+        
+        // Für Demo-Zwecke: Wenn es sich um ein Demo-Konto handelt, direkter Passwortvergleich
+        if (array_key_exists($email, $demoCredentials) && $password === $demoCredentials[$email]) {
+            // Session-Daten setzen
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['rolle'];
+            $_SESSION['last_activity'] = time();
             
+            // Erfolgreiche Anmeldung
+            return [
+                'success' => true,
+                'user' => [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'name' => $user['name'],
+                    'role' => $user['rolle']
+                ]
+            ];
+        }
+        
+        // Für normale Konten: Wenn nicht im Demo-Modus, Passwort mit Hash vergleichen
+        // In einer Produktionsumgebung: password_verify($password, $user['passwort_hash'])
+        if ($password === $user['passwort_hash']) {
             // Session-Daten setzen
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
