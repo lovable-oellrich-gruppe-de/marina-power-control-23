@@ -1,4 +1,3 @@
-
 <?php
 // Wichtig: Keine Leerzeilen oder Whitespace vor dem öffnenden PHP-Tag
 require_once 'includes/config.php';
@@ -33,7 +32,7 @@ require_once 'includes/header.php';
 ?>
 
 <div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
         
         <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
