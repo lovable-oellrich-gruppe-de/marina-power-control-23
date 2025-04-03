@@ -1,3 +1,4 @@
+
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -41,7 +42,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['status'])) {
 $steckdosen = $db->fetchAll("
     SELECT s.*, 
            b.name AS bereich_name, 
-           CONCAT(m.vorname, ' ', m.nachname) AS mieter_name
+           CONCAT(m.vorname, ' ', m.name) AS mieter_name
     FROM steckdosen s
     LEFT JOIN bereiche b ON s.bereich_id = b.id
     LEFT JOIN mieter m ON s.mieter_id = m.id
