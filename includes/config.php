@@ -27,3 +27,4 @@ date_default_timezone_set('Europe/Berlin');
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+?>
