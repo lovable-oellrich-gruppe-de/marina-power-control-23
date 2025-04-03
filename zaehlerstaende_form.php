@@ -10,6 +10,12 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
+// Ordner für Fotouploads erstellen, falls er nicht existiert
+$upload_dir = 'uploads/zaehlerstaende';
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
 // Variablen initialisieren
 $id = null;
 $zaehler_id = '';
@@ -18,6 +24,7 @@ $datum = date('Y-m-d');
 $stand = '';
 $hinweis = '';
 $ist_abgerechnet = 0;
+$foto_url = '';
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
@@ -53,6 +60,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $hinweis = $zs['hinweis'];
         $ist_abgerechnet = $zs['ist_abgerechnet'] ? 1 : 0;
         $vorheriger_id = $zs['vorheriger_id'];
+        $foto_url = $zs['foto_url'];
     } else {
         $error = "Zählerstand nicht gefunden.";
     }
@@ -81,6 +89,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!is_numeric($stand)) {
         $errors[] = "Der Zählerstand muss eine Zahl sein.";
+    }
+
+    // Foto hochladen, falls vorhanden
+    if (isset($_FILES['foto']) && $_FILES['foto']['size'] > 0) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        
+        if (!in_array($_FILES['foto']['type'], $allowed_types)) {
+            $errors[] = "Ungültiges Dateiformat. Erlaubt sind nur JPEG, PNG und GIF.";
+        } elseif ($_FILES['foto']['size'] > $max_size) {
+            $errors[] = "Die Datei ist zu groß. Maximale Größe ist 5MB.";
+        } else {
+            // Generiere einen eindeutigen Dateinamen
+            $file_extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $unique_filename = uniqid() . '_' . date('Ymd') . '.' . $file_extension;
+            $upload_path = $upload_dir . '/' . $unique_filename;
+            
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+                $foto_url = $upload_path;
+            } else {
+                $errors[] = "Fehler beim Hochladen des Fotos.";
+            }
+        }
     }
 
     // Wenn keine Fehler aufgetreten sind
@@ -117,28 +148,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     UPDATE zaehlerstaende 
                     SET zaehler_id = ?, steckdose_id = ?, datum = ?, stand = ?, 
                         vorheriger_id = ?, verbrauch = ?, abgelesen_von_id = ?, 
-                        hinweis = ?, ist_abgerechnet = ? 
-                    WHERE id = ?
-                ";
-                $db->query($sql, [
+                        hinweis = ?, ist_abgerechnet = ?";
+                $params = [
                     $zaehler_id, $steckdose_id, $datum, $stand, 
                     $vorheriger_id, $verbrauch, $abgelesen_von_id, 
-                    $hinweis, $ist_abgerechnet, $id
-                ]);
+                    $hinweis, $ist_abgerechnet
+                ];
+                
+                // Foto-URL nur aktualisieren, wenn ein neues Foto hochgeladen wurde
+                if (!empty($foto_url)) {
+                    $sql .= ", foto_url = ?";
+                    $params[] = $foto_url;
+                }
+                
+                $sql .= " WHERE id = ?";
+                $params[] = $id;
+                
+                $db->query($sql, $params);
                 
                 $success = "Zählerstand wurde erfolgreich aktualisiert.";
             } else {
                 // Neuen Zählerstand erstellen
                 $sql = "
                     INSERT INTO zaehlerstaende 
-                    (zaehler_id, steckdose_id, datum, stand, vorheriger_id, verbrauch, abgelesen_von_id, hinweis, ist_abgerechnet) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ";
-                $db->query($sql, [
+                    (zaehler_id, steckdose_id, datum, stand, vorheriger_id, verbrauch, abgelesen_von_id, hinweis, ist_abgerechnet";
+                
+                $params = [
                     $zaehler_id, $steckdose_id, $datum, $stand, 
                     $vorheriger_id, $verbrauch, $abgelesen_von_id, 
                     $hinweis, $ist_abgerechnet
-                ]);
+                ];
+                
+                // Foto-URL hinzufügen, wenn vorhanden
+                if (!empty($foto_url)) {
+                    $sql .= ", foto_url";
+                    $params[] = $foto_url;
+                }
+                
+                $sql .= ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?";
+                
+                if (!empty($foto_url)) {
+                    $sql .= ", ?";
+                }
+                
+                $sql .= ")";
+                
+                $db->query($sql, $params);
                 
                 $newId = $db->lastInsertId();
                 
@@ -209,7 +264,7 @@ require_once 'includes/header.php';
 
         <!-- Zählerstand-Formular -->
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <form method="POST" action="<?= $isEdit ? "zaehlerstaende_form.php?id=$id" : "zaehlerstaende_form.php" ?>">
+            <form method="POST" action="<?= $isEdit ? "zaehlerstaende_form.php?id=$id" : "zaehlerstaende_form.php" ?>" enctype="multipart/form-data">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700 mb-1">Zähler *</label>
@@ -262,6 +317,21 @@ require_once 'includes/header.php';
                     <?php endif; ?>
                     
                     <div class="col-span-2">
+                        <label for="foto" class="block text-sm font-medium text-gray-700 mb-1">Foto vom Zählerstand</label>
+                        <input type="file" id="foto" name="foto" class="w-full border border-gray-300 rounded-md px-3 py-2" accept="image/*">
+                        <p class="text-sm text-gray-500 mt-1">JPG, PNG oder GIF, max. 5MB</p>
+                        
+                        <?php if (!empty($foto_url)): ?>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-700">Vorhandenes Foto:</p>
+                                <a href="<?= htmlspecialchars($foto_url) ?>" target="_blank" class="mt-2 inline-block">
+                                    <img src="<?= htmlspecialchars($foto_url) ?>" alt="Zählerstand Foto" class="max-h-40 rounded-md border border-gray-300">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="col-span-2">
                         <label for="hinweis" class="block text-sm font-medium text-gray-700 mb-1">Hinweis</label>
                         <textarea id="hinweis" name="hinweis" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500"><?= htmlspecialchars($hinweis) ?></textarea>
                     </div>
@@ -289,6 +359,46 @@ require_once 'includes/header.php';
 // JavaScript für dynamische Anzeige von Verbrauchsinformationen bei Zählerstandsänderung
 document.addEventListener('DOMContentLoaded', function() {
     // Hier kann JavaScript für dynamische Berechnungen ergänzt werden
+    
+    // Vorschau für Foto-Upload
+    const fotoInput = document.getElementById('foto');
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Zeige Vorschau nur an, wenn es eine Bilddatei ist
+                if (file.type.startsWith('image/')) {
+                    // Erstelle Vorschau-Container falls noch nicht vorhanden
+                    let previewContainer = document.getElementById('foto-preview');
+                    if (!previewContainer) {
+                        previewContainer = document.createElement('div');
+                        previewContainer.id = 'foto-preview';
+                        previewContainer.className = 'mt-2';
+                        fotoInput.parentNode.appendChild(previewContainer);
+                    }
+
+                    // Leere den Container
+                    previewContainer.innerHTML = '';
+                    
+                    // Füge Überschrift hinzu
+                    const title = document.createElement('p');
+                    title.textContent = 'Vorschau:';
+                    title.className = 'text-sm font-medium text-gray-700';
+                    previewContainer.appendChild(title);
+                    
+                    // Erstelle Bildvorschau
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.alt = 'Zählerstand Vorschau';
+                    img.className = 'max-h-40 rounded-md border border-gray-300 mt-1';
+                    img.onload = function() {
+                        URL.revokeObjectURL(this.src); // Speicher freigeben
+                    };
+                    previewContainer.appendChild(img);
+                }
+            }
+        });
+    }
 });
 </script>
 
