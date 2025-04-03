@@ -69,7 +69,7 @@ require_once 'includes/header.php';
 ?>
 
 <div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-gray-900">Zähler</h1>
             <a href="zaehler_form.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-marina-600 hover:bg-marina-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-marina-500">
@@ -116,8 +116,8 @@ require_once 'includes/header.php';
             </form>
         </div>
         
-        <!-- Zählerliste -->
-        <div class="mt-4 overflow-x-auto">
+        <!-- Zählerliste mit erhöhter Breite -->
+        <div class="mt-4 overflow-x-auto w-full">
             <div class="inline-block min-w-full align-middle">
                 <div class="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -221,28 +221,25 @@ require_once 'includes/header.php';
                                             <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex items-center space-x-2">
-                                                <a href="zaehler_form.php?id=<?= $z['id'] ?>" class="text-marina-600 hover:text-marina-900 flex items-center">
-                                                    <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="flex items-center space-x-4">
+                                                <a href="zaehler_form.php?id=<?= $z['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Bearbeiten">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
-                                                    Bearbeiten
                                                 </a>
                                                 
                                                 <?php if ($auth->isAdmin()): ?>
-                                                    <a href="#" onclick="confirmDelete(<?= $z['id'] ?>)" class="text-red-600 hover:text-red-900 flex items-center">
-                                                        <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <a href="#" onclick="confirmDelete(<?= $z['id'] ?>)" class="text-red-600 hover:text-red-900 p-1" title="Löschen">
+                                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
-                                                        Löschen
                                                     </a>
                                                 <?php endif; ?>
                                                 
-                                                <a href="zaehlerstaende.php?zaehler_id=<?= $z['id'] ?>" class="text-gray-600 hover:text-gray-900 flex items-center">
-                                                    <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <a href="zaehlerstaende.php?zaehler_id=<?= $z['id'] ?>" class="text-gray-600 hover:text-gray-900 p-1" title="Zählerstände">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
-                                                    Zählerstände
                                                 </a>
                                             </div>
                                         </td>
