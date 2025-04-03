@@ -17,12 +17,13 @@ $totalSteckdosen = $db->fetchOne("SELECT COUNT(*) as count FROM steckdosen WHERE
 // Korrigierte Abfrage für Zähler - 'status' geändert zu 'ist_ausgebaut = 0'
 $totalZaehler = $db->fetchOne("SELECT COUNT(*) as count FROM zaehler WHERE ist_ausgebaut = 0")['count'] ?? 0;
 
-// Letzte Zählerstände abrufen
+// Letzte Zählerstände abrufen - Korrigierte JOIN-Bedingung
 $letzteZaehlerstaende = $db->fetchAll("
     SELECT z.id, z.stand, z.datum, m.name as mieter_name, zr.seriennummer 
     FROM zaehlerstaende z
     JOIN zaehler zr ON z.zaehler_id = zr.id
-    LEFT JOIN mieter m ON zr.mieter_id = m.id
+    LEFT JOIN steckdosen s ON zr.id = s.id
+    LEFT JOIN mieter m ON s.mieter_id = m.id
     ORDER BY z.datum DESC
     LIMIT 5
 ");
