@@ -99,12 +99,70 @@ CREATE TABLE IF NOT EXISTS benutzer (
   erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Beispieldaten einfügen
+-- Beispieldaten für Bereiche einfügen
 INSERT INTO bereiche (name, beschreibung) VALUES
 ('Steg A', 'Hauptsteg mit 20 Liegeplätzen'),
 ('Steg B', 'Nebensteg mit 15 Liegeplätzen'),
 ('Steg C', 'Besuchersteg mit 10 Liegeplätzen');
 
--- Admin-Benutzer einfügen (Passwort sollte in einer echten Umgebung gehasht sein)
+-- Beispieldaten für Mieter einfügen
+INSERT INTO mieter (vorname, name, email, telefon, strasse, hausnummer, mobil, hinweis, bootsname, stellplatzNr, vertragStart, vertragEnde, liegeplatz_nr)
+VALUES 
+('Max', 'Mustermann', 'max@example.com', '01234567890', 'Musterstraße', '123', '0987654321', 'Stammkunde', 'Seeschwalbe', 'A-42', '2023-01-01', '2023-12-31', 'A-42'),
+('Julia', 'Schmidt', 'julia@example.com', '09876543210', 'Hafenstraße', '45', '01234567890', '', 'Wellentänzer', 'B-17', '2023-03-01', '2024-02-29', 'B-17');
+
+-- Beispieldaten für Steckdosen einfügen
+INSERT INTO steckdosen (bezeichnung, status, bereich_id, mieter_id, hinweis)
+SELECT 'Steckdose A1', 'aktiv', b.id, m.id, 'Testdaten'
+FROM bereiche b, mieter m
+WHERE b.name = 'Steg A' AND m.email = 'max@example.com'
+LIMIT 1;
+
+INSERT INTO steckdosen (bezeichnung, status, bereich_id, hinweis)
+SELECT 'Steckdose B1', 'aktiv', b.id, 'Frei verfügbar'
+FROM bereiche b
+WHERE b.name = 'Steg B'
+LIMIT 1;
+
+-- Beispieldaten für Zähler einfügen
+INSERT INTO zaehler (zaehlernummer, typ, hersteller, modell, installiert_am, letzte_wartung, seriennummer, max_leistung, hinweis)
+VALUES
+('Z-A1-001', 'Stromzähler', 'ElektroTech', 'ET-2000', '2023-01-15', '2023-06-15', 'SN12345678', 3600, 'Testzähler für Steg A'),
+('Z-B1-001', 'Stromzähler', 'PowerMeter', 'PM-Pro', '2023-02-20', '2023-07-20', 'PM987654321', 7200, 'Hochleistungszähler für Steg B');
+
+-- Beispieldaten für Zählerstände einfügen
+INSERT INTO zaehlerstaende (zaehler_id, steckdose_id, datum, stand, abgelesen_von_id, hinweis)
+SELECT 
+    z.id,
+    s.id,
+    '2023-05-01',
+    1250.75,
+    'admin1',
+    'Initialer Zählerstand'
+FROM 
+    zaehler z, 
+    steckdosen s 
+WHERE 
+    z.zaehlernummer = 'Z-A1-001' AND 
+    s.bezeichnung = 'Steckdose A1'
+LIMIT 1;
+
+INSERT INTO zaehlerstaende (zaehler_id, steckdose_id, datum, stand, abgelesen_von_id, hinweis)
+SELECT 
+    z.id,
+    s.id,
+    '2023-06-01',
+    1325.50,
+    'admin1',
+    'Monatliche Ablesung'
+FROM 
+    zaehler z, 
+    steckdosen s 
+WHERE 
+    z.zaehlernummer = 'Z-A1-001' AND 
+    s.bezeichnung = 'Steckdose A1'
+LIMIT 1;
+
+-- Admin-Benutzer einfügen (das Passwort-Hash wird in setup.php erstellt)
 INSERT INTO benutzer (id, email, passwort_hash, name, rolle, status)
 VALUES ('admin1', 'admin@marina-power.de', 'DEMO_HASH_WERT', 'Administrator', 'admin', 'active');
