@@ -1,4 +1,3 @@
-
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -38,6 +37,34 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['status'])) {
     }
 }
 
+// Mieter einer Steckdose zuordnen
+if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_POST['mieter_id'])) {
+    $steckdose_id = $_POST['steckdose_id'];
+    $mieter_id = $_POST['mieter_id'] ? $_POST['mieter_id'] : null;
+    
+    $result = $db->query("UPDATE steckdosen SET mieter_id = ? WHERE id = ?", [$mieter_id, $steckdose_id]);
+    
+    if ($db->affectedRows() >= 0) {
+        $success = "Mieter wurde erfolgreich zugeordnet.";
+    } else {
+        $error = "Fehler bei der Zuordnung des Mieters.";
+    }
+}
+
+// Bereich einer Steckdose zuordnen
+if (isset($_POST['assign_bereich']) && isset($_POST['steckdose_id']) && isset($_POST['bereich_id'])) {
+    $steckdose_id = $_POST['steckdose_id'];
+    $bereich_id = $_POST['bereich_id'] ? $_POST['bereich_id'] : null;
+    
+    $result = $db->query("UPDATE steckdosen SET bereich_id = ? WHERE id = ?", [$bereich_id, $steckdose_id]);
+    
+    if ($db->affectedRows() >= 0) {
+        $success = "Bereich wurde erfolgreich zugeordnet.";
+    } else {
+        $error = "Fehler bei der Zuordnung des Bereichs.";
+    }
+}
+
 // Alle Steckdosen aus der Datenbank abrufen
 $steckdosen = $db->fetchAll("
     SELECT s.*, 
@@ -48,6 +75,15 @@ $steckdosen = $db->fetchAll("
     LEFT JOIN mieter m ON s.mieter_id = m.id
     ORDER BY s.bezeichnung
 ");
+
+// Alle Mieter für Dropdown abrufen
+$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name");
+
+// Alle Bereiche für Dropdown abrufen
+$bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
+
+// Alle Zähler für Dropdown abrufen
+$zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
 
 // Header einbinden
 require_once 'includes/header.php';
@@ -81,7 +117,9 @@ require_once 'includes/header.php';
                     <label for="bereich" class="block text-sm font-medium text-gray-700 mb-1">Bereich</label>
                     <select id="bereich" name="bereich" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                         <option value="">Alle Bereiche</option>
-                        <!-- Hier könnten dynamisch Bereiche geladen werden -->
+                        <?php foreach ($bereiche as $bereich): ?>
+                            <option value="<?= $bereich['id'] ?>"><?= htmlspecialchars($bereich['name']) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 
@@ -156,10 +194,24 @@ require_once 'includes/header.php';
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($s['bereich_name'] ?? 'Nicht zugewiesen') ?>
+                                        <div class="flex items-center space-x-2">
+                                            <span><?= htmlspecialchars($s['bereich_name'] ?? 'Nicht zugewiesen') ?></span>
+                                            <button type="button" onclick="openBereichModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Bereich zuweisen">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($s['mieter_name'] ?? 'Nicht zugewiesen') ?>
+                                        <div class="flex items-center space-x-2">
+                                            <span><?= htmlspecialchars($s['mieter_name'] ?? 'Nicht zugewiesen') ?></span>
+                                            <button type="button" onclick="openMieterModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Mieter zuweisen">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
@@ -169,6 +221,11 @@ require_once 'includes/header.php';
                                                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                                                 </svg>
                                             </button>
+                                            <div id="status-menu-<?= $s['id'] ?>" class="hidden absolute z-10 bg-white shadow-lg rounded-md py-1 mt-1 w-32 right-24">
+                                                <a href="steckdosen.php?id=<?= $s['id'] ?>&status=aktiv" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aktiv</a>
+                                                <a href="steckdosen.php?id=<?= $s['id'] ?>&status=inaktiv" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inaktiv</a>
+                                                <a href="steckdosen.php?id=<?= $s['id'] ?>&status=defekt" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Defekt</a>
+                                            </div>
                                             <a href="steckdosen_form.php?id=<?= $s['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -207,6 +264,54 @@ require_once 'includes/header.php';
     </div>
 </div>
 
+<!-- Mieter zuweisen Modal -->
+<div id="mieterModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Mieter zuweisen</h3>
+        <form method="POST" action="steckdosen.php">
+            <input type="hidden" id="mieter_steckdose_id" name="steckdose_id" value="">
+            <input type="hidden" name="assign_mieter" value="1">
+            <div class="mb-4">
+                <label for="mieter_id" class="block text-sm font-medium text-gray-700 mb-1">Mieter</label>
+                <select id="mieter_id" name="mieter_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                    <option value="">-- Keiner --</option>
+                    <?php foreach ($mieter as $m): ?>
+                        <option value="<?= htmlspecialchars($m['id']) ?>"><?= htmlspecialchars($m['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeMieterModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bereich zuweisen Modal -->
+<div id="bereichModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Bereich zuweisen</h3>
+        <form method="POST" action="steckdosen.php">
+            <input type="hidden" id="bereich_steckdose_id" name="steckdose_id" value="">
+            <input type="hidden" name="assign_bereich" value="1">
+            <div class="mb-4">
+                <label for="bereich_id" class="block text-sm font-medium text-gray-700 mb-1">Bereich</label>
+                <select id="bereich_id" name="bereich_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                    <option value="">-- Keiner --</option>
+                    <?php foreach ($bereiche as $b): ?>
+                        <option value="<?= htmlspecialchars($b['id']) ?>"><?= htmlspecialchars($b['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeBereichModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function toggleStatusMenu(id) {
     const menu = document.getElementById('status-menu-' + id);
@@ -231,6 +336,24 @@ function confirmDelete(id, name) {
 
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.add('hidden');
+}
+
+function openMieterModal(steckdoseId) {
+    document.getElementById('mieter_steckdose_id').value = steckdoseId;
+    document.getElementById('mieterModal').classList.remove('hidden');
+}
+
+function closeMieterModal() {
+    document.getElementById('mieterModal').classList.add('hidden');
+}
+
+function openBereichModal(steckdoseId) {
+    document.getElementById('bereich_steckdose_id').value = steckdoseId;
+    document.getElementById('bereichModal').classList.remove('hidden');
+}
+
+function closeBereichModal() {
+    document.getElementById('bereichModal').classList.add('hidden');
 }
 
 // Schließe alle Status-Menüs, wenn irgendwo anders geklickt wird
