@@ -11,10 +11,11 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Dashboard-Daten abrufen
+// Dashboard-Daten abrufen - Korrigierte Abfragen
 $totalMieter = $db->fetchOne("SELECT COUNT(*) as count FROM mieter WHERE aktiv = 1")['count'] ?? 0;
 $totalSteckdosen = $db->fetchOne("SELECT COUNT(*) as count FROM steckdosen WHERE status = 'aktiv'")['count'] ?? 0;
-$totalZaehler = $db->fetchOne("SELECT COUNT(*) as count FROM zaehler WHERE status = 'aktiv'")['count'] ?? 0;
+// Korrigierte Abfrage für Zähler - 'status' geändert zu 'ist_ausgebaut = 0'
+$totalZaehler = $db->fetchOne("SELECT COUNT(*) as count FROM zaehler WHERE ist_ausgebaut = 0")['count'] ?? 0;
 
 // Letzte Zählerstände abrufen
 $letzteZaehlerstaende = $db->fetchAll("
