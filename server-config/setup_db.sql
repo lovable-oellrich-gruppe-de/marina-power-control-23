@@ -100,10 +100,12 @@ CREATE TABLE IF NOT EXISTS benutzer (
 );
 
 -- Beispieldaten für Bereiche einfügen
-INSERT INTO bereiche (name, beschreibung) VALUES
-('Steg A', 'Hauptsteg mit 20 Liegeplätzen'),
-('Steg B', 'Nebensteg mit 15 Liegeplätzen'),
-('Steg C', 'Besuchersteg mit 10 Liegeplätzen');
+INSERT INTO bereiche (name, beschreibung, aktiv)
+VALUES 
+('Steg A', 'Hauptsteg im Osten der Marina', TRUE),
+('Steg B', 'Mittlerer Steg', TRUE),
+('Steg C', 'Westlicher Steg', TRUE),
+('Servicebereich', 'Bereich für Reparatur und Wartung', TRUE);
 
 -- Beispieldaten für Mieter einfügen
 INSERT INTO mieter (vorname, name, email, telefon, strasse, hausnummer, mobil, hinweis, bootsname, stellplatzNr, vertragStart, vertragEnde, liegeplatz_nr)
