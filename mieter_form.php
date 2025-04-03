@@ -184,7 +184,7 @@ require_once 'includes/header.php';
                             type="text" 
                             id="nachname" 
                             name="nachname" 
-                            value="<?= htmlspecialchars($mieter['nachname']) ?>" 
+                            value="<?= htmlspecialchars($mieter['name']) ?>" 
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
