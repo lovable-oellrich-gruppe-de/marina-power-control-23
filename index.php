@@ -58,7 +58,13 @@ require_once 'includes/header.php';
                 </div>
                 <div class="bg-gray-50 px-5 py-3">
                     <div class="text-sm">
-                        <a href="mieter.php" class="font-medium text-marina-600 hover:text-marina-900">Alle anzeigen</a>
+                        <a href="mieter.php" class="font-medium text-marina-600 hover:text-marina-900 flex items-center">
+                            Alle anzeigen
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -84,7 +90,13 @@ require_once 'includes/header.php';
                 </div>
                 <div class="bg-gray-50 px-5 py-3">
                     <div class="text-sm">
-                        <a href="steckdosen.php" class="font-medium text-marina-600 hover:text-marina-900">Alle anzeigen</a>
+                        <a href="steckdosen.php" class="font-medium text-marina-600 hover:text-marina-900 flex items-center">
+                            Alle anzeigen
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -110,7 +122,13 @@ require_once 'includes/header.php';
                 </div>
                 <div class="bg-gray-50 px-5 py-3">
                     <div class="text-sm">
-                        <a href="zaehler.php" class="font-medium text-marina-600 hover:text-marina-900">Alle anzeigen</a>
+                        <a href="zaehler.php" class="font-medium text-marina-600 hover:text-marina-900 flex items-center">
+                            Alle anzeigen
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -151,7 +169,13 @@ require_once 'includes/header.php';
         </div>
         
         <div class="mt-4 text-right">
-            <a href="zaehlerstaende.php" class="text-marina-600 hover:text-marina-900 text-sm font-medium">Alle Zählerstände anzeigen →</a>
+            <a href="zaehlerstaende.php" class="text-marina-600 hover:text-marina-900 text-sm font-medium inline-flex items-center">
+                Alle Zählerstände anzeigen
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="M12 5l7 7-7 7"></path>
+                </svg>
+            </a>
         </div>
     </div>
 </div>
