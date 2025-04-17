@@ -1,3 +1,4 @@
+
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -14,7 +15,7 @@ $success = '';
 $mieter = [
     'id' => '',
     'vorname' => '',
-    'nachname' => '',
+    'name' => '', // Hier wurde die Variable auf 'name' geändert (von 'nachname')
     'strasse' => '',
     'hausnummer' => '',
     'email' => '',
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mieter = [
         'id' => $_POST['id'] ?? '',
         'vorname' => $_POST['vorname'] ?? '',
-        'nachname' => $_POST['nachname'] ?? '',
+        'name' => $_POST['nachname'] ?? '', // Hier wird aus 'nachname' (Formularfeld) 'name' (Datenbankfeld)
         'strasse' => $_POST['strasse'] ?? '',
         'hausnummer' => $_POST['hausnummer'] ?? '',
         'email' => $_POST['email'] ?? '',
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
     
     // Validierung
-    if (empty($mieter['vorname']) || empty($mieter['nachname']) || empty($mieter['email'])) {
+    if (empty($mieter['vorname']) || empty($mieter['name']) || empty($mieter['email'])) {
         $error = "Bitte füllen Sie alle Pflichtfelder aus.";
     } else {
         // Entweder aktualisieren oder neu anlegen
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Aktualisieren
             $query = "UPDATE mieter SET 
                 vorname = ?, 
-                nachname = ?, 
+                name = ?, 
                 strasse = ?, 
                 hausnummer = ?, 
                 email = ?, 
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             $params = [
                 $mieter['vorname'],
-                $mieter['nachname'],
+                $mieter['name'],
                 $mieter['strasse'],
                 $mieter['hausnummer'],
                 $mieter['email'],
@@ -94,12 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Neu anlegen
             $query = "INSERT INTO mieter (
-                vorname, nachname, strasse, hausnummer, email, telefon, mobil, hinweis, bootsname
+                vorname, name, strasse, hausnummer, email, telefon, mobil, hinweis, bootsname
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
             $params = [
                 $mieter['vorname'],
-                $mieter['nachname'],
+                $mieter['name'],
                 $mieter['strasse'],
                 $mieter['hausnummer'],
                 $mieter['email'],
@@ -117,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mieter = [
                     'id' => '',
                     'vorname' => '',
-                    'nachname' => '',
+                    'name' => '', // Auf 'name' geändert
                     'strasse' => '',
                     'hausnummer' => '',
                     'email' => '',
@@ -184,12 +185,13 @@ require_once 'includes/header.php';
                             type="text" 
                             id="nachname" 
                             name="nachname" 
-                            value="<?= htmlspecialchars($mieter['nachname']) ?>" 
+                            value="<?= htmlspecialchars($mieter['name']) ?>" 
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
                     </div>
                     
+                    <!-- Rest des Formulars bleibt unverändert -->
                     <div class="space-y-2">
                         <label for="strasse" class="block text-sm font-medium text-gray-700">Straße</label>
                         <input 
