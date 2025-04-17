@@ -1,6 +1,5 @@
 
 <?php
-// Wichtig: Keine Leerzeilen oder Whitespace vor dem öffnenden PHP-Tag
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
@@ -74,135 +73,124 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 $sql = "SELECT id, email, name, rolle, status, erstellt_am FROM benutzer ORDER BY erstellt_am DESC";
 $users = $db->fetchAll($sql);
 
-// Seitentitel
-$pageTitle = "Benutzerverwaltung";
-
 require_once 'includes/header.php';
 ?>
 
-<div class="bg-white shadow-md rounded-lg">
-    <div class="p-6">
+<div class="py-6">
+    <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800"><?= $pageTitle ?></h1>
+            <h1 class="text-3xl font-bold text-gray-900">Benutzerverwaltung</h1>
         </div>
-        
+
         <?php if (isset($_GET['status_changed']) && $_GET['status_changed'] === '1'): ?>
-            <div class="bg-green-50 text-green-800 p-4 rounded-md mb-4">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 Der Benutzerstatus wurde erfolgreich aktualisiert.
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['role_changed']) && $_GET['role_changed'] === '1'): ?>
-            <div class="bg-green-50 text-green-800 p-4 rounded-md mb-4">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 Die Benutzerrolle wurde erfolgreich aktualisiert.
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['deleted']) && $_GET['deleted'] === '1'): ?>
-            <div class="bg-green-50 text-green-800 p-4 rounded-md mb-4">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 Der Benutzer wurde erfolgreich gelöscht.
             </div>
         <?php endif; ?>
         
         <?php if (isset($_GET['error']) && $_GET['error'] === 'self_delete'): ?>
-            <div class="bg-red-50 text-red-800 p-4 rounded-md mb-4">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 Sie können Ihren eigenen Account nicht löschen.
             </div>
         <?php endif; ?>
-        
-        <!-- Benutzertabelle mit erhöhter Breite -->
-        <div class="overflow-x-auto w-full">
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-Mail</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rolle</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Erstellt am</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    <?php if (empty($users)): ?>
+
+        <div class="mt-4 bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="overflow-x-auto w-full">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Keine Benutzer gefunden.</td>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-Mail</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rolle</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Erstellt am</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($users as $user): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?= htmlspecialchars($user['name']) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?= htmlspecialchars($user['email']) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php if ($user['rolle'] === 'admin'): ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                            Administrator
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            Benutzer
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?php if ($user['status'] === 'active'): ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Aktiv
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Ausstehend
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <?= date('d.m.Y H:i', strtotime($user['erstellt_am'])) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex space-x-4 justify-end">
-                                        <!-- Status umschalten -->
-                                        <a href="users.php?action=toggle_status&id=<?= urlencode($user['id']) ?>" 
-                                           class="text-indigo-600 hover:text-indigo-900 p-1"
-                                           title="<?= $user['status'] === 'active' ? 'Deaktivieren' : 'Aktivieren' ?>"
-                                           onclick="return confirm('Möchten Sie den Status dieses Benutzers wirklich ändern?');">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
-                                        
-                                        <!-- Rolle umschalten -->
-                                        <a href="users.php?action=toggle_role&id=<?= urlencode($user['id']) ?>" 
-                                           class="text-blue-600 hover:text-blue-900 p-1"
-                                           title="<?= $user['rolle'] === 'admin' ? 'Zum Benutzer' : 'Zum Admin' ?>"
-                                           onclick="return confirm('Möchten Sie die Rolle dieses Benutzers wirklich ändern?');">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                            </svg>
-                                        </a>
-                                        
-                                        <!-- Löschen - nicht für den aktuellen Benutzer anzeigen -->
-                                        <?php if ($user['id'] !== $_SESSION['user_id']): ?>
-                                            <a href="users.php?action=delete&id=<?= urlencode($user['id']) ?>" 
-                                               class="text-red-600 hover:text-red-900 p-1"
-                                               title="Löschen"
-                                               onclick="return confirm('Möchten Sie diesen Benutzer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.');">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php if (empty($users)): ?>
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Keine Benutzer gefunden
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        <?php else: ?>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?= htmlspecialchars($user['name']) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?= htmlspecialchars($user['email']) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <?php if ($user['rolle'] === 'admin'): ?>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                Administrator
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                Benutzer
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <?php if ($user['status'] === 'active'): ?>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Aktiv
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Ausstehend
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?= date('d.m.Y H:i', strtotime($user['erstellt_am'])) ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-4">
+                                            <a href="users.php?action=toggle_status&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Status ändern">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="users.php?action=toggle_role&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Rolle ändern">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="8.5" cy="7" r="4"></circle>
+                                                    <polyline points="17 11 19 13 23 9"></polyline>
+                                                </svg>
+                                            </a>
+                                            <?php if ($user['id'] !== $_SESSION['user_id']): ?>
+                                                <a href="users.php?action=delete&id=<?= $user['id'] ?>" class="text-red-600 hover:text-red-900 p-1" title="Löschen" onclick="return confirm('Möchten Sie diesen Benutzer wirklich löschen?');">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    </svg>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -210,3 +198,4 @@ require_once 'includes/header.php';
 <?php
 require_once 'includes/footer.php';
 ?>
+
