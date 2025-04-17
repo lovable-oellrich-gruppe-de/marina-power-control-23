@@ -1,4 +1,3 @@
-
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -15,7 +14,7 @@ $success = '';
 $mieter = [
     'id' => '',
     'vorname' => '',
-    'name' => '', // Hier wurde die Variable auf 'name' geändert (von 'nachname')
+    'name' => '',
     'strasse' => '',
     'hausnummer' => '',
     'email' => '',
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mieter = [
         'id' => $_POST['id'] ?? '',
         'vorname' => $_POST['vorname'] ?? '',
-        'name' => $_POST['nachname'] ?? '', // Hier wird aus 'nachname' (Formularfeld) 'name' (Datenbankfeld)
+        'name' => $_POST['name'] ?? '',
         'strasse' => $_POST['strasse'] ?? '',
         'hausnummer' => $_POST['hausnummer'] ?? '',
         'email' => $_POST['email'] ?? '',
@@ -118,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mieter = [
                     'id' => '',
                     'vorname' => '',
-                    'name' => '', // Auf 'name' geändert
+                    'name' => '',
                     'strasse' => '',
                     'hausnummer' => '',
                     'email' => '',
@@ -180,18 +179,17 @@ require_once 'includes/header.php';
                     </div>
                     
                     <div class="space-y-2">
-                        <label for="nachname" class="block text-sm font-medium text-gray-700">Nachname *</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Nachname *</label>
                         <input 
                             type="text" 
-                            id="nachname" 
-                            name="nachname" 
+                            id="name" 
+                            name="name" 
                             value="<?= htmlspecialchars($mieter['name']) ?>" 
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
                     </div>
                     
-                    <!-- Rest des Formulars bleibt unverändert -->
                     <div class="space-y-2">
                         <label for="strasse" class="block text-sm font-medium text-gray-700">Straße</label>
                         <input 
