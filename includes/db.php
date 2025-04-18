@@ -84,6 +84,11 @@ class Database {
         $result = $this->query($sql, $params);
         $data = [];
         
+        // Wenn $result keine Ressource oder null ist, leeres Array zurückgeben
+        if (!$result) {
+            return $data;
+        }
+        
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
         }
@@ -94,6 +99,11 @@ class Database {
     // Ein einzelnes Ergebnis abrufen
     public function fetchOne($sql, $params = []) {
         $result = $this->query($sql, $params);
+        
+        // Wenn $result keine Ressource oder null ist, null zurückgeben
+        if (!$result) {
+            return null;
+        }
         
         return $result->fetch_assoc();
     }

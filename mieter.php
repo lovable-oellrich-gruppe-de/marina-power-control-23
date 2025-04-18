@@ -1,3 +1,4 @@
+
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -18,7 +19,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         if ($db->affectedRows() > 0) {
             $success = "Mieter wurde erfolgreich gelöscht.";
         } else {
-            $error = "Fehler beim Löschen des Mieters oder Mieter nicht gefunden.";
+            $error = "Mieter nicht gefunden oder bereits gelöscht.";
         }
     } catch (Exception $e) {
         $error = "Fehler beim Löschen des Mieters: " . $e->getMessage();
