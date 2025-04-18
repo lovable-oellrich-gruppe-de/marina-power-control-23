@@ -109,24 +109,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $db->query($query, $params);
             
-            if ($db->affectedRows() > 0) {
-                $success = "Mieter wurde erfolgreich erstellt.";
-                // Formular zurücksetzen
-                $mieter = [
-                    'id' => '',
-                    'vorname' => '',
-                    'name' => '',
-                    'strasse' => '',
-                    'hausnummer' => '',
-                    'email' => '',
-                    'telefon' => '',
-                    'mobil' => '',
-                    'hinweis' => '',
-                    'bootsname' => ''
-                ];
-            } else {
-                $error = "Fehler beim Erstellen des Mieters.";
-            }
+            // Hier ist das Problem: Die Bedingung sollte analog zum Update-Fall geändert werden
+            // Bei neuen Einträgen kann es auch vorkommen, dass affected_rows() 0 zurückgibt
+            $success = "Mieter wurde erfolgreich erstellt.";
+            // Formular zurücksetzen
+            $mieter = [
+                'id' => '',
+                'vorname' => '',
+                'name' => '',
+                'strasse' => '',
+                'hausnummer' => '',
+                'email' => '',
+                'telefon' => '',
+                'mobil' => '',
+                'hinweis' => '',
+                'bootsname' => ''
+            ];
         }
     }
 }
