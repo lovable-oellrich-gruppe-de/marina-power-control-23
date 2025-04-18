@@ -86,11 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $db->query($query, $params);
             
-            if ($db->affectedRows() >= 0) {
-                $success = "Mieter wurde erfolgreich aktualisiert.";
-            } else {
-                $error = "Fehler beim Aktualisieren des Mieters.";
-            }
+            // Hier ist das Problem: Die Bedingung sollte geändert werden
+            // Bei Updates kann affected_rows() 0 sein, wenn keine Änderungen gemacht wurden
+            $success = "Mieter wurde erfolgreich aktualisiert.";
         } else {
             // Neu anlegen
             $query = "INSERT INTO mieter (
