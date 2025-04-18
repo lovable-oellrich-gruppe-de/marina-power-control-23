@@ -59,7 +59,12 @@ class Database {
             }
             
             // Abfrage ausführen
-            $stmt->execute();
+            $success = $stmt->execute();
+            
+            // Wenn execute() fehlschlägt, werfe eine Exception
+            if (!$success) {
+                throw new Exception("Ausführungsfehler: " . $stmt->error);
+            }
             
             // Ergebnis zurückgeben
             $result = $stmt->get_result();
@@ -68,7 +73,8 @@ class Database {
             return $result;
             
         } catch (Exception $e) {
-            die("Abfragefehler: " . $e->getMessage());
+            // Hier könnten Sie auch Logging hinzufügen
+            throw $e; // Re-throw, damit der Aufrufer den Fehler behandeln kann
         }
     }
     

@@ -38,94 +38,94 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 // Formular wurde abgesendet
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Formulardaten einlesen
-    $mieter = [
-        'id' => $_POST['id'] ?? '',
-        'vorname' => $_POST['vorname'] ?? '',
-        'name' => $_POST['name'] ?? '',
-        'strasse' => $_POST['strasse'] ?? '',
-        'hausnummer' => $_POST['hausnummer'] ?? '',
-        'email' => $_POST['email'] ?? '',
-        'telefon' => $_POST['telefon'] ?? '',
-        'mobil' => $_POST['mobil'] ?? '',
-        'hinweis' => $_POST['hinweis'] ?? '',
-        'bootsname' => $_POST['bootsname'] ?? ''
-    ];
-    
-    // Validierung
-    if (empty($mieter['vorname']) || empty($mieter['name']) || empty($mieter['email'])) {
-        $error = "Bitte füllen Sie alle Pflichtfelder aus.";
-    } else {
-        // Entweder aktualisieren oder neu anlegen
-        if (!empty($mieter['id'])) {
-            // Aktualisieren
-            $query = "UPDATE mieter SET 
-                vorname = ?, 
-                name = ?, 
-                strasse = ?, 
-                hausnummer = ?, 
-                email = ?, 
-                telefon = ?, 
-                mobil = ?, 
-                hinweis = ?, 
-                bootsname = ? 
-                WHERE id = ?";
-                
-            $params = [
-                $mieter['vorname'],
-                $mieter['name'],
-                $mieter['strasse'],
-                $mieter['hausnummer'],
-                $mieter['email'],
-                $mieter['telefon'],
-                $mieter['mobil'],
-                $mieter['hinweis'],
-                $mieter['bootsname'],
-                $mieter['id']
-            ];
-            
-            $db->query($query, $params);
-            
-            // Hier ist das Problem: Die Bedingung sollte geändert werden
-            // Bei Updates kann affected_rows() 0 sein, wenn keine Änderungen gemacht wurden
-            $success = "Mieter wurde erfolgreich aktualisiert.";
+    try {
+        // Formulardaten einlesen
+        $mieter = [
+            'id' => $_POST['id'] ?? '',
+            'vorname' => $_POST['vorname'] ?? '',
+            'name' => $_POST['name'] ?? '',
+            'strasse' => $_POST['strasse'] ?? '',
+            'hausnummer' => $_POST['hausnummer'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'telefon' => $_POST['telefon'] ?? '',
+            'mobil' => $_POST['mobil'] ?? '',
+            'hinweis' => $_POST['hinweis'] ?? '',
+            'bootsname' => $_POST['bootsname'] ?? ''
+        ];
+        
+        // Validierung
+        if (empty($mieter['vorname']) || empty($mieter['name']) || empty($mieter['email'])) {
+            $error = "Bitte füllen Sie alle Pflichtfelder aus.";
         } else {
-            // Neu anlegen
-            $query = "INSERT INTO mieter (
-                vorname, name, strasse, hausnummer, email, telefon, mobil, hinweis, bootsname
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // Entweder aktualisieren oder neu anlegen
+            if (!empty($mieter['id'])) {
+                // Aktualisieren
+                $query = "UPDATE mieter SET 
+                    vorname = ?, 
+                    name = ?, 
+                    strasse = ?, 
+                    hausnummer = ?, 
+                    email = ?, 
+                    telefon = ?, 
+                    mobil = ?, 
+                    hinweis = ?, 
+                    bootsname = ? 
+                    WHERE id = ?";
+                    
+                $params = [
+                    $mieter['vorname'],
+                    $mieter['name'],
+                    $mieter['strasse'],
+                    $mieter['hausnummer'],
+                    $mieter['email'],
+                    $mieter['telefon'],
+                    $mieter['mobil'],
+                    $mieter['hinweis'],
+                    $mieter['bootsname'],
+                    $mieter['id']
+                ];
                 
-            $params = [
-                $mieter['vorname'],
-                $mieter['name'],
-                $mieter['strasse'],
-                $mieter['hausnummer'],
-                $mieter['email'],
-                $mieter['telefon'],
-                $mieter['mobil'],
-                $mieter['hinweis'],
-                $mieter['bootsname']
-            ];
-            
-            $db->query($query, $params);
-            
-            // Hier ist das Problem: Die Bedingung sollte analog zum Update-Fall geändert werden
-            // Bei neuen Einträgen kann es auch vorkommen, dass affected_rows() 0 zurückgibt
-            $success = "Mieter wurde erfolgreich erstellt.";
-            // Formular zurücksetzen
-            $mieter = [
-                'id' => '',
-                'vorname' => '',
-                'name' => '',
-                'strasse' => '',
-                'hausnummer' => '',
-                'email' => '',
-                'telefon' => '',
-                'mobil' => '',
-                'hinweis' => '',
-                'bootsname' => ''
-            ];
+                $db->query($query, $params);
+                $success = "Mieter wurde erfolgreich aktualisiert.";
+            } else {
+                // Neu anlegen
+                $query = "INSERT INTO mieter (
+                    vorname, name, strasse, hausnummer, email, telefon, mobil, hinweis, bootsname
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    
+                $params = [
+                    $mieter['vorname'],
+                    $mieter['name'],
+                    $mieter['strasse'],
+                    $mieter['hausnummer'],
+                    $mieter['email'],
+                    $mieter['telefon'],
+                    $mieter['mobil'],
+                    $mieter['hinweis'],
+                    $mieter['bootsname']
+                ];
+                
+                $db->query($query, $params);
+                $success = "Mieter wurde erfolgreich erstellt.";
+                
+                // Formular zurücksetzen
+                $mieter = [
+                    'id' => '',
+                    'vorname' => '',
+                    'name' => '',
+                    'strasse' => '',
+                    'hausnummer' => '',
+                    'email' => '',
+                    'telefon' => '',
+                    'mobil' => '',
+                    'hinweis' => '',
+                    'bootsname' => ''
+                ];
+            }
         }
+    } catch (Exception $e) {
+        // Allgemeine Fehlerbehandlung
+        $error = "Fehler bei der Datenbankoperation: " . $e->getMessage();
     }
 }
 
