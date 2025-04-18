@@ -12,13 +12,17 @@ if (!$auth->isLoggedIn()) {
 
 // Löschen eines Mieters, wenn ID übergeben wurde
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = $_GET['delete'];
-    $result = $db->query("DELETE FROM mieter WHERE id = ?", [$id]);
-    
-    if ($db->affectedRows() > 0) {
-        $success = "Mieter wurde erfolgreich gelöscht.";
-    } else {
-        $error = "Fehler beim Löschen des Mieters.";
+    try {
+        $id = $_GET['delete'];
+        $db->query("DELETE FROM mieter WHERE id = ?", [$id]);
+        
+        if ($db->affectedRows() > 0) {
+            $success = "Mieter wurde erfolgreich gelöscht.";
+        } else {
+            $error = "Fehler beim Löschen des Mieters oder Mieter nicht gefunden.";
+        }
+    } catch (Exception $e) {
+        $error = "Fehler beim Löschen des Mieters: " . $e->getMessage();
     }
 }
 
