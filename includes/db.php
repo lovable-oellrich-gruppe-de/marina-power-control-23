@@ -67,10 +67,12 @@ class Database {
             }
             
             // Ergebnis zurückgeben
-            $result = $stmt->get_result();
-            $stmt->close();
-            
-            return $result;
+            if (stripos($sql, 'SELECT') === 0) {
+                $result = $stmt->get_result();
+                return $result;
+            } else {
+                return true;
+            }
             
         } catch (Exception $e) {
             // Hier könnten Sie auch Logging hinzufügen
