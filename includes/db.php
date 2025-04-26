@@ -30,6 +30,10 @@ class Database {
     // Abfrage ausführen
     public function query($sql, $params = []) {
         try {
+            if ($this->last_stmt instanceof mysqli_stmt) {
+                $this->last_stmt->close();
+            }
+            
             $stmt = $this->connection->prepare($sql);
             
             if ($stmt === false) {
