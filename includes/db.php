@@ -74,6 +74,7 @@ class Database {
                 $result = $stmt->get_result();
                 return $result;
             } else {
+                $stmt->close();
                 return true;
             }
             
@@ -96,7 +97,11 @@ class Database {
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
         }
-    
+        
+        if ($this->last_stmt instanceof mysqli_stmt) {
+            $this->last_stmt->close();
+        }
+        
         return $data;
     }
     
@@ -109,7 +114,13 @@ class Database {
             return null;
         }
         
-        return $result->fetch_assoc();
+        $row = $result->fetch_assoc();
+        
+        if ($this->last_stmt instanceof mysqli_stmt) {
+            $this->last_stmt->close();
+        }
+
+        return $row;
     }
     
     // Anzahl der betroffenen Zeilen abrufen
