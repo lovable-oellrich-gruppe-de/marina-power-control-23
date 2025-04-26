@@ -65,6 +65,8 @@ class Database {
             if (!$success) {
                 throw new Exception("Ausführungsfehler: " . $stmt->error);
             }
+
+            $this->last_stmt = $stmt;
             
             // Ergebnis zurückgeben
             if (stripos($sql, 'SELECT') === 0) {
@@ -111,7 +113,11 @@ class Database {
     
     // Anzahl der betroffenen Zeilen abrufen
     public function affectedRows() {
-        return $this->connection->affected_rows;
+    //    return $this->connection->affected_rows;
+        if (!isset($this->last_stmt) || !($this->last_stmt instanceof mysqli_stmt)) {
+            return -1;
+        }
+        return $this->last_stmt->affected_rows;
     }
     
     // Letzte eingefügte ID abrufen
