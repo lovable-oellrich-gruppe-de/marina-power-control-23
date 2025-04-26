@@ -76,6 +76,10 @@ $steckdosen = $db->fetchAll("
     ORDER BY s.bezeichnung
 ");
 
+echo "<pre>";
+print_r($steckdosen);
+echo "</pre>";
+
 // Alle Mieter für Dropdown abrufen
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name");
 
