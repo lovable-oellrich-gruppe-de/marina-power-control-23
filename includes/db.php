@@ -3,6 +3,7 @@ require_once 'config.php';
 
 class Database {
     private $connection;
+    private $last_stmt;
     
     // Konstruktor zur Herstellung der Datenbankverbindung
     public function __construct() {
