@@ -69,7 +69,7 @@ if (isset($_POST['assign_bereich']) && isset($_POST['steckdose_id']) && isset($_
 $steckdosen = $db->fetchAll("
     SELECT s.*, 
            b.name AS bereich_name, 
-           CONCAT(m.vorname, ' ', m.name) AS mieter_name
+           IFNULL(CONCAT(m.vorname, ' ', m.name), 'Kein Mieter') AS mieter_name
     FROM steckdosen s
     LEFT JOIN bereiche b ON s.bereich_id = b.id
     LEFT JOIN mieter m ON s.mieter_id = m.id
