@@ -31,8 +31,11 @@ class Database {
     public function query($sql, $params = []) {
         try {
             if ($this->last_stmt instanceof mysqli_stmt) {
-                if (!$this->last_stmt->errno) { // nur schließen, wenn noch offen
-                    $this->last_stmt->close();
+                // Versuchen zu schließen, aber Fehler ignorieren, falls schon geschlossen
+                try {
+                    @$this->last_stmt->close();
+                } catch (Throwable $e) {
+                    // Statement ist schon zu, ignorieren
                 }
             }
             
@@ -105,7 +108,11 @@ class Database {
         }
         
         if ($this->last_stmt instanceof mysqli_stmt) {
-            $this->last_stmt->close();
+            try {
+                @$this->last_stmt->close();
+            } catch (Throwable $e) {
+                // Statement bereits geschlossen, ignorieren
+            }
         }
         
         return $data;
@@ -123,7 +130,11 @@ class Database {
         $row = $result->fetch_assoc();
         
         if ($this->last_stmt instanceof mysqli_stmt) {
-            $this->last_stmt->close();
+            try {
+                @$this->last_stmt->close();
+            } catch (Throwable $e) {
+                // Statement bereits geschlossen, ignorieren
+            }
         }
 
         return $row;
