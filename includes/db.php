@@ -98,25 +98,18 @@ class Database {
     }
     
     // Ein einzelnes Ergebnis abrufen
-    public function fetchAll($sql, $params = []) {
+    public function fetchOne($sql, $params = []) {
         $result = $this->query($sql, $params);
-    
-        if ($result === false) {
-            error_log("Datenbankfehler in fetchAll: " . $sql);
-            return [];
+        
+        // Wenn $result keine Ressource oder null ist, null zurückgeben
+        if (!$result) {
+            return null;
         }
-    
-        $data = [];
-    
-        if ($result instanceof mysqli_result) {
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
-        }
-    
-        return $data;
+        
+        return $result->fetch_assoc();
     }
-        // Anzahl der betroffenen Zeilen abrufen
+    
+    // Anzahl der betroffenen Zeilen abrufen
     public function affectedRows() {
         return $this->connection->affected_rows;
     }
