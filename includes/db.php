@@ -31,7 +31,9 @@ class Database {
     public function query($sql, $params = []) {
         try {
             if ($this->last_stmt instanceof mysqli_stmt) {
-                $this->last_stmt->close();
+                if (!$this->last_stmt->errno) { // nur schließen, wenn noch offen
+                    $this->last_stmt->close();
+                }
             }
             
             $stmt = $this->connection->prepare($sql);
