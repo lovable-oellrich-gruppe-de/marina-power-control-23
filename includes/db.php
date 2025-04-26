@@ -84,16 +84,16 @@ class Database {
     public function fetchAll($sql, $params = []) {
         $result = $this->query($sql, $params);
         $data = [];
-        
-        // Wenn $result keine Ressource oder null ist, leeres Array zurückgeben
-        if (!$result) {
+    
+        // Wenn kein gültiges Ergebnisobjekt vorhanden ist, leeres Array zurückgeben
+        if (!($result instanceof mysqli_result)) {
             return $data;
         }
-        
+    
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
         }
-        
+    
         return $data;
     }
     
