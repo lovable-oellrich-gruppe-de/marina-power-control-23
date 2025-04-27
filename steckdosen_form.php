@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $db->query($query, $params);
 
-            if ($db->affectedRows() > 0) {
+            if ($db->query($query, $params)) {
                 $success = "Steckdose wurde erfolgreich erstellt.";
                 // Formular zurücksetzen
                 $steckdose = [
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'hinweis' => ''
                 ];
             } else {
-                $error = "Fehler beim Erstellen der Steckdose.";
+                $error = "Fehler beim Erstellen der Steckdose: " . $db->error();
             }
         }
     }
