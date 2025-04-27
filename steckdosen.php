@@ -118,7 +118,7 @@ LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id
 ORDER BY steckdosen.bezeichnung;
 */
 // Alle Steckdosen aus der Datenbank abrufen
-$sql = ""SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id";
+$sql = "SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id";
 $params = [];
 
 if (!empty($_GET['bereich'])) {
@@ -346,6 +346,7 @@ require_once 'includes/header.php';
 </div>
 
 <!-- Mieter zuweisen Modal -->
+<!--
 <div id="mieterModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Mieter zuweisen</h3>
@@ -367,9 +368,10 @@ require_once 'includes/header.php';
             </div>
         </form>
     </div>
-</div>
+</div>-->
 
 <!-- Bereich zuweisen Modal -->
+<!--
 <div id="bereichModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Bereich zuweisen</h3>
@@ -391,7 +393,7 @@ require_once 'includes/header.php';
             </div>
         </form>
     </div>
-</div>
+</div>-->
 
 <script>
 function toggleStatusMenu(id) {
