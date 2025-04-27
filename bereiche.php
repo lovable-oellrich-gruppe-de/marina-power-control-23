@@ -45,7 +45,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['aktiv'])) {
 }
 
 // Alle Bereiche aus der Datenbank abrufen
-$bereiche = $db->fetchAll("SELECT bereiche.*, (SELECT COUNT(*) FROM steckdosen WHERE bereich_id = bereiche.id) AS steckdosen_count FROM bereiche ORDER BY b.name");
+$bereiche = $db->fetchAll("SELECT bereiche.*, (SELECT COUNT(*) FROM steckdosen WHERE bereich_id = bereiche.id) AS steckdosen_count FROM bereiche ORDER BY bereiche.name");
 
 // Header einbinden
 require_once 'includes/header.php';
