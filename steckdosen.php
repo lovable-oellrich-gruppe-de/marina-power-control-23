@@ -22,7 +22,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Alle Steckdosen aus der Datenbank abrufen
-$sql = "SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id";
+$sql = "SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id" Where ;
 $params = [];
 
 if (!empty($_GET['bereich'])) {
