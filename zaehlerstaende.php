@@ -104,8 +104,7 @@ $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS vollname FROM mieter ORDER BY name");
 
 // Zählerstände aus der Datenbank abrufen mit Joins zu Zähler, Steckdose, Bereich und Mieter
-$sql = "
-    SELECT 
+$sql = "SELECT 
         zs.*,
         z.zaehlernummer,
         s.bezeichnung AS steckdose_bezeichnung,
@@ -123,8 +122,7 @@ $sql = "
         mieter m ON s.mieter_id = m.id
     $where_sql
     ORDER BY 
-        zs.datum DESC, zs.id DESC
-";
+        zs.datum DESC, zs.id DESC";
 
 $zaehlerstaende = $db->fetchAll($sql, $params);
 
