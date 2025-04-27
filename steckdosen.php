@@ -71,8 +71,8 @@ $steckdosen = $db->fetchAll("
         s.id,
         s.bezeichnung,
         s.status,
-        IFNULL(b.name, 'Nicht zugewiesen') AS bereich_name,
-        IFNULL(CONCAT(m.vorname, ' ', m.name), 'Nicht zugewiesen') AS mieter_name
+        COALESCE(b.name, 'Nicht zugewiesen') AS bereich_name,
+        COALESCE(CONCAT(COALESCE(m.vorname, ''), ' ', COALESCE(m.name, '')), 'Nicht zugewiesen') AS mieter_name
     FROM steckdosen s
     LEFT JOIN bereiche b ON s.bereich_id = b.id
     LEFT JOIN mieter m ON s.mieter_id = m.id
