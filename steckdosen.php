@@ -3,6 +3,10 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 
+$success = isset($_GET['success']) ? $_GET['success'] : null;
+$error = isset($_GET['error']) ? $_GET['error'] : null;
+$info = isset($_GET['info']) ? $_GET['info'] : null;
+
 // Wenn nicht angemeldet, zur Login-Seite umleiten
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');
