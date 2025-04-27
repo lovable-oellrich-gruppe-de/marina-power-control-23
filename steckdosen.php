@@ -41,19 +41,23 @@ if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['status'])) {
 if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_POST['mieter_id'])) {
     $steckdose_id = $_POST['steckdose_id'];
     $mieter_id = $_POST['mieter_id'] ? $_POST['mieter_id'] : null;
-    
-    $result = $db->query("UPDATE steckdosen SET mieter_id = ? WHERE id = ?", [$mieter_id, $steckdose_id]);
-    
-    if ($result) {
-        $affected = $db->affectedRows();
+
+    // Schritt 1: aktuellen Mieter aus der Datenbank holen
+    $currentMieter = $db->fetchColumn("SELECT mieter_id FROM steckdosen WHERE id = ?", [$steckdose_id]);
+
+    // Schritt 2: Prüfen, ob der neue Mieter anders ist als der aktuelle
+    if ($currentMieter != $mieter_id) {
+        // Unterschied -> UPDATE machen
+        $result = $db->query("UPDATE steckdosen SET mieter_id = ? WHERE id = ?", [$mieter_id, $steckdose_id]);
         
-        if ($affected > 0) {
-            $success = "Mieter wurde erfolgreich zugeordnet.";
+        if ($result) {
+            $success = "Mieter wurde erfolgreich geändert.";
         } else {
-            $info = "Hinweis: Keine Änderung vorgenommen (Mieter war bereits zugewiesen).";
+            $error = "Fehler bei der Zuordnung des Mieters.";
         }
     } else {
-        $error = "Fehler bei der Zuordnung des Mieters.";
+        // Gleich -> keine Änderung nötig
+        $info = "Hinweis: Der ausgewählte Mieter war bereits zugewiesen. Keine Änderung erforderlich.";
     }
 }
 
