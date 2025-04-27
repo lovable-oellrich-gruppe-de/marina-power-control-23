@@ -150,6 +150,12 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
 
+        <?php if (isset($info)): ?>
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                <?= htmlspecialchars($info) ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Steckdosen-Formular -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
             <form action="steckdosen_form.php" method="POST">
