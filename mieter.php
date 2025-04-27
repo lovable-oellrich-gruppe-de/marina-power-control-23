@@ -16,9 +16,8 @@ $info = $_GET['info'] ?? '';
 
 // Löschen eines Mieters, wenn ID übergeben wurde
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
-
     try {
+        $id = (int)$_GET['delete'];
         $db->query("DELETE FROM mieter WHERE id = ?", [$id]);
 
         if ($db->affectedRows() > 0) {
