@@ -60,34 +60,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Entweder aktualisieren oder neu anlegen
         if (!empty($steckdose['id'])) {
-            // Aktualisieren
-            $query = "UPDATE steckdosen SET 
-                bezeichnung = ?, 
-                status = ?, 
-                bereich_id = ?, 
-                mieter_id = ?, 
-                hinweis = ? 
-                WHERE id = ?";
+            // 1. Aktuelle Werte aus der DB holen
+            $aktuelleSteckdose = $db->fetchOne("SELECT * FROM steckdosen WHERE id = ?", [$steckdose['id']]);
+            
+            // 2. NULL-Werte und Strings anpassen
+            foreach (['bereich_id', 'mieter_id'] as $feld) {
+                if (is_null($aktuelleSteckdose[$feld])) $aktuelleSteckdose[$feld] = '';
+                if (is_null($steckdose[$feld])) $steckdose[$feld] = '';
+            }
+            
+            // 3. Felder vergleichen
+            $datenGeaendert = (
+                trim((string)$aktuelleSteckdose['bezeichnung']) !== trim((string)$steckdose['bezeichnung']) ||
+                (string)$aktuelleSteckdose['status'] !== (string)$steckdose['status'] ||
+                (string)$aktuelleSteckdose['bereich_id'] !== (string)$steckdose['bereich_id'] ||
+                (string)$aktuelleSteckdose['mieter_id'] !== (string)$steckdose['mieter_id'] ||
+                trim((string)$aktuelleSteckdose['hinweis']) !== trim((string)$steckdose['hinweis'])
+            );
+            
+            // 4. Update nur wenn nötig
+            if ($datenGeaendert) {    
+                // Aktualisieren
+                $query = "UPDATE steckdosen SET 
+                    bezeichnung = ?, 
+                    status = ?, 
+                    bereich_id = ?, 
+                    mieter_id = ?, 
+                    hinweis = ? 
+                    WHERE id = ?";
+                    
+                $params = [
+                    $steckdose['bezeichnung'],
+                    $steckdose['status'],
+                    $steckdose['bereich_id'],
+                    $steckdose['mieter_id'],
+                    $steckdose['hinweis'],
+                    $steckdose['id']
+                ];
                 
-            $params = [
-                $steckdose['bezeichnung'],
-                $steckdose['status'],
-                $steckdose['bereich_id'],
-                $steckdose['mieter_id'],
-                $steckdose['hinweis'],
-                $steckdose['id']
-            ];
-            
-            $result = $db->query($query, $params);
-            
-            if ($result) {
-                if ($db->affectedRows() > 0) {
+                $result = $db->query($query, $params);
+                
+                if ($result) {
                     $success = "Steckdose wurde erfolgreich aktualisiert.";
                 } else {
-                    $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
+                    $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
                 }
             } else {
-                $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
+                $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
             }
         } else {
             // Neu anlegen
