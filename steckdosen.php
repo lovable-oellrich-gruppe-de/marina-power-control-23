@@ -69,13 +69,27 @@ if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_P
 if (isset($_POST['assign_bereich']) && isset($_POST['steckdose_id']) && isset($_POST['bereich_id'])) {
     $steckdose_id = $_POST['steckdose_id'];
     $bereich_id = $_POST['bereich_id'] ? $_POST['bereich_id'] : null;
-    
-    $result = $db->query("UPDATE steckdosen SET bereich_id = ? WHERE id = ?", [$bereich_id, $steckdose_id]);
-    
-    if ($db->affectedRows() >= 0) {
-        $success = "Bereich wurde erfolgreich zugeordnet.";
+
+    // Aktuellen Bereich aus der Datenbank holen
+    $rows = $db->fetchAll("SELECT bereich_id FROM steckdosen WHERE id = ?", [$steckdose_id]);
+
+    if (!empty($rows)) {
+        $currentBereich = $rows[0]['bereich_id'];
+
+        if ($currentBereich != $bereich_id) {
+            // Unterschied -> UPDATE machen
+            $updateResult = $db->query("UPDATE steckdosen SET bereich_id = ? WHERE id = ?", [$bereich_id, $steckdose_id]);
+
+            if ($updateResult) {
+                $success = "Bereich wurde erfolgreich geändert.";
+            } else {
+                $error = "Fehler bei der Zuordnung des Bereichs: " . $db->error();
+            }
+        } else {
+            $info = "Hinweis: Der ausgewählte Bereich war bereits zugewiesen. Keine Änderung erforderlich.";
+        }
     } else {
-        $error = "Fehler bei der Zuordnung des Bereichs.";
+        $error = "Fehler: Steckdose wurde nicht gefunden.";
     }
 }
 /*SELECT 
