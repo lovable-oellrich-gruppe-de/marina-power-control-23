@@ -44,8 +44,14 @@ if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_P
     
     $result = $db->query("UPDATE steckdosen SET mieter_id = ? WHERE id = ?", [$mieter_id, $steckdose_id]);
     
-    if ($db->affectedRows() >= 0) {
-        $success = "Mieter wurde erfolgreich zugeordnet.";
+    if ($result) {
+        $affected = $db->affectedRows();
+        
+        if ($affected > 0) {
+            $success = "Mieter wurde erfolgreich zugeordnet.";
+        } else {
+            $info = "Hinweis: Keine Änderung vorgenommen (Mieter war bereits zugewiesen).";
+        }
     } else {
         $error = "Fehler bei der Zuordnung des Mieters.";
     }
