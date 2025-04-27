@@ -18,9 +18,7 @@ $info = $_GET['info'] ?? null;
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     try {
         $id = (int)$_GET['delete'];
-        $result = $db->query("DELETE FROM mieter WHERE id = ?", [$id]);
-        
-        if ($db->affectedRows() > 0) {
+        if ($db->query("DELETE FROM mieter WHERE id = ?", [$id])) {
             header("Location: mieter.php?success=" . urlencode("Mieter wurde erfolgreich gelöscht."));
             exit;
         } else {
