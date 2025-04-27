@@ -1,4 +1,3 @@
-
 <?php
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -10,41 +9,32 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Löschen eines Bereichs, wenn ID übergeben wurde
+// Erfolg- oder Fehlermeldungen aus URL holen
+$success_message = $_GET['success'] ?? null;
+$error_message = $_GET['error'] ?? null;
+
+// Bereich löschen, wenn delete-ID übergeben wurde
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = $_GET['delete'];
-    
-    // Prüfen, ob Bereich mit Steckdosen verknüpft ist
+    $id = (int)$_GET['delete'];
+
+    // Prüfen ob Bereich noch mit Steckdosen verknüpft ist
     $linkedResources = $db->fetchOne("SELECT COUNT(*) as count FROM steckdosen WHERE bereich_id = ?", [$id]);
-    
+
     if ($linkedResources['count'] > 0) {
-        $error = "Der Bereich kann nicht gelöscht werden, da er noch mit Steckdosen verknüpft ist.";
+        header("Location: bereiche.php?error=" . urlencode("Bereich kann nicht gelöscht werden, da er noch mit Steckdosen verknüpft ist."));
+        exit;
     } else {
-        $result = $db->query("DELETE FROM bereiche WHERE id = ?", [$id]);
-        
-        if ($db->affectedRows() > 0) {
-            $success = "Bereich wurde erfolgreich gelöscht.";
+        if ($db->query("DELETE FROM bereiche WHERE id = ?", [$id])) {
+            header("Location: bereiche.php?success=" . urlencode("Bereich wurde erfolgreich gelöscht."));
+            exit;
         } else {
-            $error = "Fehler beim Löschen des Bereichs.";
+            header("Location: bereiche.php?error=" . urlencode("Fehler beim Löschen des Bereichs."));
+            exit;
         }
     }
 }
 
-// Aktivieren/Deaktivieren eines Bereichs
-if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['aktiv'])) {
-    $id = $_GET['id'];
-    $aktiv = $_GET['aktiv'] === '1' ? 1 : 0;
-    
-    $result = $db->query("UPDATE bereiche SET aktiv = ? WHERE id = ?", [$aktiv, $id]);
-    
-    if ($db->affectedRows() >= 0) {
-        $success = "Status wurde erfolgreich aktualisiert.";
-    } else {
-        $error = "Fehler beim Aktualisieren des Status.";
-    }
-}
-
-// Alle Bereiche aus der Datenbank abrufen
+// Bereiche aus der DB holen
 $bereiche = $db->fetchAll("SELECT bereiche.*, (SELECT COUNT(*) FROM steckdosen WHERE bereich_id = bereiche.id) AS steckdosen_count FROM bereiche ORDER BY bereiche.name");
 
 // Header einbinden
@@ -60,19 +50,18 @@ require_once 'includes/header.php';
             </a>
         </div>
 
-        <?php if (isset($success)): ?>
+        <?php if (!empty($success_message)): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if (isset($error)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <?= htmlspecialchars($error) ?>
+                <?= htmlspecialchars($success_message) ?>
             </div>
         <?php endif; ?>
 
-        <!-- Bereiche-Tabelle -->
+        <?php if (!empty($error_message)): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <?= htmlspecialchars($error_message) ?>
+            </div>
+        <?php endif; ?>
+
         <div class="mt-4 bg-white shadow-md rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -89,51 +78,24 @@ require_once 'includes/header.php';
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (empty($bereiche)): ?>
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Keine Bereiche gefunden
-                                </td>
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Keine Bereiche gefunden</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($bereiche as $b): ?>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['id']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?= htmlspecialchars($b['name']) ?>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">
-                                        <?= htmlspecialchars($b['beschreibung'] ?: '-') ?>
-                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($b['name']) ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($b['beschreibung'] ?: '-') ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if ($b['aktiv']): ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Aktiv
-                                            </span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
                                         <?php else: ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                Inaktiv
-                                            </span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inaktiv</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($b['steckdosen_count']) ?>
-                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['steckdosen_count']) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
-                                            <?php if ($b['aktiv']): ?>
-                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=0" class="text-yellow-600 hover:text-yellow-900" title="Deaktivieren">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                                                        <circle cx="16" cy="12" r="3"></circle>
-                                                    </svg>
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="bereiche.php?id=<?= $b['id'] ?>&aktiv=1" class="text-green-600 hover:text-green-900" title="Aktivieren">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
-                                                        <circle cx="8" cy="12" r="3"></circle>
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?>
                                             <a href="bereiche_form.php?id=<?= $b['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -178,7 +140,7 @@ function confirmDelete(id, name, steckdosenCount) {
     document.getElementById('bereichName').textContent = name;
     const warningText = document.getElementById('warningText');
     const deleteLink = document.getElementById('deleteLink');
-    
+
     if (steckdosenCount > 0) {
         warningText.classList.remove('hidden');
         deleteLink.classList.add('opacity-50', 'cursor-not-allowed');
@@ -190,7 +152,7 @@ function confirmDelete(id, name, steckdosenCount) {
         deleteLink.href = 'bereiche.php?delete=' + id;
         deleteLink.onclick = null;
     }
-    
+
     document.getElementById('deleteModal').classList.remove('hidden');
 }
 
