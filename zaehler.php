@@ -19,6 +19,10 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'installiert_am';
 $orderDir = isset($_GET['order_dir']) ? $_GET['order_dir'] : 'DESC';
 
+// Erfolg oder Fehlernachricht abholen (wenn vorhanden)
+$success_message = $_GET['success'] ?? null;
+$error_message = $_GET['error'] ?? null;
+
 // Löschvorgang verarbeiten, wenn Parameter vorhanden
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     if ($auth->isAdmin()) {
