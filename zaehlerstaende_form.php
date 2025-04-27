@@ -220,7 +220,7 @@ require_once 'includes/header.php';
                         <p class="text-sm text-gray-500 mt-1">Dezimalzahl mit Komma oder Punkt, z.B. 1234,56</p>
                     </div>
 
-                    <?php if ($vorheriger_id): ?>
+                    <?php if (!empty($vorheriger_id)): ?>
                         <div class="col-span-2">
                             <div class="bg-gray-50 p-4 rounded-md">
                                 <p class="text-sm text-gray-700">
