@@ -10,9 +10,9 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Erfolgs- oder Fehlermeldungen übernehmen
-$success_message = isset($_GET['success']) ? $_GET['success'] : null;
-$error_message = null;
+// Erfolg- oder Infomeldungen aus der URL holen
+$success_message = isset($_GET['success']) ? $_GET['success'] : '';
+$info_message = isset($_GET['info']) ? $_GET['info'] : '';
 
 // Abfrageparameter für Suchfunktion und Sortierung
 $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -24,16 +24,15 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     // Nur Admin darf löschen
     if ($auth->isAdmin()) {
         $zaehler_id = (int)$_GET['delete'];
-
+        
         // Prüfen, ob Zähler in Benutzung ist
         $in_use = $db->fetchOne("SELECT COUNT(*) as count FROM zaehlerstaende WHERE zaehler_id = ?", [$zaehler_id])['count'] ?? 0;
-
+        
         if ($in_use > 0) {
             $error_message = "Dieser Zähler hat Messdaten und kann nicht gelöscht werden. Markieren Sie ihn stattdessen als ausgebaut.";
         } else {
-            // Zähler löschen
             $db->query("DELETE FROM zaehler WHERE id = ?", [$zaehler_id]);
-
+            
             if ($db->affectedRows() > 0) {
                 $success_message = "Zähler wurde erfolgreich gelöscht.";
             } else {
@@ -70,34 +69,36 @@ $zaehler = $db->fetchAll($sql, $search_params);
 
 // Header einbinden
 require_once 'includes/header.php';
-
 ?>
 
+<!-- ab hier im HTML -->
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-gray-900">Zähler</h1>
-            <a href="zaehler_form.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-marina-600 hover:bg-marina-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-marina-500">
-                <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+            <a href="zaehler_form.php" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-marina-600 hover:bg-marina-700">
                 Neuen Zähler erstellen
             </a>
         </div>
-        
-        <!-- Erfolgs- oder Fehlermeldungen -->
-        <?php if (isset($success_message)): ?>
-        <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <span class="block sm:inline"><?= htmlspecialchars($success_message) ?></span>
-        </div>
+
+        <!-- Erfolgs-, Fehler- oder Info-Meldungen -->
+        <?php if (!empty($success_message)): ?>
+            <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                <?= htmlspecialchars($success_message) ?>
+            </div>
         <?php endif; ?>
-        
-        <?php if (isset($error_message)): ?>
-        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <span class="block sm:inline"><?= htmlspecialchars($error_message) ?></span>
-        </div>
+
+        <?php if (!empty($error_message)): ?>
+            <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                <?= htmlspecialchars($error_message) ?>
+            </div>
         <?php endif; ?>
-        
+
+        <?php if (!empty($info_message)): ?>
+            <div class="mt-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative">
+                <?= htmlspecialchars($info_message) ?>
+            </div>
+        <?php endif; ?>
         <!-- Suchformular -->
         <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg p-4">
             <form method="GET" action="zaehler.php" class="flex items-center space-x-3">
