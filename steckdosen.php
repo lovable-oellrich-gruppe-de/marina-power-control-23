@@ -64,20 +64,19 @@ if (isset($_POST['assign_bereich']) && isset($_POST['steckdose_id']) && isset($_
         $error = "Fehler bei der Zuordnung des Bereichs.";
     }
 }
-
+/*SELECT 
+    steckdosen.id,
+    steckdosen.bezeichnung,
+    steckdosen.status,
+    COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name,
+    COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name
+FROM steckdosen
+LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
+LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id
+ORDER BY steckdosen.bezeichnung;
+*/
 // Alle Steckdosen aus der Datenbank abrufen
-$steckdosen = $db->fetchAll("
-    SELECT 
-        s.id,
-        s.bezeichnung,
-        s.status,
-        COALESCE(b.name, 'Nicht zugewiesen') AS bereich_name,
-        COALESCE(CONCAT(COALESCE(m.vorname, ''), ' ', COALESCE(m.name, '')), 'Nicht zugewiesen') AS mieter_name
-    FROM steckdosen s
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    LEFT JOIN mieter m ON s.mieter_id = m.id
-    ORDER BY s.bezeichnung
-");
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id ORDER BY steckdosen.bezeichnung;");
 
 // Alle Mieter für Dropdown abrufen
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name");
