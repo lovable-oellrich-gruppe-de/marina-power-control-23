@@ -187,7 +187,7 @@ require_once 'includes/header.php';
                         <select id="steckdose_id" name="steckdose_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
-                                <option value="<?= $s['id'] ?>" <?= $steckdose_id == $s['id'] ? 'selected' : '' ?>>
+                                <option value="<?= $s['id'] ?>" <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($s['bezeichnung']) ?> (<?= htmlspecialchars($s['bereich_name']) ?>)
                                 </option>
                             <?php endforeach; ?>
