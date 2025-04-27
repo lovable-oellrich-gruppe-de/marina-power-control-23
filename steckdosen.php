@@ -42,17 +42,16 @@ if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_P
     $steckdose_id = $_POST['steckdose_id'];
     $mieter_id = $_POST['mieter_id'] ? $_POST['mieter_id'] : null;
 
-    // Schritt 1: aktuellen Mieter aus der Datenbank holen
-    $row = $db->fetch("SELECT mieter_id FROM steckdosen WHERE id = ?", [$steckdose_id]);
+    // Aktuellen Mieter aus der Datenbank holen
+    $rows = $db->fetchAll("SELECT mieter_id FROM steckdosen WHERE id = ?", [$steckdose_id]);
 
-    if ($row) {
-        $currentMieter = $row['mieter_id'];
+    if (!empty($rows)) {
+        $currentMieter = $rows[0]['mieter_id'];
 
-        // Schritt 2: Prüfen, ob sich der Mieter ändert
         if ($currentMieter != $mieter_id) {
             // Unterschied -> UPDATE machen
             $updateResult = $db->query("UPDATE steckdosen SET mieter_id = ? WHERE id = ?", [$mieter_id, $steckdose_id]);
-            
+
             if ($updateResult) {
                 $success = "Mieter wurde erfolgreich geändert.";
             } else {
@@ -62,7 +61,7 @@ if (isset($_POST['assign_mieter']) && isset($_POST['steckdose_id']) && isset($_P
             $info = "Hinweis: Der ausgewählte Mieter war bereits zugewiesen. Keine Änderung erforderlich.";
         }
     } else {
-        $error = "Fehler: Steckdose nicht gefunden.";
+        $error = "Fehler: Steckdose wurde nicht gefunden.";
     }
 }
 
