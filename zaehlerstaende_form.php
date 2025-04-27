@@ -33,12 +33,10 @@ $errors = [];
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
 
 // Steckdosen für Dropdown laden
-$steckdosen = $db->fetchAll("
-    SELECT s.id, s.bezeichnung, b.name AS bereich_name
+$steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name
     FROM steckdosen s
     LEFT JOIN bereiche b ON s.bereich_id = b.id
-    ORDER BY b.name, s.bezeichnung
-");
+    ORDER BY b.name, s.bezeichnung");
 
 // Bearbeiten-Modus prüfen
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
