@@ -30,14 +30,13 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
         // Prüfen, ob Zähler in Benutzung ist
         $in_use = $db->fetchOne("SELECT COUNT(*) as count FROM zaehlerstaende WHERE zaehler_id = ?", [$zaehler_id])['count'] ?? 0;
-
+        
         if ($in_use > 0) {
             header("Location: zaehler.php?error=" . urlencode("Dieser Zähler hat Messdaten und kann nicht gelöscht werden. Markieren Sie ihn stattdessen als ausgebaut."));
             exit;
         } else {
             // Zähler löschen
-            $db->query("DELETE FROM zaehler WHERE id = ?", [$zaehler_id]);
-            if ($db->affectedRows() > 0) {
+            if ($db->query("DELETE FROM zaehler WHERE id = ?", [$zaehler_id])) {
                 header("Location: zaehler.php?success=" . urlencode("Zähler wurde erfolgreich gelöscht."));
                 exit;
             } else {
