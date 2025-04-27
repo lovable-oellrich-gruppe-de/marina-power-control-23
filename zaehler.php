@@ -10,6 +10,10 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
+// Erfolgs- oder Fehlermeldungen übernehmen
+$success_message = isset($_GET['success']) ? $_GET['success'] : null;
+$error_message = null;
+
 // Abfrageparameter für Suchfunktion und Sortierung
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'installiert_am';
@@ -20,16 +24,16 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     // Nur Admin darf löschen
     if ($auth->isAdmin()) {
         $zaehler_id = (int)$_GET['delete'];
-        
+
         // Prüfen, ob Zähler in Benutzung ist
         $in_use = $db->fetchOne("SELECT COUNT(*) as count FROM zaehlerstaende WHERE zaehler_id = ?", [$zaehler_id])['count'] ?? 0;
-        
+
         if ($in_use > 0) {
             $error_message = "Dieser Zähler hat Messdaten und kann nicht gelöscht werden. Markieren Sie ihn stattdessen als ausgebaut.";
         } else {
             // Zähler löschen
             $db->query("DELETE FROM zaehler WHERE id = ?", [$zaehler_id]);
-            
+
             if ($db->affectedRows() > 0) {
                 $success_message = "Zähler wurde erfolgreich gelöscht.";
             } else {
@@ -66,6 +70,7 @@ $zaehler = $db->fetchAll($sql, $search_params);
 
 // Header einbinden
 require_once 'includes/header.php';
+
 ?>
 
 <div class="py-6">
