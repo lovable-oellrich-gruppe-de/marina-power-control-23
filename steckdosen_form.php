@@ -78,12 +78,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $steckdose['id']
             ];
             
-            $db->query($query, $params);
+            $result = $db->query($query, $params);
             
-            if ($db->affectedRows() >= 0) {
-                $success = "Steckdose wurde erfolgreich aktualisiert.";
+            if ($result) {
+                if ($db->affectedRows() > 0) {
+                    $success = "Steckdose wurde erfolgreich aktualisiert.";
+                } else {
+                    $info = "Hinweis: Es wurden keine Änderungen vorgenommen, da die Daten identisch waren.";
+                }
             } else {
-                $error = "Fehler beim Aktualisieren der Steckdose.";
+                $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
             }
         } else {
             // Neu anlegen
