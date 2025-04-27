@@ -22,18 +22,30 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Status einer Steckdose ändern, wenn ID und Status übergeben wurden
-if (isset($_GET['id']) && is_numeric($_GET['id']) && isset($_GET['status'])) {
-    $id = $_GET['id'];
-    $status = $_GET['status'];
-    
-    if (in_array($status, ['aktiv', 'inaktiv', 'defekt'])) {
-        $result = $db->query("UPDATE steckdosen SET status = ? WHERE id = ?", [$status, $id]);
-        
-        if ($db->affectedRows() >= 0) {
-            $success = "Status wurde erfolgreich aktualisiert.";
+if (isset($_POST['assign_status']) && isset($_POST['steckdose_id']) && isset($_POST['status'])) {
+    $steckdose_id = $_POST['steckdose_id'];
+    $status = $_POST['status'];
+
+    // Aktuellen Status holen
+    $rows = $db->fetchAll("SELECT status FROM steckdosen WHERE id = ?", [$steckdose_id]);
+
+    if (!empty($rows)) {
+        $currentStatus = $rows[0]['status'];
+
+        if ($currentStatus != $status) {
+            // Unterschied -> UPDATE machen
+            $updateResult = $db->query("UPDATE steckdosen SET status = ? WHERE id = ?", [$status, $steckdose_id]);
+
+            if ($updateResult) {
+                $success = "Status wurde erfolgreich geändert.";
+            } else {
+                $error = "Fehler bei der Änderung des Status: " . $db->error();
+            }
         } else {
-            $error = "Fehler beim Aktualisieren des Status.";
+            $info = "Hinweis: Der ausgewählte Status war bereits gesetzt. Keine Änderung erforderlich.";
         }
+    } else {
+        $error = "Fehler: Steckdose wurde nicht gefunden.";
     }
 }
 
