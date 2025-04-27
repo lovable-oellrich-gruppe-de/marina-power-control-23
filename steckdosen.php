@@ -21,6 +21,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
+/*
 // Status einer Steckdose ändern, wenn ID und Status übergeben wurden
 if (isset($_GET['assign_status']) && isset($_GET['steckdose_id']) && isset($_GET['status'])) {
     $steckdose_id = $_GET['steckdose_id'];
@@ -104,6 +105,7 @@ if (isset($_POST['assign_bereich']) && isset($_POST['steckdose_id']) && isset($_
         $error = "Fehler: Steckdose wurde nicht gefunden.";
     }
 }
+*/
 /*SELECT 
     steckdosen.id,
     steckdosen.bezeichnung,
@@ -244,26 +246,26 @@ require_once 'includes/header.php';
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <div class="flex items-center space-x-2">
                                             <span><?= htmlspecialchars($s['bereich_name'] ?? 'Nicht zugewiesen') ?></span>
-                                            <button type="button" onclick="openBereichModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Bereich zuweisen">
+                                            <!--<button type="button" onclick="openBereichModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Bereich zuweisen">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
                                                 </svg>
-                                            </button>
+                                            </button>-->
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <div class="flex items-center space-x-2">
                                             <span><?= htmlspecialchars($s['mieter_name'] ?? 'Nicht zugewiesen') ?></span>
-                                            <button type="button" onclick="openMieterModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Mieter zuweisen">
+                                            <!--<button type="button" onclick="openMieterModal(<?= $s['id'] ?>)" class="text-marina-600 hover:text-marina-800" title="Mieter zuweisen">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
                                                 </svg>
-                                            </button>
+                                            </button>-->
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
-                                            <button id="status-button-<?= $s['id'] ?>" class="text-gray-700 hover:text-marina-600" onclick="toggleStatusMenu(<?= $s['id'] ?>)" title="Status ändern">
+                                            <!--<button id="status-button-<?= $s['id'] ?>" class="text-gray-700 hover:text-marina-600" onclick="toggleStatusMenu(<?= $s['id'] ?>)" title="Status ändern">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <circle cx="12" cy="12" r="3"></circle>
                                                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -273,7 +275,7 @@ require_once 'includes/header.php';
                                                 <a href="steckdosen.php?id=<?= $s['id'] ?>&status=aktiv" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aktiv</a>
                                                 <a href="steckdosen.php?id=<?= $s['id'] ?>&status=inaktiv" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inaktiv</a>
                                                 <a href="steckdosen.php?id=<?= $s['id'] ?>&status=defekt" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Defekt</a>
-                                            </div>
+                                            </div>-->
                                             <a href="steckdosen_form.php?id=<?= $s['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
