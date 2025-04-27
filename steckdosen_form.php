@@ -78,12 +78,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $steckdose['id']
             ];
             
-            $db->query($query, $params);
+            $result = $db->query($query, $params);
             
-            if ($db->affectedRows() >= 0) {
-                $success = "Steckdose wurde erfolgreich aktualisiert.";
+            if ($result) {
+                if ($db->affectedRows() > 0) {
+                    $success = "Steckdose wurde erfolgreich aktualisiert.";
+                } else {
+                    $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
+                }
             } else {
-                $error = "Fehler beim Aktualisieren der Steckdose.";
+                $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
             }
         } else {
             // Neu anlegen
@@ -143,6 +147,12 @@ require_once 'includes/header.php';
         <?php if ($success): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 <?= htmlspecialchars($success) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($info)): ?>
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                <?= htmlspecialchars($info) ?>
             </div>
         <?php endif; ?>
 
