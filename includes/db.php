@@ -142,11 +142,19 @@ class Database {
     
     // Anzahl der betroffenen Zeilen abrufen
     public function affectedRows() {
-    //    return $this->connection->affected_rows;
         if (!isset($this->last_stmt) || !($this->last_stmt instanceof mysqli_stmt)) {
             return -1;
         }
-        return $this->last_stmt->affected_rows;
+    
+        if (!$this->last_stmt) {
+            return -1;
+        }
+    
+        try {
+            return $this->last_stmt->affected_rows;
+        } catch (Throwable $e) {
+            return -1;
+        }
     }
     
     // Letzte eingefügte ID abrufen
