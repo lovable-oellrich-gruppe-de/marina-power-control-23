@@ -118,6 +118,12 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
 
+        <?php if (isset($info)): ?>
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                <?= htmlspecialchars($info) ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Filter-Optionen -->
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
             <form method="GET" action="steckdosen.php" class="flex flex-wrap items-end gap-4">
