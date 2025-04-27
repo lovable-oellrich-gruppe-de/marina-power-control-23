@@ -11,6 +11,7 @@ if (!$auth->isLoggedIn()) {
 
 $error = '';
 $success = '';
+$info = '';
 
 // Standardwerte für neue Steckdose
 $steckdose = [
