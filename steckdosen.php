@@ -60,10 +60,6 @@ $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
 // Alle Zähler für Dropdown abrufen
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
 
-echo '<pre>';
-print_r($_GET);
-echo '</pre>';
-
 // Header einbinden
 require_once 'includes/header.php';
 ?>
