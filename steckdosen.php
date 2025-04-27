@@ -14,10 +14,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = $_GET['delete'];
     $result = $db->query("DELETE FROM steckdosen WHERE id = ?", [$id]);
     
-    if ($db->affectedRows() > 0) {
+    if ($result) {
         $success = "Steckdose wurde erfolgreich gelöscht.";
     } else {
-        $error = "Fehler beim Löschen der Steckdose.";
+        $error = "Fehler beim Löschen der Steckdose: " . $db->error();
     }
 }
 
