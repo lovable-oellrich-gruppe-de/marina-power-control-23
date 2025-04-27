@@ -30,7 +30,7 @@ $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM miet
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = $_GET['id'];
     $result = $db->fetchOne("SELECT * FROM steckdosen WHERE id = ?", [$id]);
-    
+
     if ($result) {
         $steckdose = $result;
     } else {
@@ -45,57 +45,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'id' => $_POST['id'] ?? '',
         'bezeichnung' => $_POST['bezeichnung'] ?? '',
         'status' => $_POST['status'] ?? 'aktiv',
-        'bereich_id' => $_POST['bereich_id'] ?? '',
-        'mieter_id' => $_POST['mieter_id'] ?? '',
+        'bereich_id' => $_POST['bereich_id'] !== '' ? (int)$_POST['bereich_id'] : null,
+        'mieter_id' => $_POST['mieter_id'] !== '' ? (int)$_POST['mieter_id'] : null,
         'hinweis' => $_POST['hinweis'] ?? ''
     ];
-    
-    // Leere Werte in NULL umwandeln
-    $steckdose['bereich_id'] = isset($_POST['bereich_id']) && $_POST['bereich_id'] !== '' ? (int)$_POST['bereich_id'] : null;
-    $steckdose['mieter_id'] = isset($_POST['mieter_id']) && $_POST['mieter_id'] !== '' ? (int)$_POST['mieter_id'] : null;
 
-    
     // Validierung
     if (empty($steckdose['bezeichnung'])) {
         $error = "Bitte geben Sie eine Bezeichnung ein.";
     } else {
         // Entweder aktualisieren oder neu anlegen
         if (!empty($steckdose['id'])) {
-            // Aktualisieren
-            $query = "UPDATE steckdosen SET 
-                bezeichnung = ?, 
-                status = ?, 
-                bereich_id = ?, 
-                mieter_id = ?, 
-                hinweis = ? 
-                WHERE id = ?";
-                
-            $params = [
-                $steckdose['bezeichnung'],
-                $steckdose['status'],
-                $steckdose['bereich_id'],
-                $steckdose['mieter_id'],
-                $steckdose['hinweis'],
-                $steckdose['id']
-            ];
-            
-            $result = $db->query($query, $params);
-            
-            if ($result) {
-                if ($db->affectedRows() > 0) {
+            // Aktuelle Daten aus der DB holen
+            $aktuelleDaten = $db->fetchOne("SELECT * FROM steckdosen WHERE id = ?", [$steckdose['id']]);
+
+            // Vergleichen ob Änderungen vorhanden
+            $datenGeaendert = (
+                trim((string)$aktuelleDaten['bezeichnung']) !== trim((string)$steckdose['bezeichnung']) ||
+                (string)$aktuelleDaten['status'] !== (string)$steckdose['status'] ||
+                (string)($aktuelleDaten['bereich_id'] ?? '') !== (string)($steckdose['bereich_id'] ?? '') ||
+                (string)($aktuelleDaten['mieter_id'] ?? '') !== (string)($steckdose['mieter_id'] ?? '') ||
+                trim((string)$aktuelleDaten['hinweis']) !== trim((string)$steckdose['hinweis'])
+            );
+
+            if ($datenGeaendert) {
+                // Aktualisieren
+                $query = "UPDATE steckdosen SET 
+                    bezeichnung = ?, 
+                    status = ?, 
+                    bereich_id = ?, 
+                    mieter_id = ?, 
+                    hinweis = ? 
+                    WHERE id = ?";
+
+                $params = [
+                    $steckdose['bezeichnung'],
+                    $steckdose['status'],
+                    $steckdose['bereich_id'],
+                    $steckdose['mieter_id'],
+                    $steckdose['hinweis'],
+                    $steckdose['id']
+                ];
+
+                $result = $db->query($query, $params);
+
+                if ($result) {
                     $success = "Steckdose wurde erfolgreich aktualisiert.";
                 } else {
-                    $info = "Hinweis: Es wurden keine Änderungen vorgenommen, da die Daten identisch waren.";
+                    $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
                 }
             } else {
-                $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
+                $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
             }
         } else {
             // Neu anlegen
             $query = "INSERT INTO steckdosen (
                 bezeichnung, status, bereich_id, mieter_id, hinweis
                 ) VALUES (?, ?, ?, ?, ?)";
-                
+
             $params = [
                 $steckdose['bezeichnung'],
                 $steckdose['status'],
@@ -103,9 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $steckdose['mieter_id'],
                 $steckdose['hinweis']
             ];
-            
+
             $db->query($query, $params);
-            
+
             if ($db->affectedRows() > 0) {
                 $success = "Steckdose wurde erfolgreich erstellt.";
                 // Formular zurücksetzen
@@ -127,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Header einbinden
 require_once 'includes/header.php';
 ?>
+
 
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
