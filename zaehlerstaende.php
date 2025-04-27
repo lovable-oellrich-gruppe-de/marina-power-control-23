@@ -9,16 +9,14 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Erfolg- oder Fehlermeldungen aus der URL holen
-$success = $_GET['success'] ?? '';
-$error = $_GET['error'] ?? '';
+// Erfolg- und Fehlermeldungen aus URL übernehmen
+$success = $_GET['success'] ?? null;
+$error = $_GET['error'] ?? null;
 
-// Löschen eines Zählerstands, wenn ID übergeben wurde
+// Löschen eines Zählerstands
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $db->query("DELETE FROM zaehlerstaende WHERE id = ?", [$id]);
-
-    if ($db->affectedRows() > 0) {
+    if ($db->query("DELETE FROM zaehlerstaende WHERE id = ?", [$id])) {
         header("Location: zaehlerstaende.php?success=" . urlencode("Zählerstand wurde erfolgreich gelöscht."));
         exit;
     } else {
@@ -27,62 +25,60 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     }
 }
 
-// Vorbereitung der Filter-Parameter
+// Filter und Suche
 $where_clauses = [];
 $params = [];
 
-// Filter-Optionen (wie Suche, Bereich, Mieter, Zeit)
-if (isset($_GET['search']) && !empty($_GET['search'])) {
+if (!empty($_GET['search'])) {
     $search = $_GET['search'];
     $where_clauses[] = "(z.zaehlernummer LIKE ? OR s.bezeichnung LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
 }
 
-if (isset($_GET['bereich']) && !empty($_GET['bereich'])) {
+if (!empty($_GET['bereich'])) {
     $where_clauses[] = "s.bereich_id = ?";
-    $params[] = $_GET['bereich'];
+    $params[] = (int)$_GET['bereich'];
 }
 
-if (isset($_GET['mieter']) && !empty($_GET['mieter'])) {
+if (!empty($_GET['mieter'])) {
     $where_clauses[] = "s.mieter_id = ?";
-    $params[] = $_GET['mieter'];
+    $params[] = (int)$_GET['mieter'];
 }
 
-if (isset($_GET['von']) && !empty($_GET['von'])) {
+if (!empty($_GET['von'])) {
     $where_clauses[] = "zs.datum >= ?";
     $params[] = $_GET['von'];
 }
 
-if (isset($_GET['bis']) && !empty($_GET['bis'])) {
+if (!empty($_GET['bis'])) {
     $where_clauses[] = "zs.datum <= ?";
     $params[] = $_GET['bis'];
 }
 
 $where_sql = '';
-if (!empty($where_clauses)) {
+if ($where_clauses) {
     $where_sql = 'WHERE ' . implode(' AND ', $where_clauses);
 }
 
-// Bereiche und Mieter für Filter laden
+// Bereiche und Mieter für Filter
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS vollname FROM mieter ORDER BY name");
 
 // Zählerstände abfragen
 $sql = "SELECT 
-        zs.*,
-        z.zaehlernummer,
-        s.bezeichnung AS steckdose_bezeichnung,
-        b.name AS bereich_name,
-        CONCAT(m.vorname, ' ', m.name) AS mieter_name
-    FROM 
-        zaehlerstaende zs
-    LEFT JOIN zaehler z ON zs.zaehler_id = z.id
-    LEFT JOIN steckdosen s ON zs.steckdose_id = s.id
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    LEFT JOIN mieter m ON s.mieter_id = m.id
-    $where_sql
-    ORDER BY zs.datum DESC, zs.id DESC";
+            zs.*, 
+            z.zaehlernummer, 
+            s.bezeichnung AS steckdose_bezeichnung, 
+            b.name AS bereich_name, 
+            CONCAT(m.vorname, ' ', m.name) AS mieter_name
+        FROM zaehlerstaende zs
+        LEFT JOIN zaehler z ON zs.zaehler_id = z.id
+        LEFT JOIN steckdosen s ON zs.steckdose_id = s.id
+        LEFT JOIN bereiche b ON s.bereich_id = b.id
+        LEFT JOIN mieter m ON s.mieter_id = m.id
+        $where_sql
+        ORDER BY zs.datum DESC, zs.id DESC";
 
 $zaehlerstaende = $db->fetchAll($sql, $params);
 
@@ -90,14 +86,7 @@ $zaehlerstaende = $db->fetchAll($sql, $params);
 require_once 'includes/header.php';
 ?>
 
-<!-- Der Rest bleibt gleich wie dein bisheriger HTML-Code -->
-<!-- Meldungen anzeigen, Filter, Tabelle, Delete Modal -->
-<!-- Nur die Aktionen für "Abgerechnet/Unabgerechnet" wurden entfernt! -->
-
-<?php
-require_once 'includes/footer.php';
-?>
-
+<!-- HTML ab hier -->
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
@@ -107,32 +96,32 @@ require_once 'includes/footer.php';
             </a>
         </div>
 
-        <?php if (isset($success)): ?>
+        <?php if (!empty($success)): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 <?= htmlspecialchars($success) ?>
             </div>
         <?php endif; ?>
-        
-        <?php if (isset($error)): ?>
+
+        <?php if (!empty($error)): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
-        <!-- Filter- und Suchoptionen -->
+        <!-- Filterformular -->
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
             <form method="GET" action="zaehlerstaende.php" class="flex flex-wrap gap-4">
                 <div class="w-full md:w-auto">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Suche</label>
-                    <input type="text" id="search" name="search" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" placeholder="Zählernummer oder Steckdose..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                    <input type="text" id="search" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500" placeholder="Zählernummer oder Steckdose">
                 </div>
-                
+
                 <div class="w-full md:w-auto">
                     <label for="bereich" class="block text-sm font-medium text-gray-700 mb-1">Bereich</label>
                     <select id="bereich" name="bereich" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                         <option value="">Alle Bereiche</option>
                         <?php foreach ($bereiche as $bereich): ?>
-                            <option value="<?= $bereich['id'] ?>" <?= (isset($_GET['bereich']) && $_GET['bereich'] == $bereich['id']) ? 'selected' : '' ?>>
+                            <option value="<?= $bereich['id'] ?>" <?= (($_GET['bereich'] ?? '') == $bereich['id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($bereich['name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -144,37 +133,27 @@ require_once 'includes/footer.php';
                     <select id="mieter" name="mieter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                         <option value="">Alle Mieter</option>
                         <?php foreach ($mieter as $m): ?>
-                            <option value="<?= $m['id'] ?>" <?= (isset($_GET['mieter']) && $_GET['mieter'] == $m['id']) ? 'selected' : '' ?>>
+                            <option value="<?= $m['id'] ?>" <?= (($_GET['mieter'] ?? '') == $m['id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($m['vollname']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
-                <div class="w-full md:w-auto">
-                    <label for="abgerechnet" class="block text-sm font-medium text-gray-700 mb-1">Abrechnungsstatus</label>
-                    <select id="abgerechnet" name="abgerechnet" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
-                        <option value="">Alle</option>
-                        <option value="1" <?= (isset($_GET['abgerechnet']) && $_GET['abgerechnet'] == '1') ? 'selected' : '' ?>>Abgerechnet</option>
-                        <option value="0" <?= (isset($_GET['abgerechnet']) && $_GET['abgerechnet'] == '0') ? 'selected' : '' ?>>Nicht abgerechnet</option>
-                    </select>
-                </div>
-                
+
                 <div class="w-full md:w-auto">
                     <label for="von" class="block text-sm font-medium text-gray-700 mb-1">Datum von</label>
-                    <input type="date" id="von" name="von" value="<?= isset($_GET['von']) ? htmlspecialchars($_GET['von']) : '' ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                    <input type="date" id="von" name="von" value="<?= htmlspecialchars($_GET['von'] ?? '') ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                 </div>
-                
+
                 <div class="w-full md:w-auto">
                     <label for="bis" class="block text-sm font-medium text-gray-700 mb-1">Datum bis</label>
-                    <input type="date" id="bis" name="bis" value="<?= isset($_GET['bis']) ? htmlspecialchars($_GET['bis']) : '' ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                    <input type="date" id="bis" name="bis" value="<?= htmlspecialchars($_GET['bis'] ?? '') ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                 </div>
-                
+
                 <div class="w-full md:w-auto flex items-end">
                     <button type="submit" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">
                         Filtern
                     </button>
-                    
                     <a href="zaehlerstaende.php" class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                         Zurücksetzen
                     </a>
@@ -182,100 +161,47 @@ require_once 'includes/footer.php';
             </form>
         </div>
 
-        <!-- Zählerstände-Tabelle -->
+        <!-- Tabelle -->
         <div class="mt-4 bg-white shadow-md rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datum</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zähler</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Steckdose</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bereich</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mieter</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stand</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verbrauch</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abgerechnet</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Datum</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zähler</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Steckdose</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bereich</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mieter</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stand (kWh)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Verbrauch (kWh)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (empty($zaehlerstaende)): ?>
                             <tr>
-                                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    Keine Zählerstände gefunden
-                                </td>
+                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">Keine Zählerstände gefunden</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($zaehlerstaende as $zs): ?>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($zs['id']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?= htmlspecialchars(date('d.m.Y', strtotime($zs['datum']))) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($zs['zaehlernummer']) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? 'Nicht zugewiesen') ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($zs['bereich_name'] ?? 'Nicht zugewiesen') ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($zs['mieter_name'] ?? 'Nicht zugewiesen') ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                        <?= htmlspecialchars(number_format($zs['stand'], 2, ',', '.')) ?> kWh
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?= $zs['verbrauch'] ? htmlspecialchars(number_format($zs['verbrauch'], 2, ',', '.')) . ' kWh' : '-' ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <?php if ($zs['ist_abgerechnet']): ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Ja
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Nein
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td class="px-6 py-4 text-sm text-gray-500"><?= $zs['id'] ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900"><?= date('d.m.Y', strtotime($zs['datum'])) ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlernummer'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900"><?= number_format($zs['stand'], 2, ',', '.') ?> kWh</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900"><?= $zs['verbrauch'] !== null ? number_format($zs['verbrauch'], 2, ',', '.') . ' kWh' : '-' ?></td>
+                                    <td class="px-6 py-4 text-sm font-medium">
                                         <div class="flex items-center space-x-3">
-                                            <!-- Abrechnungs-Toggle -->
-                                            <?php if ($zs['ist_abgerechnet']): ?>
-                                                <a href="zaehlerstaende.php?markUnabgerechnet=<?= $zs['id'] ?>" 
-                                                   class="text-yellow-600 hover:text-yellow-900" 
-                                                   title="Als nicht abgerechnet markieren">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="zaehlerstaende.php?markAbgerechnet=<?= $zs['id'] ?>" 
-                                                   class="text-green-600 hover:text-green-900" 
-                                                   title="Als abgerechnet markieren">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </a>
-                                            <?php endif; ?>
-
-                                            <a href="zaehlerstaende_form.php?id=<?= $zs['id'] ?>" 
-                                               class="text-marina-600 hover:text-marina-900"
-                                               title="Bearbeiten">
+                                            <a href="zaehlerstaende_form.php?id=<?= $zs['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
-
-                                            <a href="#" 
-                                               onclick="confirmDelete(<?= $zs['id'] ?>, '<?= date('d.m.Y', strtotime($zs['datum'])) ?>', '<?= htmlspecialchars(addslashes($zs['zaehlernummer'])) ?>')" 
-                                               class="text-red-600 hover:text-red-900"
-                                               title="Löschen">
+                                            <a href="#" onclick="confirmDelete(<?= $zs['id'] ?>, '<?= date('d.m.Y', strtotime($zs['datum'])) ?>', '<?= addslashes($zs['zaehlernummer']) ?>')" class="text-red-600 hover:text-red-900" title="Löschen">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
@@ -292,7 +218,7 @@ require_once 'includes/footer.php';
     </div>
 </div>
 
-<!-- Bestätigungsdialog für das Löschen -->
+<!-- Modal fürs Löschen -->
 <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Zählerstand löschen</h3>
