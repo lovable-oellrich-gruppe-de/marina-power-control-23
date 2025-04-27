@@ -11,7 +11,6 @@ if (!$auth->isLoggedIn()) {
 
 $error = '';
 $success = '';
-$info = '';
 
 // Standardwerte für neue Steckdose
 $steckdose = [
@@ -25,7 +24,7 @@ $steckdose = [
 
 // Bereiche und Mieter für Auswahlfelder laden
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
-$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name, vorname");
+$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM mieter ORDER BY nachname, vorname");
 
 // Prüfen, ob eine Steckdose zur Bearbeitung übergeben wurde
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -51,9 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'hinweis' => $_POST['hinweis'] ?? ''
     ];
     
-    // Bereich und Mieter auf NULL setzen, wenn leer oder '' kommt
-    $steckdose['bereich_id'] = ($_POST['bereich_id'] !== '') ? $_POST['bereich_id'] : null;
-    $steckdose['mieter_id'] = ($_POST['mieter_id'] !== '') ? $_POST['mieter_id'] : null;
+    // Leere Werte in NULL umwandeln
+    if (empty($steckdose['bereich_id'])) $steckdose['bereich_id'] = null;
+    if (empty($steckdose['mieter_id'])) $steckdose['mieter_id'] = null;
     
     // Validierung
     if (empty($steckdose['bezeichnung'])) {
@@ -61,53 +60,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Entweder aktualisieren oder neu anlegen
         if (!empty($steckdose['id'])) {
-            // 1. Aktuelle Werte aus der DB holen
-            $aktuelleSteckdose = $db->fetchOne("SELECT * FROM steckdosen WHERE id = ?", [$steckdose['id']]);
-            
-            // 2. NULL-Werte und Strings anpassen
-            foreach (['bereich_id', 'mieter_id'] as $feld) {
-                if (is_null($aktuelleSteckdose[$feld])) $aktuelleSteckdose[$feld] = '';
-                if (is_null($steckdose[$feld])) $steckdose[$feld] = '';
-            }
-            
-            // 3. Felder vergleichen
-            $datenGeaendert = (
-                trim((string)$aktuelleSteckdose['bezeichnung']) !== trim((string)$steckdose['bezeichnung']) ||
-                (string)$aktuelleSteckdose['status'] !== (string)$steckdose['status'] ||
-                (string)$aktuelleSteckdose['bereich_id'] !== (string)$steckdose['bereich_id'] ||
-                (string)$aktuelleSteckdose['mieter_id'] !== (string)$steckdose['mieter_id'] ||
-                trim((string)$aktuelleSteckdose['hinweis']) !== trim((string)$steckdose['hinweis'])
-            );
-            
-            // 4. Update nur wenn nötig
-            if ($datenGeaendert) {    
-                // Aktualisieren
-                $query = "UPDATE steckdosen SET 
-                    bezeichnung = ?, 
-                    status = ?, 
-                    bereich_id = ?, 
-                    mieter_id = ?, 
-                    hinweis = ? 
-                    WHERE id = ?";
-                    
-                $params = [
-                    $steckdose['bezeichnung'],
-                    $steckdose['status'],
-                    $steckdose['bereich_id'],
-                    $steckdose['mieter_id'],
-                    $steckdose['hinweis'],
-                    $steckdose['id']
-                ];
+            // Aktualisieren
+            $query = "UPDATE steckdosen SET 
+                bezeichnung = ?, 
+                status = ?, 
+                bereich_id = ?, 
+                mieter_id = ?, 
+                hinweis = ? 
+                WHERE id = ?";
                 
-                $result = $db->query($query, $params);
-                
-                if ($result) {
-                    $success = "Steckdose wurde erfolgreich aktualisiert.";
-                } else {
-                    $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
-                }
+            $params = [
+                $steckdose['bezeichnung'],
+                $steckdose['status'],
+                $steckdose['bereich_id'],
+                $steckdose['mieter_id'],
+                $steckdose['hinweis'],
+                $steckdose['id']
+            ];
+            
+            $db->query($query, $params);
+            
+            if ($db->affectedRows() >= 0) {
+                $success = "Steckdose wurde erfolgreich aktualisiert.";
             } else {
-                $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
+                $error = "Fehler beim Aktualisieren der Steckdose.";
             }
         } else {
             // Neu anlegen
@@ -167,12 +143,6 @@ require_once 'includes/header.php';
         <?php if ($success): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($info)): ?>
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                <?= htmlspecialchars($info) ?>
             </div>
         <?php endif; ?>
 
