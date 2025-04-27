@@ -22,9 +22,9 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Status einer Steckdose ändern, wenn ID und Status übergeben wurden
-if (isset($_POST['assign_status']) && isset($_POST['steckdose_id']) && isset($_POST['status'])) {
-    $steckdose_id = $_POST['steckdose_id'];
-    $status = $_POST['status'];
+if (isset($_GET['assign_status']) && isset($_GET['steckdose_id']) && isset($_GET['status'])) {
+    $steckdose_id = $_GET['steckdose_id'];
+    $status = $_GET['status'];
 
     // Aktuellen Status holen
     $rows = $db->fetchAll("SELECT status FROM steckdosen WHERE id = ?", [$steckdose_id]);
