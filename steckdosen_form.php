@@ -24,7 +24,7 @@ $steckdose = [
 
 // Bereiche und Mieter für Auswahlfelder laden
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
-$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM mieter ORDER BY nachname, vorname");
+$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name, vorname");
 
 // Prüfen, ob eine Steckdose zur Bearbeitung übergeben wurde
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
