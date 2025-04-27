@@ -122,8 +122,8 @@ require_once 'includes/header.php';
                     <label for="zugewiesen" class="block text-sm font-medium text-gray-700 mb-1">Zugewiesen</label>
                     <select id="zugewiesen" name="zugewiesen" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                         <option value="">Alle</option>
-                        <option value="ja">Zugewiesen</option>
-                        <option value="nein">Nicht zugewiesen</option>
+                        <option value="1">Zugewiesen</option>
+                        <option value="0">Nicht zugewiesen</option>
                     </select>
                 </div>
                 
