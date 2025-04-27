@@ -86,7 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 
                 $db->query($query, $params);
-                $success = "Mieter wurde erfolgreich aktualisiert.";
+
+                // Nach erfolgreichem Update weiterleiten
+                header("Location: mieter.php?success=" . urlencode("Mieter wurde erfolgreich aktualisiert."));
+                exit;
             } else {
                 // Neu anlegen
                 $query = "INSERT INTO mieter (
@@ -106,21 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 
                 $db->query($query, $params);
-                $success = "Mieter wurde erfolgreich erstellt.";
-                
-                // Formular zurücksetzen
-                $mieter = [
-                    'id' => '',
-                    'vorname' => '',
-                    'name' => '',
-                    'strasse' => '',
-                    'hausnummer' => '',
-                    'email' => '',
-                    'telefon' => '',
-                    'mobil' => '',
-                    'hinweis' => '',
-                    'bootsname' => ''
-                ];
+
+                // Nach erfolgreichem Anlegen weiterleiten
+                header("Location: mieter.php?success=" . urlencode("Mieter wurde erfolgreich erstellt."));
+                exit;
             }
         }
     } catch (Exception $e) {
