@@ -21,26 +21,29 @@ $orderDir = isset($_GET['order_dir']) ? $_GET['order_dir'] : 'DESC';
 
 // Löschvorgang verarbeiten, wenn Parameter vorhanden
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    // Nur Admin darf löschen
     if ($auth->isAdmin()) {
         $zaehler_id = (int)$_GET['delete'];
-        
+
         // Prüfen, ob Zähler in Benutzung ist
         $in_use = $db->fetchOne("SELECT COUNT(*) as count FROM zaehlerstaende WHERE zaehler_id = ?", [$zaehler_id])['count'] ?? 0;
-        
+
         if ($in_use > 0) {
-            $error_message = "Dieser Zähler hat Messdaten und kann nicht gelöscht werden. Markieren Sie ihn stattdessen als ausgebaut.";
+            header("Location: zaehler.php?error=" . urlencode("Dieser Zähler hat Messdaten und kann nicht gelöscht werden. Markieren Sie ihn stattdessen als ausgebaut."));
+            exit;
         } else {
+            // Zähler löschen
             $db->query("DELETE FROM zaehler WHERE id = ?", [$zaehler_id]);
-            
             if ($db->affectedRows() > 0) {
-                $success_message = "Zähler wurde erfolgreich gelöscht.";
+                header("Location: zaehler.php?success=" . urlencode("Zähler wurde erfolgreich gelöscht."));
+                exit;
             } else {
-                $error_message = "Zähler konnte nicht gelöscht werden.";
+                header("Location: zaehler.php?error=" . urlencode("Fehler beim Löschen des Zählers."));
+                exit;
             }
         }
     } else {
-        $error_message = "Sie haben nicht die erforderlichen Rechte, um Zähler zu löschen.";
+        header("Location: zaehler.php?error=" . urlencode("Sie haben nicht die erforderlichen Rechte, um Zähler zu löschen."));
+        exit;
     }
 }
 
