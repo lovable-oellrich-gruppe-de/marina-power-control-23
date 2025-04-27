@@ -258,6 +258,17 @@ require_once 'includes/header.php';
                         </tbody>
                     </table>
                 </div>
+                <!-- Bestätigungsdialog für das Löschen -->
+                <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+                  <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Zähler löschen</h3>
+                    <p class="text-gray-500 mb-4">Möchten Sie diesen Zähler wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+                    <div class="flex justify-end space-x-3">
+                      <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
+                      <a id="deleteLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
+                    </div>
+                  </div>
+                </div>
             </div>
         </div>
     </div>
@@ -265,9 +276,12 @@ require_once 'includes/header.php';
 
 <script>
 function confirmDelete(id) {
-    if (confirm('Sind Sie sicher, dass Sie diesen Zähler löschen möchten? Dies kann nicht rückgängig gemacht werden.')) {
-        window.location.href = 'zaehler.php?delete=' + id;
-    }
+    document.getElementById('deleteLink').href = 'zaehler.php?delete=' + id;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
 }
 </script>
 
