@@ -87,15 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $steckdose['id']
                 ];
 
-                $result = $db->query($query, $params);
-
-                if ($result) {
-                    $success = "Steckdose wurde erfolgreich aktualisiert.";
-                } else {
-                    $error = "Fehler beim Aktualisieren der Steckdose: " . $db->error();
-                }
+                $db->query($query, $params);
+                header("Location: steckdosen.php?success=" . urlencode("Steckdose wurde erfolgreich aktualisiert."));
+                exit;
             } else {
-                $info = "Hinweis: Es wurden keine Änderungen vorgenommen.";
+                header("Location: steckdosen.php?info=" . urlencode("Hinweis: Es wurden keine Änderungen vorgenommen."));
+                exit;
             }
         } else {
             // Neu anlegen
@@ -112,21 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
 
             $db->query($query, $params);
-
-            if ($db->query($query, $params)) {
-                $success = "Steckdose wurde erfolgreich erstellt.";
-                // Formular zurücksetzen
-                $steckdose = [
-                    'id' => '',
-                    'bezeichnung' => '',
-                    'status' => 'aktiv',
-                    'bereich_id' => '',
-                    'mieter_id' => '',
-                    'hinweis' => ''
-                ];
-            } else {
-                $error = "Fehler beim Erstellen der Steckdose: " . $db->error();
-            }
+            header("Location: steckdosen.php?success=" . urlencode("Steckdose wurde erfolgreich erstellt."));
+            exit;
         }
     }
 }
@@ -134,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Header einbinden
 require_once 'includes/header.php';
 ?>
-
 
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -152,24 +135,12 @@ require_once 'includes/header.php';
                 <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
-        
-        <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($info)): ?>
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                <?= htmlspecialchars($info) ?>
-            </div>
-        <?php endif; ?>
 
         <!-- Steckdosen-Formular -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
             <form action="steckdosen_form.php" method="POST">
                 <input type="hidden" name="id" value="<?= htmlspecialchars($steckdose['id']) ?>">
-                
+
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div class="sm:col-span-2 space-y-2">
                         <label for="bezeichnung" class="block text-sm font-medium text-gray-700">Bezeichnung *</label>
@@ -182,7 +153,7 @@ require_once 'includes/header.php';
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
                     </div>
-                    
+
                     <div class="space-y-2">
                         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                         <select 
@@ -195,7 +166,7 @@ require_once 'includes/header.php';
                             <option value="defekt" <?= $steckdose['status'] === 'defekt' ? 'selected' : '' ?>>Defekt</option>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-2">
                         <label for="bereich_id" class="block text-sm font-medium text-gray-700">Bereich</label>
                         <select 
@@ -211,7 +182,7 @@ require_once 'includes/header.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-2">
                         <label for="mieter_id" class="block text-sm font-medium text-gray-700">Mieter</label>
                         <select 
@@ -227,7 +198,7 @@ require_once 'includes/header.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <div class="sm:col-span-2 space-y-2">
                         <label for="hinweis" class="block text-sm font-medium text-gray-700">Hinweis</label>
                         <textarea 
@@ -238,7 +209,7 @@ require_once 'includes/header.php';
                         ><?= htmlspecialchars($steckdose['hinweis']) ?></textarea>
                     </div>
                 </div>
-                
+
                 <div class="mt-6 flex justify-end space-x-3">
                     <a href="steckdosen.php" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
                         Abbrechen
