@@ -9,6 +9,11 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
+// Erfolg / Fehler / Info aus URL übernehmen
+$success = $_GET['success'] ?? '';
+$error = $_GET['error'] ?? '';
+$info = $_GET['info'] ?? '';
+
 // Löschen eines Mieters, wenn ID übergeben wurde
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
