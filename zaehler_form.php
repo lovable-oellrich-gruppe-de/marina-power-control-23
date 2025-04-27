@@ -1,4 +1,3 @@
-
 <?php
 // Wichtige Einbindungen für die Anwendung
 require_once 'includes/config.php';
@@ -40,74 +39,99 @@ if ($zaehler_id) {
 // Formular wurde abgesendet
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Daten aus dem Formular übernehmen
-    $zaehler['zaehlernummer'] = trim($_POST['zaehlernummer'] ?? '');
-    $zaehler['typ'] = trim($_POST['typ'] ?? 'Stromzähler');
-    $zaehler['hersteller'] = trim($_POST['hersteller'] ?? '');
-    $zaehler['modell'] = trim($_POST['modell'] ?? '');
-    $zaehler['installiert_am'] = trim($_POST['installiert_am'] ?? date('Y-m-d'));
-    $zaehler['letzte_wartung'] = trim($_POST['letzte_wartung'] ?? '');
-    $zaehler['seriennummer'] = trim($_POST['seriennummer'] ?? '');
-    $zaehler['max_leistung'] = trim($_POST['max_leistung'] ?? '');
-    $zaehler['ist_ausgebaut'] = isset($_POST['ist_ausgebaut']) ? 1 : 0;
-    $zaehler['hinweis'] = trim($_POST['hinweis'] ?? '');
-    
+    $form_data = [
+        'zaehlernummer' => trim($_POST['zaehlernummer'] ?? ''),
+        'typ' => trim($_POST['typ'] ?? 'Stromzähler'),
+        'hersteller' => trim($_POST['hersteller'] ?? ''),
+        'modell' => trim($_POST['modell'] ?? ''),
+        'installiert_am' => trim($_POST['installiert_am'] ?? date('Y-m-d')),
+        'letzte_wartung' => trim($_POST['letzte_wartung'] ?? ''),
+        'seriennummer' => trim($_POST['seriennummer'] ?? ''),
+        'max_leistung' => trim($_POST['max_leistung'] ?? ''),
+        'ist_ausgebaut' => isset($_POST['ist_ausgebaut']) ? 1 : 0,
+        'hinweis' => trim($_POST['hinweis'] ?? '')
+    ];
+
     // Validierung
-    if (empty($zaehler['zaehlernummer'])) {
+    if (empty($form_data['zaehlernummer'])) {
         $errors[] = "Zählernummer ist erforderlich.";
     }
-    
-    if (empty($zaehler['installiert_am'])) {
+    if (empty($form_data['installiert_am'])) {
         $errors[] = "Installationsdatum ist erforderlich.";
     }
-    
+
     // Wenn keine Fehler, Daten speichern
     if (empty($errors)) {
-        $params = [
-            $zaehler['zaehlernummer'],
-            $zaehler['typ'],
-            $zaehler['hersteller'],
-            $zaehler['modell'],
-            $zaehler['installiert_am'],
-            empty($zaehler['letzte_wartung']) ? null : $zaehler['letzte_wartung'],
-            $zaehler['seriennummer'],
-            empty($zaehler['max_leistung']) ? null : $zaehler['max_leistung'],
-            $zaehler['ist_ausgebaut'],
-            $zaehler['hinweis']
-        ];
-        
         if ($zaehler_id) {
-            // Zähler aktualisieren
-            $sql = "UPDATE zaehler SET 
-                    zaehlernummer = ?,
-                    typ = ?,
-                    hersteller = ?,
-                    modell = ?,
-                    installiert_am = ?,
-                    letzte_wartung = ?,
-                    seriennummer = ?,
-                    max_leistung = ?,
-                    ist_ausgebaut = ?,
-                    hinweis = ?
-                    WHERE id = ?";
-            $params[] = $zaehler_id;
-            $db->query($sql, $params);
-            
-            $success_message = "Zähler wurde erfolgreich aktualisiert.";
+            // Änderungen prüfen, bevor gespeichert wird
+            $datenGeaendert = false;
+            foreach ($form_data as $key => $value) {
+                $dbValue = $zaehler[$key] ?? null;
+                if ((string)$value !== (string)$dbValue) {
+                    $datenGeaendert = true;
+                    break;
+                }
+            }
+
+            if ($datenGeaendert) {
+                // Zähler aktualisieren
+                $sql = "UPDATE zaehler SET 
+                        zaehlernummer = ?,
+                        typ = ?,
+                        hersteller = ?,
+                        modell = ?,
+                        installiert_am = ?,
+                        letzte_wartung = ?,
+                        seriennummer = ?,
+                        max_leistung = ?,
+                        ist_ausgebaut = ?,
+                        hinweis = ?
+                        WHERE id = ?";
+
+                $params = [
+                    $form_data['zaehlernummer'],
+                    $form_data['typ'],
+                    $form_data['hersteller'],
+                    $form_data['modell'],
+                    $form_data['installiert_am'],
+                    empty($form_data['letzte_wartung']) ? null : $form_data['letzte_wartung'],
+                    $form_data['seriennummer'],
+                    empty($form_data['max_leistung']) ? null : $form_data['max_leistung'],
+                    $form_data['ist_ausgebaut'],
+                    $form_data['hinweis'],
+                    $zaehler_id
+                ];
+
+                $db->query($sql, $params);
+                header("Location: zaehler.php?success=" . urlencode("Zähler wurde erfolgreich aktualisiert."));
+                exit;
+            } else {
+                header("Location: zaehler.php?info=" . urlencode("Es wurden keine Änderungen vorgenommen."));
+                exit;
+            }
         } else {
             // Neuen Zähler erstellen
             $sql = "INSERT INTO zaehler (
                     zaehlernummer, typ, hersteller, modell, installiert_am, 
                     letzte_wartung, seriennummer, max_leistung, ist_ausgebaut, hinweis
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            $params = [
+                $form_data['zaehlernummer'],
+                $form_data['typ'],
+                $form_data['hersteller'],
+                $form_data['modell'],
+                $form_data['installiert_am'],
+                empty($form_data['letzte_wartung']) ? null : $form_data['letzte_wartung'],
+                $form_data['seriennummer'],
+                empty($form_data['max_leistung']) ? null : $form_data['max_leistung'],
+                $form_data['ist_ausgebaut'],
+                $form_data['hinweis']
+            ];
+
             $db->query($sql, $params);
             $zaehler_id = $db->lastInsertId();
-            
-            $success_message = "Zähler wurde erfolgreich erstellt.";
-        }
-        
-        // Weiterleitung zur Zählerübersicht bei Erfolg
-        if (empty($errors)) {
-            header("Location: zaehler.php?success=" . urlencode($success_message));
+            header("Location: zaehler.php?success=" . urlencode("Zähler wurde erfolgreich erstellt."));
             exit;
         }
     }
@@ -116,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Header einbinden
 require_once 'includes/header.php';
 ?>
+
 
 <div class="py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
