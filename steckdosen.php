@@ -118,7 +118,34 @@ LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id
 ORDER BY steckdosen.bezeichnung;
 */
 // Alle Steckdosen aus der Datenbank abrufen
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id ORDER BY steckdosen.bezeichnung;");
+$sql = ""SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id";
+$params = [];
+
+if (!empty($_GET['bereich'])) {
+    $sql .= " AND bereich_id = ?";
+    $params[] = $_GET['bereich'];
+}
+
+if (!empty($_GET['status'])) {
+    $sql .= " AND status = ?";
+    $params[] = $_GET['status'];
+}
+
+if (!empty($_GET['mieter'])) {
+    $sql .= " AND mieter_id = ?";
+    $params[] = $_GET['mieter'];
+}
+
+if (isset($_GET['zugewiesen']) && $_GET['zugewiesen'] !== '') {
+    if ($_GET['zugewiesen'] === '1') {
+        $sql .= " AND mieter_id IS NOT NULL";
+    } elseif ($_GET['zugewiesen'] === '0') {
+        $sql .= " AND mieter_id IS NULL";
+    }
+}
+$sql .= " ORDER BY bezeichnung";
+$steckdosen = $db->fetchAll($sql, $params);
+//$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, steckdosen.status, COALESCE(bereiche.name, 'Nicht zugewiesen') AS bereich_name, COALESCE(CONCAT(COALESCE(mieter.vorname, ''), ' ', COALESCE(mieter.name, '')), 'Nicht zugewiesen') AS mieter_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id LEFT JOIN mieter ON steckdosen.mieter_id = mieter.id ORDER BY steckdosen.bezeichnung;");
 
 // Alle Mieter für Dropdown abrufen
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS name FROM mieter ORDER BY name");
