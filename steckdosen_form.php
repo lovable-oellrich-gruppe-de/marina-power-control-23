@@ -11,7 +11,6 @@ if (!$auth->isLoggedIn()) {
 
 $error = '';
 $success = '';
-$info = '';
 
 // Standardwerte für neue Steckdose
 $steckdose = [
@@ -52,8 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
     
     // Leere Werte in NULL umwandeln
-    if (empty($steckdose['bereich_id'])) $steckdose['bereich_id'] = null;
-    if (empty($steckdose['mieter_id'])) $steckdose['mieter_id'] = null;
+    $steckdose['bereich_id'] = isset($_POST['bereich_id']) && $_POST['bereich_id'] !== '' ? (int)$_POST['bereich_id'] : null;
+    $steckdose['mieter_id'] = isset($_POST['mieter_id']) && $_POST['mieter_id'] !== '' ? (int)$_POST['mieter_id'] : null;
+
     
     // Validierung
     if (empty($steckdose['bezeichnung'])) {
