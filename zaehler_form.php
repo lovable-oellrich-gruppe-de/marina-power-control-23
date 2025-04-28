@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         WHERE id = ?";
                 $params = [
                     $form_data['zaehlernummer'],
+                    $form_data['steckdose_id'],
                     $form_data['typ'],
                     $form_data['hersteller'],
                     $form_data['modell'],
