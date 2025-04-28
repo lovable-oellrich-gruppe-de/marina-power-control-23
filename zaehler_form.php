@@ -130,10 +130,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
-    FROM steckdosen
-    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
-    ORDER BY bereiche.name, steckdosen.bezeichnung");
+$where = "z.id IS NULL";
+if ($zaehler_id && !empty($zaehler['steckdose_id'])) {
+    $where = "(z.id IS NULL OR s.id = " . (int)$zaehler['steckdose_id'] . ")";
+}
+
+$steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name
+    FROM steckdosen s
+    LEFT JOIN bereiche b ON s.bereich_id = b.id
+    LEFT JOIN zaehler z ON z.steckdose_id = s.id
+    WHERE $where
+    ORDER BY b.name, s.bezeichnung");
 
 // Header einbinden
 require_once 'includes/header.php';
