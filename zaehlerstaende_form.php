@@ -185,7 +185,7 @@ require_once 'includes/header.php';
                     </div>
 
                     <div class="space-y-2">
-                        <label for="steckdose_id" class="block text-sm font-medium text-gray-700">Steckdose</label>
+                        <label for="steckdose_id" class="block text-sm font-medium text-gray-700">Steckdose *</label>
                         <select id="steckdose_id" name="steckdose_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
