@@ -141,28 +141,30 @@ class Database {
     }*/
     // Ein einzelnes Ergebnis abrufen
     public function fetchOne($sql, $params = []) {
-        $result = $this->query($sql, $params);
+        try {
+            $result = $this->query($sql, $params);
     
-        if (!$result) {
-            return null;
-        }
-    
-        $row = $result->fetch_assoc();
-        
-        if ($row === false) {
-            // Kein Datensatz gefunden
-            return null;
-        }
-    
-        if ($this->last_stmt instanceof mysqli_stmt) {
-            try {
-                @$this->last_stmt->close();
-            } catch (Throwable $e) {
-                // Statement bereits geschlossen, ignorieren
+            // Falls query() doch mal kein mysqli_result liefert, Fehler abfangen
+            if (!($result instanceof mysqli_result)) {
+                return null;
             }
-        }
     
-        return $row;
+            $row = $result->fetch_assoc();
+    
+            if ($this->last_stmt instanceof mysqli_stmt) {
+                try {
+                    @$this->last_stmt->close();
+                } catch (Throwable $e) {
+                    // Statement bereits geschlossen, ignorieren
+                }
+            }
+    
+            return $row !== false ? $row : null;
+    
+        } catch (Throwable $e) {
+            // Fehler beim Query oder Verbindungsproblem etc. => einfach null zurück
+            return null;
+        }
     }
     
     
