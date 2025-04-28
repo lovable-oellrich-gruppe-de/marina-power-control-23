@@ -84,12 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ✨ NEU: Aktuellen Mietername laden
     $mieter_name = null;
     if (!empty($steckdose_id)) {
-        $mieterInfo = $db->fetchOne("
-            SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name
+        $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name
             FROM steckdosen s
             LEFT JOIN mieter m ON s.mieter_id = m.id
-            WHERE s.id = ?
-        ", [$steckdose_id]);
+            WHERE s.id = ?", [$steckdose_id]);
         $mieter_name = $mieterInfo['mieter_name'] ?? null;
     }
 
