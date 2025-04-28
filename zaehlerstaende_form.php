@@ -190,7 +190,8 @@ require_once 'includes/header.php';
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
                                 <option value="<?= $s['id'] ?>" <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($s['bezeichnung']) ?> (<?= htmlspecialchars($s['bereich_name']) ?>)
+                                    <?= htmlspecialchars($s['bezeichnung']) ?> 
+                                    (<?= htmlspecialchars($s['bereich_name'] ?? 'Kein Bereich') ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
