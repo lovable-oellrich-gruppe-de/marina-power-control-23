@@ -15,6 +15,7 @@ $zaehler_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $errors = [];
 $zaehler = [
     'zaehlernummer' => '',
+    'steckdose_id' => '',
     'typ' => 'Stromzähler',
     'hersteller' => '',
     'modell' => '',
@@ -31,6 +32,9 @@ if ($zaehler_id) {
     $loaded_zaehler = $db->fetchOne("SELECT * FROM zaehler WHERE id = ?", [$zaehler_id]);
     if ($loaded_zaehler) {
         $zaehler = $loaded_zaehler;
+        if (!isset($zaehler['steckdose_id'])) {
+            $zaehler['steckdose_id'] = null; // Falls das Feld in alten Datensätzen noch fehlt
+        }
     } else {
         $errors[] = "Zähler nicht gefunden.";
     }
@@ -41,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Formulardaten einlesen
     $form_data = [
         'zaehlernummer' => trim($_POST['zaehlernummer'] ?? ''),
+        'steckdose_id' => !empty($_POST['steckdose_id']) ? (int)$_POST['steckdose_id'] : null
         'typ' => trim($_POST['typ'] ?? 'Stromzähler'),
         'hersteller' => trim($_POST['hersteller'] ?? ''),
         'modell' => trim($_POST['modell'] ?? ''),
@@ -75,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($datenGeaendert) {
                 $sql = "UPDATE zaehler SET 
-                        zaehlernummer = ?, typ = ?, hersteller = ?, modell = ?, installiert_am = ?, 
+                        zaehlernummer = ?, steckdose_id = ?, typ = ?, hersteller = ?, modell = ?, installiert_am = ?, 
                         letzte_wartung = ?, seriennummer = ?, max_leistung = ?, ist_ausgebaut = ?, hinweis = ?
                         WHERE id = ?";
                 $params = [
@@ -101,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } else {
             $sql = "INSERT INTO zaehler (
-                        zaehlernummer, typ, hersteller, modell, installiert_am, letzte_wartung, 
+                        zaehlernummer, steckdose_id, typ, hersteller, modell, installiert_am, letzte_wartung, 
                         seriennummer, max_leistung, ist_ausgebaut, hinweis
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $params = [
@@ -124,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+$steckdosen = $db->fetchAll("SELECT id, bezeichnung FROM steckdosen ORDER BY bezeichnung");
 
 // Header einbinden
 require_once 'includes/header.php';
@@ -161,7 +167,20 @@ require_once 'includes/header.php';
                         <input type="text" id="zaehlernummer" name="zaehlernummer" value="<?= htmlspecialchars($zaehler['zaehlernummer']) ?>" required
                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
-
+                    
+                    <div class="space-y-2">
+                        <label for="steckdose_id" class="block text-sm font-medium text-gray-700">Steckdose (optional)</label>
+                        <select id="steckdose_id" name="steckdose_id"
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
+                            <option value="">Keine Steckdose zugewiesen</option>
+                            <?php foreach ($steckdosen as $steckdose): ?>
+                                <option value="<?= $steckdose['id'] ?>" <?= ((int)($zaehler['steckdose_id'] ?? 0) === (int)$steckdose['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($steckdose['bezeichnung']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
                     <div class="space-y-2">
                         <label for="typ" class="block text-sm font-medium text-gray-700">Typ</label>
                         <input type="text" id="typ" name="typ" value="<?= htmlspecialchars($zaehler['typ']) ?>"
