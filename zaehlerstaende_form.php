@@ -174,7 +174,9 @@ require_once 'includes/header.php';
                         <select id="zaehler_id" name="zaehler_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($zaehler as $z): ?>
-                                <option value="<?= $z['id'] ?>" <?= ($steckdose_id == $z['id']) ? 'selected' : '' ?>>
+                                <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($z['zaehlernummer']) ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
