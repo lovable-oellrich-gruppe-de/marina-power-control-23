@@ -81,6 +81,13 @@ require_once 'includes/header.php';
             <h1 class="text-3xl font-bold text-gray-900">Benutzerverwaltung</h1>
         </div>
 
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Benutzerverwaltung</h1>
+            <a href="user_form.php" class="inline-flex items-center px-4 py-2 bg-marina-600 border border-transparent rounded-md font-semibold text-white hover:bg-marina-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-marina-500">
+                Neuer Benutzer
+            </a>
+        </div>
+
         <?php if (isset($_GET['status_changed']) && $_GET['status_changed'] === '1'): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 Der Benutzerstatus wurde erfolgreich aktualisiert.
