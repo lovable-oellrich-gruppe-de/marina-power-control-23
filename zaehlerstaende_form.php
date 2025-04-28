@@ -81,6 +81,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stand = str_replace(',', '.', $_POST['stand'] ?? '');
     $hinweis = $_POST['hinweis'] ?? '';
 
+    // ✨ NEU: Aktuellen Mietername laden
+    $mieter_name = null;
+    if (!empty($steckdose_id)) {
+        $mieterInfo = $db->fetchOne("
+            SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name
+            FROM steckdosen s
+            LEFT JOIN mieter m ON s.mieter_id = m.id
+            WHERE s.id = ?
+        ", [$steckdose_id]);
+        $mieter_name = $mieterInfo['mieter_name'] ?? null;
+    }
+
     // Validierung der Eingaben
     if (empty($zaehler_id)) {
         $errors[] = "Bitte einen Zähler auswählen.";
@@ -141,9 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $abgelesen_von_id = $current_user['id'];
 
         if ($isEdit) {
-            $params = [$zaehler_id, $steckdose_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis];
+            $params = [$zaehler_id, $steckdose_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis, $mieter_name];
             $sql = "UPDATE zaehlerstaende 
-                    SET zaehler_id=?, steckdose_id=?, datum=?, stand=?, vorheriger_id=?, verbrauch=?, abgelesen_von_id=?, hinweis=?";
+                    SET zaehler_id=?, steckdose_id=?, datum=?, stand=?, vorheriger_id=?, verbrauch=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
             if (!empty($foto_url)) {
                 $sql .= ", foto_url=?";
                 $params[] = $foto_url;
@@ -154,9 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->query($sql, $params);
             $success = "Zählerstand wurde erfolgreich aktualisiert.";
         } else {
-            $params = [$zaehler_id, $steckdose_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis];
-            $columns = "zaehler_id, steckdose_id, datum, stand, vorheriger_id, verbrauch, abgelesen_von_id, hinweis";
-            $placeholders = "?, ?, ?, ?, ?, ?, ?, ?";
+            $params = [$zaehler_id, $steckdose_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis, $mieter_name];
+            $columns = "zaehler_id, steckdose_id, datum, stand, vorheriger_id, verbrauch, abgelesen_von_id, hinweis, mieter_name";
+            $placeholders = "?, ?, ?, ?, ?, ?, ?, ?, ?";
             if (!empty($foto_url)) {
                 $columns .= ", foto_url";
                 $placeholders .= ", ?";
@@ -171,7 +183,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-
 // Header einbinden
 require_once 'includes/header.php';
 ?>
