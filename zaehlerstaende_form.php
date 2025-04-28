@@ -30,12 +30,10 @@ $isEdit = false;
 
 // Zähler und Steckdosen für Dropdown-Listen laden
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
-$steckdosen = $db->fetchAll("
-    SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
     FROM steckdosen
     LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
-    ORDER BY bereiche.name, steckdosen.bezeichnung
-");
+    ORDER BY bereiche.name, steckdosen.bezeichnung");
 
 // Prüfen ob Bearbeiten-Modus
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
