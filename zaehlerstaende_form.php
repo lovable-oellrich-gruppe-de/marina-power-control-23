@@ -176,8 +176,8 @@ require_once 'includes/header.php';
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700">Zähler *</label>
                         <select id="zaehler_id" name="zaehler_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                             <option value="">Bitte wählen...</option>
-                            <?php foreach ($zaehler): ?>
-                                <option value="<?= $zaehler['id'] ?>" <?= ($steckdose_id == $zaehler['id']) ? 'selected' : '' ?>>
+                            <?php foreach ($zaehler as $z): ?>
+                                <option value="<?= $z['id'] ?>" <?= ($steckdose_id == $z['id']) ? 'selected' : '' ?>>
                             <?php endforeach; ?>
                         </select>
                     </div>
