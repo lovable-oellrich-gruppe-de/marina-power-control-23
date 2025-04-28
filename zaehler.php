@@ -51,7 +51,10 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // SQL für Zählerabfrage mit Suchfunktion
-$sql = "SELECT * FROM zaehler WHERE 1=1";
+$sql = "SELECT z.*, s.bezeichnung AS steckdose_bezeichnung
+    FROM zaehler z
+    LEFT JOIN steckdosen s ON z.steckdose_id = s.id
+    WHERE 1=1";
 
 // Suchparameter ergänzen
 if (!empty($search)) {
@@ -191,6 +194,9 @@ require_once 'includes/header.php';
                                         <?php endif; ?>
                                     </a>
                                 </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Steckdose
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                             </tr>
@@ -220,6 +226,9 @@ require_once 'includes/header.php';
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <?= !empty($z['letzte_wartung']) ? date('d.m.Y', strtotime($z['letzte_wartung'])) : '-' ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <?= htmlspecialchars($z['steckdose_bezeichnung'] ?? '-') ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <?php if ($z['ist_ausgebaut']): ?>
