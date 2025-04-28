@@ -118,7 +118,7 @@ class Database {
         return $data;
     }
     
-    // Ein einzelnes Ergebnis abrufen
+    /*/ Ein einzelnes Ergebnis abrufen
     public function fetchOne($sql, $params = []) {
         $result = $this->query($sql, $params);
         
@@ -138,7 +138,33 @@ class Database {
         }
 
         return $row;
+    }*/
+    // Ein einzelnes Ergebnis abrufen
+    public function fetchOne($sql, $params = []) {
+        $result = $this->query($sql, $params);
+    
+        if (!$result) {
+            return null;
+        }
+    
+        $row = $result->fetch_assoc();
+        
+        if ($row === false) {
+            // Kein Datensatz gefunden
+            return null;
+        }
+    
+        if ($this->last_stmt instanceof mysqli_stmt) {
+            try {
+                @$this->last_stmt->close();
+            } catch (Throwable $e) {
+                // Statement bereits geschlossen, ignorieren
+            }
+        }
+    
+        return $row;
     }
+    
     
     // Anzahl der betroffenen Zeilen abrufen
     public function affectedRows() {
