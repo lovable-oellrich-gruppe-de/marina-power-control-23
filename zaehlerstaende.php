@@ -88,7 +88,7 @@ require_once 'includes/header.php';
 
 <!-- HTML ab hier -->
 <div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Zählerstände verwalten</h1>
             <a href="zaehlerstaende_form.php" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">
