@@ -216,6 +216,18 @@ require_once 'includes/header.php';
     </div>
 </div>
 
+<script>
+function confirmDeleteUser(id, name) {
+    document.getElementById('userName').textContent = name;
+    document.getElementById('deleteUserLink').href = 'users.php?action=delete&id=' + encodeURIComponent(id);
+    document.getElementById('deleteUserModal').classList.remove('hidden');
+}
+
+function closeDeleteUserModal() {
+    document.getElementById('deleteUserModal').classList.add('hidden');
+}
+</script>
+
 <?php
 require_once 'includes/footer.php';
 ?>
