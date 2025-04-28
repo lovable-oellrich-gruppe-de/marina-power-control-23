@@ -105,6 +105,12 @@ require_once 'includes/header.php';
                 Der Benutzer wurde erfolgreich gelöscht.
             </div>
         <?php endif; ?>
+
+        <?php if (isset($_GET['created']) && $_GET['created'] === '1'): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                Der Benutzer wurde erfolgreich angelegt.
+            </div>
+        <?php endif; ?>    
         
         <?php if (isset($_GET['error']) && $_GET['error'] === 'self_delete'): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
