@@ -56,6 +56,25 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 // Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // Admin kann Foto löschen
+    $current_user = $auth->getCurrentUser(); // Aktuellen Benutzer abrufen
+    
+    if (isset($_POST['delete_foto']) && $isEdit && isset($current_user) && $current_user['role'] === 'admin') {
+        // foto_url aus der Datenbank lesen
+        $fotoInfo = $db->fetchOne("SELECT foto_url FROM zaehlerstaende WHERE id = ?", [$id]);
+        
+        if (!empty($fotoInfo['foto_url']) && file_exists($fotoInfo['foto_url'])) {
+            unlink($fotoInfo['foto_url']); // Datei vom Server löschen
+        }
+        
+        $db->query("UPDATE zaehlerstaende SET foto_url = NULL WHERE id = ?", [$id]);
+    
+        // Erfolgreiche Weiterleitung
+        header("Location: zaehlerstaende_form.php?id=$id&success=" . urlencode("Foto wurde erfolgreich gelöscht."));
+        exit;
+    }
+    
     $zaehler_id = $_POST['zaehler_id'] ?? '';
     $steckdose_id = !empty($_POST['steckdose_id']) ? $_POST['steckdose_id'] : null;
     $datum = $_POST['datum'] ?? '';
@@ -239,11 +258,22 @@ require_once 'includes/header.php';
                                       focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
                     <?php if (!empty($foto_url)): ?>
-                        <div class="col-span-2 mt-4">
+                        <div class="sm:col-span-2 mt-4">
                             <p class="text-sm font-medium text-gray-700 mb-2">Aktuelles Foto:</p>
-                            <a href="<?= htmlspecialchars($foto_url) ?>" target="_blank" class="inline-block">
-                                <img src="<?= htmlspecialchars($foto_url) ?>" alt="Zählerstand Foto" class="max-h-40 rounded-md border border-gray-300">
-                            </a>
+                            <div class="flex items-start space-x-4">
+                                <a href="<?= htmlspecialchars($foto_url) ?>" target="_blank" class="inline-block">
+                                    <img src="<?= htmlspecialchars($foto_url) ?>" alt="Zählerstand Foto" class="max-h-40 rounded-md border border-gray-300">
+                                </a>
+                    
+                                <?php if (isset($current_user) && $current_user['role'] === 'admin'): ?>
+                                    <form method="POST" action="zaehlerstaende_form.php?id=<?= (int)$id ?>" onsubmit="return confirm('Möchten Sie das Foto wirklich löschen?');">
+                                        <input type="hidden" name="delete_foto" value="1">
+                                        <button type="submit" class="px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                                            Foto löschen
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
 
