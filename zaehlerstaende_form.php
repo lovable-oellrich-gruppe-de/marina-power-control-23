@@ -18,7 +18,6 @@ if (!file_exists($upload_dir)) {
 
 // Initialisierung der Variablen
 $id = null;
-$zaehler_id = '';
 $steckdose_id = '';
 $datum = date('Y-m-d');
 $stand = '';
@@ -28,12 +27,8 @@ $errors = [];
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
-// Zähler und Steckdosen für Dropdown-Listen laden
-$zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
-    FROM steckdosen
-    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
-    ORDER BY bereiche.name, steckdosen.bezeichnung");
+// Steckdosen für Dropdown-Listen laden
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
 
 // Prüfen ob Bearbeiten-Modus
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -43,7 +38,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
     $zs = $db->fetchOne("SELECT * FROM zaehlerstaende WHERE id = ?", [$id]);
     if ($zs) {
-        $zaehler_id = $zs['zaehler_id'];
         $steckdose_id = $zs['steckdose_id'];
         $datum = $zs['datum'];
         $stand = $zs['stand'];
@@ -56,47 +50,41 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 // Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    // Admin kann Foto löschen
     $current_user = $auth->getCurrentUser(); // Aktuellen Benutzer abrufen
-    
+
+    // Admin kann Foto löschen
     if (isset($_POST['delete_foto']) && $isEdit && isset($current_user) && $current_user['role'] === 'admin') {
-        // foto_url aus der Datenbank lesen
         $fotoInfo = $db->fetchOne("SELECT foto_url FROM zaehlerstaende WHERE id = ?", [$id]);
-        
         if (!empty($fotoInfo['foto_url']) && file_exists($fotoInfo['foto_url'])) {
-            unlink($fotoInfo['foto_url']); // Datei vom Server löschen
+            unlink($fotoInfo['foto_url']);
         }
-        
         $db->query("UPDATE zaehlerstaende SET foto_url = NULL WHERE id = ?", [$id]);
-    
-        // Erfolgreiche Weiterleitung
         header("Location: zaehlerstaende_form.php?id=$id&success=" . urlencode("Foto wurde erfolgreich gelöscht."));
         exit;
     }
-    
-    $zaehler_id = $_POST['zaehler_id'] ?? '';
+
     $steckdose_id = !empty($_POST['steckdose_id']) ? $_POST['steckdose_id'] : null;
     $datum = $_POST['datum'] ?? '';
     $stand = str_replace(',', '.', $_POST['stand'] ?? '');
     $hinweis = $_POST['hinweis'] ?? '';
 
-    // ✨ NEU: Aktuellen Mietername laden
+    // ✨ NEU: Zähler automatisch über Steckdose finden
+    $zaehlerInfo = $db->fetchOne("SELECT id FROM zaehler WHERE steckdose_id = ?", [$steckdose_id]);
+    $zaehler_id = $zaehlerInfo['id'] ?? null;
+
+    // ✨ NEU: Mietername laden
     $mieter_name = null;
     if (!empty($steckdose_id)) {
-        $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name
-            FROM steckdosen s
-            LEFT JOIN mieter m ON s.mieter_id = m.id
-            WHERE s.id = ?", [$steckdose_id]);
+        $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name FROM steckdosen s LEFT JOIN mieter m ON s.mieter_id = m.id WHERE s.id = ?", [$steckdose_id]);
         $mieter_name = $mieterInfo['mieter_name'] ?? null;
     }
 
     // Validierung der Eingaben
-    if (empty($zaehler_id)) {
-        $errors[] = "Bitte einen Zähler auswählen.";
-    }
     if (empty($steckdose_id)) {
         $errors[] = "Bitte eine Steckdose auswählen.";
+    }
+    if (empty($zaehler_id)) {
+        $errors[] = "Kein Zähler für die gewählte Steckdose gefunden.";
     }
     if (empty($datum)) {
         $errors[] = "Bitte ein Datum eingeben.";
@@ -127,14 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Wenn keine Fehler vorliegen: speichern
+    // Speicherung oder Update
     if (empty($errors)) {
         $verbrauch = null;
-        $vorheriger = $db->fetchOne("
-            SELECT id, stand FROM zaehlerstaende 
-            WHERE zaehler_id = ? AND datum < ? 
-            ORDER BY datum DESC, id DESC LIMIT 1
-        ", [$zaehler_id, $datum]);
+        $vorheriger = $db->fetchOne("SELECT id, stand FROM zaehlerstaende WHERE zaehler_id = ? AND datum < ? ORDER BY datum DESC, id DESC LIMIT 1", [$zaehler_id, $datum]);
         $vorheriger_id = $vorheriger['id'] ?? null;
 
         if ($vorheriger) {
@@ -145,15 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Speicherung oder Update
     if (empty($errors)) {
-        $current_user = $auth->getCurrentUser();
         $abgelesen_von_id = $current_user['id'];
 
         if ($isEdit) {
             $params = [$zaehler_id, $steckdose_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis, $mieter_name];
-            $sql = "UPDATE zaehlerstaende 
-                    SET zaehler_id=?, steckdose_id=?, datum=?, stand=?, vorheriger_id=?, verbrauch=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
+            $sql = "UPDATE zaehlerstaende SET zaehler_id=?, steckdose_id=?, datum=?, stand=?, vorheriger_id=?, verbrauch=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
             if (!empty($foto_url)) {
                 $sql .= ", foto_url=?";
                 $params[] = $foto_url;
@@ -176,14 +157,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Zählerstand wurde erfolgreich gespeichert.";
         }
 
-        // Nach Speichern weiterleiten
         header("Location: zaehlerstaende.php?success=" . urlencode($success));
         exit;
     }
 }
+
 // Header einbinden
 require_once 'includes/header.php';
 ?>
+
 
 <!-- HTML-Teil (Formular für neuen/bearbeiten Zählerstand) -->
 <div class="py-6">
@@ -212,12 +194,12 @@ require_once 'includes/header.php';
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     
-                    <!-- Zähler Auswahl -->
+                    <!-- Zähler Auswahl (nur lesbar / deaktiviert) -->
                     <div class="space-y-2">
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700">Zähler *</label>
-                        <select id="zaehler_id" name="zaehler_id" required
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
-                                   focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
+                        <select id="zaehler_id_display" disabled
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-base
+                                   focus:outline-none">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($zaehler as $z): ?>
                                 <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
@@ -225,6 +207,8 @@ require_once 'includes/header.php';
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <!-- Echter Wert wird hier unsichtbar mitgesendet -->
+                        <input type="hidden" id="zaehler_id" name="zaehler_id" value="<?= htmlspecialchars($zaehler_id) ?>">
                     </div>
 
                     <!-- Steckdose Auswahl -->
