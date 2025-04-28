@@ -184,7 +184,7 @@ require_once 'includes/header.php';
                                                 </svg>
                                             </a>
                                             <?php if ($user['id'] !== $_SESSION['user_id']): ?>
-                                                <a href="users.php?action=delete&id=<?= $user['id'] ?>" class="text-red-600 hover:text-red-900 p-1" title="Löschen" onclick="return confirm('Möchten Sie diesen Benutzer wirklich löschen?');">
+                                                <a href="#" onclick="confirmDeleteUser('<?= $user['id'] ?>', '<?= htmlspecialchars(addslashes($user['name'])) ?>')" class="text-red-600 hover:text-red-900 p-1" title="Löschen">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <polyline points="3 6 5 6 21 6"></polyline>
                                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -198,6 +198,19 @@ require_once 'includes/header.php';
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+            <!-- Bestätigungsdialog für das Löschen eines Benutzers -->
+            <div id="deleteUserModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+                <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Benutzer löschen</h3>
+                    <p class="text-gray-500 mb-4">
+                        Möchten Sie den Benutzer <span id="userName"></span> wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+                    </p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeDeleteUserModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
+                        <a id="deleteUserLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
