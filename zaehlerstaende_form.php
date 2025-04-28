@@ -328,6 +328,44 @@ document.getElementById('steckdose_id').addEventListener('change', function() {
     document.getElementById('zaehler_id_display').value = zaehlerId;
 });
 </script>
+
+<script>
+document.getElementById('foto').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const maxWidth = 1200; // Maximale Breite
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            if (img.width <= maxWidth) {
+                // Bild ist schon klein genug
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(function(blob) {
+                const resizedFile = new File([blob], file.name, {type: file.type});
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(resizedFile);
+                document.getElementById('foto').files = dataTransfer.files;
+            }, file.type, 0.85); // JPEG Qualität 85%
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+</script>
+
+
 <?php
 require_once 'includes/footer.php';
 ?>
