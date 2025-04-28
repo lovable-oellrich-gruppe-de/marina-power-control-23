@@ -21,7 +21,7 @@ $current_user = $auth->getCurrentUser();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marina Power Control</title>
+    <title>SCD Steckdosen Verwaltung</title>
     <meta name="description" content="Verwaltung von Stromsteckdosen im Bootshafen">
     <meta name="author" content="Marina Power Control">
     
@@ -67,7 +67,7 @@ $current_user = $auth->getCurrentUser();
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-2xl font-bold text-marina-700">Marina Power Control</h1>
+                        <h1 class="text-2xl font-bold text-marina-700">SCD Steckdosen Verwaltung</h1>
                     </div>
                     <nav class="ml-6 flex space-x-4 items-center">
                         <a href="index.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Dashboard</a>
