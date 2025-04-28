@@ -28,7 +28,7 @@ $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
 // Steckdosen für Dropdown-Listen laden
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name, steckdosen.zaehler_id FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
 
 // Prüfen ob Bearbeiten-Modus
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -197,16 +197,17 @@ require_once 'includes/header.php';
                     <!-- Zähler Auswahl (nur lesbar / deaktiviert) -->
                     <div class="space-y-2">
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700">Zähler *</label>
-                        <select id="zaehler_id_display" disabled
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-base
-                                   focus:outline-none">
-                            <option value="">Bitte wählen...</option>
-                            <?php foreach ($zaehler as $z): ?>
-                                <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($z['zaehlernummer']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                            <!-- Sichtbares deaktiviertes Feld -->
+                            <select id="zaehler_id_display" disabled
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-base
+                                       focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
+                                <option value="">Bitte wählen...</option>
+                                <?php foreach ($zaehler as $z): ?>
+                                    <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($z['zaehlernummer']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         <!-- Echter Wert wird hier unsichtbar mitgesendet -->
                         <input type="hidden" id="zaehler_id" name="zaehler_id" value="<?= htmlspecialchars($zaehler_id) ?>">
                     </div>
@@ -219,7 +220,9 @@ require_once 'includes/header.php';
                                    focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
-                                <option value="<?= $s['id'] ?>" <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
+                                <option value="<?= $s['id'] ?>" 
+                                    data-zaehler="<?= htmlspecialchars($s['zaehler_id'] ?? '') ?>" 
+                                    <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($s['bezeichnung']) ?> (<?= htmlspecialchars($s['bereich_name'] ?? 'Kein Bereich') ?>)
                                 </option>
                             <?php endforeach; ?>
@@ -293,6 +296,18 @@ require_once 'includes/header.php';
     </div>
 </div>
 
+<script>
+document.getElementById('steckdose_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const zaehlerId = selectedOption.getAttribute('data-zaehler') || '';
+    
+    // Echte versteckte ID setzen
+    document.getElementById('zaehler_id').value = zaehlerId;
+    
+    // Anzeige aktualisieren
+    document.getElementById('zaehler_id_display').value = zaehlerId;
+});
+</script>
 <?php
 require_once 'includes/footer.php';
 ?>
