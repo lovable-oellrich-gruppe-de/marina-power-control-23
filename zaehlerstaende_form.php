@@ -180,14 +180,18 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
 
-        <!-- Formular zur Eingabe -->
+        <!-- Zählerstand-Formular -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
             <form method="POST" enctype="multipart/form-data" action="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
+
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <!-- Zähler auswählen -->
+                    
+                    <!-- Zähler Auswahl -->
                     <div class="space-y-2">
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700">Zähler *</label>
-                        <select id="zaehler_id" name="zaehler_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                        <select id="zaehler_id" name="zaehler_id" required
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                   focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($zaehler as $z): ?>
                                 <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
@@ -197,10 +201,12 @@ require_once 'includes/header.php';
                         </select>
                     </div>
 
-                    <!-- Steckdose auswählen -->
+                    <!-- Steckdose Auswahl -->
                     <div class="space-y-2">
                         <label for="steckdose_id" class="block text-sm font-medium text-gray-700">Steckdose *</label>
-                        <select id="steckdose_id" name="steckdose_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                        <select id="steckdose_id" name="steckdose_id" required
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                   focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
                                 <option value="<?= $s['id'] ?>" <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
@@ -210,34 +216,45 @@ require_once 'includes/header.php';
                         </select>
                     </div>
 
-                    <!-- Datum auswählen -->
+                    <!-- Datum Eingabe -->
                     <div class="space-y-2">
                         <label for="datum" class="block text-sm font-medium text-gray-700">Datum *</label>
-                        <input type="date" id="datum" name="datum" value="<?= htmlspecialchars($datum) ?>" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                        <input type="date" id="datum" name="datum" value="<?= htmlspecialchars($datum) ?>" required
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                   focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
 
-                    <!-- Stand eingeben -->
+                    <!-- Zählerstand Eingabe -->
                     <div class="space-y-2">
                         <label for="stand" class="block text-sm font-medium text-gray-700">Zählerstand (kWh) *</label>
-                        <input type="text" id="stand" name="stand" value="<?= htmlspecialchars($stand) ?>" required placeholder="z.B. 1234,56" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                        <input type="text" id="stand" name="stand" value="<?= htmlspecialchars($stand) ?>" required
+                               placeholder="z.B. 1234,56"
+                               class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                      focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
 
                     <!-- Foto Upload -->
-                    <div class="col-span-2 space-y-2">
+                    <div class="sm:col-span-2 space-y-2">
                         <label for="foto" class="block text-sm font-medium text-gray-700">Foto (optional)</label>
-                        <input type="file" id="foto" name="foto" accept="image/*" class="w-full rounded-md border border-gray-300 px-3 py-2">
+                        <input type="file" id="foto" name="foto" accept="image/*"
+                               class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                      focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
 
-                    <!-- Hinweis -->
-                    <div class="col-span-2 space-y-2">
+                    <!-- Hinweis Textarea -->
+                    <div class="sm:col-span-2 space-y-2">
                         <label for="hinweis" class="block text-sm font-medium text-gray-700">Hinweis</label>
-                        <textarea id="hinweis" name="hinweis" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500"><?= htmlspecialchars($hinweis) ?></textarea>
+                        <textarea id="hinweis" name="hinweis" rows="3"
+                            class="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
+                                   focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"><?= htmlspecialchars($hinweis) ?></textarea>
                     </div>
                 </div>
 
-                <!-- Buttons -->
+                <!-- Formular-Buttons -->
                 <div class="mt-6 flex justify-end space-x-3">
-                    <a href="zaehlerstaende.php" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</a>
+                    <a href="zaehlerstaende.php" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+                        Abbrechen
+                    </a>
                     <button type="submit" class="px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">
                         <?= $isEdit ? 'Aktualisieren' : 'Speichern' ?>
                     </button>
@@ -248,6 +265,5 @@ require_once 'includes/header.php';
 </div>
 
 <?php
-// Footer einbinden
 require_once 'includes/footer.php';
 ?>
