@@ -129,7 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-$steckdosen = $db->fetchAll("SELECT id, bezeichnung FROM steckdosen ORDER BY bezeichnung");
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
+    FROM steckdosen
+    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
+    ORDER BY bereiche.name, steckdosen.bezeichnung);
 
 // Header einbinden
 require_once 'includes/header.php';
@@ -175,7 +178,7 @@ require_once 'includes/header.php';
                             <option value="">Keine Steckdose zugewiesen</option>
                             <?php foreach ($steckdosen as $steckdose): ?>
                                 <option value="<?= $steckdose['id'] ?>" <?= ((int)($zaehler['steckdose_id'] ?? 0) === (int)$steckdose['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($steckdose['bezeichnung']) ?>
+                                    <?= htmlspecialchars($steckdose['bezeichnung']) ?> (<?= htmlspecialchars($steckdose['bereich_name'] ?? 'kein Bereich') ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
