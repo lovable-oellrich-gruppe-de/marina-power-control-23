@@ -28,7 +28,27 @@ $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
 // Steckdosen für Dropdown-Listen laden
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name, steckdosen.zaehler_id FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
+$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
+
+// Zähler für Anzeige laden
+$zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
+
+// Automatisch Zähler anhand der Steckdose setzen
+$zaehlerInfo = $db->fetchOne("SELECT id FROM zaehler WHERE steckdose_id = ?", [$steckdose_id]);
+$zaehler_id = $zaehlerInfo['id'] ?? null;
+
+// Wenn kein Zähler gefunden wurde, Fehler erzeugen
+if (empty($zaehler_id)) {
+    $errors[] = "Für die gewählte Steckdose ist kein Zähler hinterlegt.";
+}
+
+// Mietername anhand der Steckdose laden
+$mieter_name = null;
+if (!empty($steckdose_id)) {
+    $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name FROM steckdosen s LEFT JOIN mieter m ON s.mieter_id = m.id WHERE s.id = ?", [$steckdose_id]);
+    $mieter_name = $mieterInfo['mieter_name'] ?? null;
+}
+
 
 // Prüfen ob Bearbeiten-Modus
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -68,11 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stand = str_replace(',', '.', $_POST['stand'] ?? '');
     $hinweis = $_POST['hinweis'] ?? '';
 
-    // ✨ NEU: Zähler automatisch über Steckdose finden
+    //Zähler automatisch über Steckdose finden
     $zaehlerInfo = $db->fetchOne("SELECT id FROM zaehler WHERE steckdose_id = ?", [$steckdose_id]);
     $zaehler_id = $zaehlerInfo['id'] ?? null;
 
-    // ✨ NEU: Mietername laden
+    //Mietername laden
     $mieter_name = null;
     if (!empty($steckdose_id)) {
         $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name FROM steckdosen s LEFT JOIN mieter m ON s.mieter_id = m.id WHERE s.id = ?", [$steckdose_id]);
