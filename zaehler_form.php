@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
     FROM steckdosen
     LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
-    ORDER BY bereiche.name, steckdosen.bezeichnung);
+    ORDER BY bereiche.name, steckdosen.bezeichnung");
 
 // Header einbinden
 require_once 'includes/header.php';
