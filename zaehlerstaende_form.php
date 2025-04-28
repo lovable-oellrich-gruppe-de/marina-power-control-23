@@ -238,6 +238,14 @@ require_once 'includes/header.php';
                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
                                       focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                     </div>
+                    <?php if (!empty($foto_url)): ?>
+                        <div class="col-span-2 mt-4">
+                            <p class="text-sm font-medium text-gray-700 mb-2">Aktuelles Foto:</p>
+                            <a href="<?= htmlspecialchars($foto_url) ?>" target="_blank" class="inline-block">
+                                <img src="<?= htmlspecialchars($foto_url) ?>" alt="Zählerstand Foto" class="max-h-40 rounded-md border border-gray-300">
+                            </a>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Hinweis Textarea -->
                     <div class="sm:col-span-2 space-y-2">
