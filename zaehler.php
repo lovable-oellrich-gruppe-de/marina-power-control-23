@@ -198,9 +198,6 @@ require_once 'includes/header.php';
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Steckdose / Bereich
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Steckdose
-                                </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                             </tr>
@@ -240,9 +237,6 @@ require_once 'includes/header.php';
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <?= htmlspecialchars($z['steckdose_bezeichnung'] ?? '-') ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <?php if ($z['ist_ausgebaut']): ?>
