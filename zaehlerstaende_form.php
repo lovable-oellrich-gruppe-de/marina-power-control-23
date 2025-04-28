@@ -29,10 +29,10 @@ $isEdit = false;
 // Zähler und Steckdosen für Dropdowns laden
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
 $steckdosen = $db->fetchAll("
-    SELECT s.id, s.bezeichnung, b.name AS bereich_name
-    FROM steckdosen s
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    ORDER BY b.name, s.bezeichnung
+    SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name
+    FROM steckdosen
+    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
+    ORDER BY bereiche.name, steckdosen.bezeichnung
 ");
 
 // Prüfen ob Bearbeiten
@@ -177,7 +177,7 @@ require_once 'includes/header.php';
                         <select id="zaehler_id" name="zaehler_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($zaehler as $z): ?>
-                                <option value="<?= $s['id'] ?>" <?= ($steckdose_id == $s['id']) ? 'selected' : '' ?>>
+                                <option value="<?= $z['id'] ?>" <?= ($steckdose_id == $z['id']) ? 'selected' : '' ?>>
                             <?php endforeach; ?>
                         </select>
                     </div>
