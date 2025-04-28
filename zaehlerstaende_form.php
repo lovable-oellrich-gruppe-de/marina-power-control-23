@@ -178,7 +178,7 @@ require_once 'includes/header.php';
 
 <!-- HTML-Teil (Formular für neuen/bearbeiten Zählerstand) -->
 <div class="py-6">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
             <a href="zaehlerstaende.php" class="text-marina-600 hover:text-marina-700">
