@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Formulardaten einlesen
     $form_data = [
         'zaehlernummer' => trim($_POST['zaehlernummer'] ?? ''),
-        'steckdose_id' => !empty($_POST['steckdose_id']) ? (int)$_POST['steckdose_id'] : null
+        'steckdose_id' => !empty($_POST['steckdose_id']) ? (int)$_POST['steckdose_id'] : null,
         'typ' => trim($_POST['typ'] ?? 'Stromzähler'),
         'hersteller' => trim($_POST['hersteller'] ?? ''),
         'modell' => trim($_POST['modell'] ?? ''),
