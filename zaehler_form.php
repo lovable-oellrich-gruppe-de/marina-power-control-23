@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $sql = "INSERT INTO zaehler (
                         zaehlernummer, steckdose_id, typ, hersteller, modell, installiert_am, letzte_wartung, 
                         seriennummer, max_leistung, ist_ausgebaut, hinweis
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
             $params = [
                 $form_data['zaehlernummer'],
                 $form_data['typ'],
