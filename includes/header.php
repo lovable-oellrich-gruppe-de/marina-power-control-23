@@ -93,8 +93,8 @@ $current_user = $auth->getCurrentUser();
                                     </span>
                                 </button>
                             </div>
-                            <a href="profile.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Profil</a>
-                            <a href="settings.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Einstellungen</a>
+                            <!--<a href="profile.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Profil</a>-->
+                            <!--<a href="settings.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Einstellungen</a>-->
                             <a href="logout.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Abmelden</a>
                         </div>
                     </div>
