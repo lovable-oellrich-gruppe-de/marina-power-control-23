@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         $db->query(
-            "INSERT INTO benutzer (name, email, rolle, password, status, erstellt_am) VALUES (?, ?, ?, ?, 'active', NOW())",
+            "INSERT INTO benutzer (name, email, rolle, password_hash, status, erstellt_am) VALUES (?, ?, ?, ?, 'active', NOW())",
             [$name, $email, $rolle, $passwordHash]
         );
 
