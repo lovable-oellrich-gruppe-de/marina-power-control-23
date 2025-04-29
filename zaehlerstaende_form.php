@@ -54,6 +54,9 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $stand = $zs['stand'];
         $hinweis = $zs['hinweis'];
         $foto_url = $zs['foto_url'];
+        //Zähler-ID aus der Steckdose holen, falls im Bearbeiten-Modus
+        $zaehlerInfo = $db->fetchOne("SELECT id FROM zaehler WHERE steckdose_id = ?", [$steckdose_id]);
+        $zaehler_id = $zaehlerInfo['id'] ?? null;
     } else {
         $errors[] = "Zählerstand nicht gefunden.";
     }
