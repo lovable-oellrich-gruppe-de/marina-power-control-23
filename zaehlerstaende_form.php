@@ -28,7 +28,11 @@ $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
 // Steckdosen für Dropdown-Listen laden
-$steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, bereiche.name AS bereich_name FROM steckdosen LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id ORDER BY bereiche.name, steckdosen.bezeichnung");
+$steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name, z.id AS zaehler_id, z.zaehlernummer
+    FROM steckdosen s
+    LEFT JOIN bereiche b ON s.bereich_id = b.id
+    LEFT JOIN zaehler z ON z.steckdose_id = s.id
+    ORDER BY b.name, s.bezeichnung");
 
 // Zähler für Anzeige laden
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
@@ -234,11 +238,13 @@ require_once 'includes/header.php';
                                    focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                             <option value="">Bitte wählen...</option>
                             <?php foreach ($steckdosen as $s): ?>
-                                <option value="<?= $s['id'] ?>" 
-                                    data-zaehler="<?= htmlspecialchars($s['zaehler_id'] ?? '') ?>" 
-                                    <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($s['bezeichnung']) ?> (<?= htmlspecialchars($s['bereich_name'] ?? 'Kein Bereich') ?>)
-                                </option>
+                                <option 
+                                value="<?= $s['id'] ?>" 
+                                data-zaehler="<?= htmlspecialchars($s['zaehler_id'] ?? '') ?>"
+                                data-zaehlernummer="<?= htmlspecialchars($s['zaehlernummer'] ?? '') ?>"
+                                <?= ((int)$steckdose_id === (int)$s['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($s['bezeichnung']) ?> (<?= htmlspecialchars($s['bereich_name'] ?? 'Kein Bereich') ?>)
+                            </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -314,12 +320,25 @@ require_once 'includes/header.php';
 document.getElementById('steckdose_id').addEventListener('change', function() {
     const selectedOption = this.options[this.selectedIndex];
     const zaehlerId = selectedOption.getAttribute('data-zaehler') || '';
-    
-    // Echte versteckte ID setzen
+    const zaehlerNummer = selectedOption.getAttribute('data-zaehlernummer') || '';
+
+    // Verstecktes Feld setzen
     document.getElementById('zaehler_id').value = zaehlerId;
-    
-    // Anzeige aktualisieren
-    document.getElementById('zaehler_id_display').value = zaehlerId;
+
+    // Anzeige-Feld neu aufbauen
+    const displaySelect = document.getElementById('zaehler_id_display');
+    displaySelect.innerHTML = ''; // Leeren
+    if (zaehlerId && zaehlerNummer) {
+        const opt = document.createElement('option');
+        opt.value = zaehlerId;
+        opt.textContent = zaehlerNummer;
+        opt.selected = true;
+        displaySelect.appendChild(opt);
+    } else {
+        const opt = document.createElement('option');
+        opt.textContent = 'Kein Zähler gefunden';
+        displaySelect.appendChild(opt);
+    }
 });
 </script>
 
