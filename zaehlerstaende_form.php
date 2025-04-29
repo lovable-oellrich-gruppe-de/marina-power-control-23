@@ -33,15 +33,6 @@ $steckdosen = $db->fetchAll("SELECT steckdosen.id, steckdosen.bezeichnung, berei
 // Zähler für Anzeige laden
 $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
 
-// Automatisch Zähler anhand der Steckdose setzen
-$zaehlerInfo = $db->fetchOne("SELECT id FROM zaehler WHERE steckdose_id = ?", [$steckdose_id]);
-$zaehler_id = $zaehlerInfo['id'] ?? null;
-
-// Wenn kein Zähler gefunden wurde, Fehler erzeugen
-if (empty($zaehler_id)) {
-    $errors[] = "Für die gewählte Steckdose ist kein Zähler hinterlegt.";
-}
-
 // Mietername anhand der Steckdose laden
 $mieter_name = null;
 if (!empty($steckdose_id)) {
