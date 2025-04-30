@@ -33,7 +33,7 @@ class Auth {
         // Passwort überprüfen mit password_verify
         if (password_verify($password, $user['passwort_hash'])) {
             // Session-Daten setzen
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['id']; // fehlt!
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['rolle'];
@@ -43,7 +43,6 @@ class Auth {
             return [
                 'success' => true,
                 'user' => [
-                    'id' => $user['id'],
                     'email' => $user['email'],
                     'name' => $user['name'],
                     'role' => $user['rolle']
@@ -83,11 +82,10 @@ class Auth {
         $sql = "INSERT INTO benutzer (email, passwort_hash, name, rolle, status) 
                 VALUES (?, ?, ?, ?, ?)";
         
-        $userId = uniqid('user_');
         $role = 'user';
         $status = 'pending';
         
-        $this->db->query($sql, [$userId, $email, $hashedPassword, $name, $role, $status]);
+        $this->db->query($sql, [$email, $hashedPassword, $name, $role, $status]);
         
         if ($this->db->affectedRows() > 0) {
             return [
