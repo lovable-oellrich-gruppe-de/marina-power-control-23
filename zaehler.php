@@ -73,12 +73,9 @@ if ($status !== '') {
 $sql .= " ORDER BY $orderBy $orderDir";
 $zaehler = $db->fetchAll($sql, $search_params);
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
-
-// Header einbinden
 require_once 'includes/header.php';
 ?>
 
-<!-- HTML-Teil wieder eingefügt -->
 <div class="py-6">
   <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center">
@@ -140,8 +137,90 @@ require_once 'includes/header.php';
       </form>
     </div>
 
-    <!-- Hier sollte deine bestehende Tabelle folgen -->
+    <div class="mt-6 overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zählernummer</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hersteller / Modell</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Installiert am</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Letzte Wartung</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Steckdose / Bereich</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <?php if (empty($zaehler)): ?>
+            <tr>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Keine Zähler gefunden</td>
+            </tr>
+          <?php else: ?>
+            <?php foreach ($zaehler as $z): ?>
+              <tr>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                  <?= htmlspecialchars($z['zaehlernummer']) ?>
+                  <?php if (!empty($z['seriennummer'])): ?>
+                    <div class="text-xs text-gray-500">SN: <?= htmlspecialchars($z['seriennummer']) ?></div>
+                  <?php endif; ?>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <?= htmlspecialchars($z['hersteller'] ?? '-') ?>
+                  <?php if (!empty($z['modell'])): ?>
+                    <div class="text-xs"><?= htmlspecialchars($z['modell']) ?></div>
+                  <?php endif; ?>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <?= date('d.m.Y', strtotime($z['installiert_am'])) ?>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <?= !empty($z['letzte_wartung']) ? date('d.m.Y', strtotime($z['letzte_wartung'])) : '-' ?>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <?= htmlspecialchars($z['steckdose_bezeichnung'] ?? '-') ?>
+                  <?php if (!empty($z['bereich_name'])): ?>
+                    <div class="text-xs text-gray-500">(<?= htmlspecialchars($z['bereich_name']) ?>)</div>
+                  <?php endif; ?>
+                </td>
+                <td class="px-6 py-4">
+                  <?php if ($z['ist_ausgebaut']): ?>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Ausgebaut</span>
+                  <?php else: ?>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
+                  <?php endif; ?>
+                </td>
+                <td class="px-6 py-4 text-sm font-medium">
+                  <div class="flex items-center space-x-4">
+                    <a href="zaehler_form.php?id=<?= $z['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
+                      ✏️
+                    </a>
+                    <?php if ($auth->isAdmin()): ?>
+                      <a href="#" onclick="confirmDelete(<?= $z['id'] ?>)" class="text-red-600 hover:text-red-900" title="Löschen">
+                        🗑️
+                      </a>
+                    <?php endif; ?>
+                    <a href="zaehlerstaende.php?zaehler_id=<?= $z['id'] ?>" class="text-gray-600 hover:text-gray-900" title="Zählerstände">
+                      📊
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
 
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+      <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Zähler löschen</h3>
+        <p class="text-gray-500 mb-4">Möchten Sie diesen Zähler wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+        <div class="flex justify-end space-x-3">
+          <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
+          <a id="deleteLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
