@@ -70,6 +70,80 @@ $zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehler
 require_once 'includes/header.php';
 ?>
 
+<div class="py-6">
+  <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Steckdosen verwalten</h1>
+      <a href="steckdosen_form.php" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">
+        Neue Steckdose
+      </a>
+    </div>
+
+    <?php if (isset($success)): ?>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <?= htmlspecialchars($success) ?>
+      </div>
+    <?php endif; ?>
+    <?php if (isset($error)): ?>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <?= htmlspecialchars($error) ?>
+      </div>
+    <?php endif; ?>
+    <?php if (isset($info)): ?>
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+        <?= htmlspecialchars($info) ?>
+      </div>
+    <?php endif; ?>
+
+    <!-- Filterformular wiederhergestellt -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <form method="GET" action="steckdosen.php" class="flex flex-wrap items-end gap-4">
+        <div class="w-full sm:w-auto">
+          <label for="bereich" class="block text-sm font-medium text-gray-700 mb-1">Bereich</label>
+          <select id="bereich" name="bereich" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+            <option value="">Alle Bereiche</option>
+            <?php foreach ($bereiche as $b): ?>
+              <option value="<?= $b['id'] ?>" <?= $bereich == $b['id'] ? 'selected' : '' ?>><?= htmlspecialchars($b['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="w-full sm:w-auto">
+          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select id="status" name="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+            <option value="">Alle Status</option>
+            <option value="aktiv" <?= $status === 'aktiv' ? 'selected' : '' ?>>Aktiv</option>
+            <option value="inaktiv" <?= $status === 'inaktiv' ? 'selected' : '' ?>>Inaktiv</option>
+            <option value="defekt" <?= $status === 'defekt' ? 'selected' : '' ?>>Defekt</option>
+          </select>
+        </div>
+        <div class="w-full sm:w-auto">
+          <label for="mieter" class="block text-sm font-medium text-gray-700 mb-1">Mieter</label>
+          <select id="mieter" name="mieter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+            <option value="">Alle Mieter</option>
+            <?php foreach ($mieter as $m): ?>
+              <option value="<?= $m['id'] ?>" <?= $mieter == $m['id'] ? 'selected' : '' ?>><?= htmlspecialchars($m['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="w-full sm:w-auto">
+          <label for="zugewiesen" class="block text-sm font-medium text-gray-700 mb-1">Zugewiesen</label>
+          <select id="zugewiesen" name="zugewiesen" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+            <option value="">Alle</option>
+            <option value="1" <?= $zugewiesen === '1' ? 'selected' : '' ?>>Zugewiesen</option>
+            <option value="0" <?= $zugewiesen === '0' ? 'selected' : '' ?>>Nicht zugewiesen</option>
+          </select>
+        </div>
+        <div class="ml-auto">
+          <button type="submit" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">
+            Filtern
+          </button>
+          <a href="steckdosen.php" class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+            Zurücksetzen
+          </a>
+        </div>
+      </form>
+    </div>
+
 <div class="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
