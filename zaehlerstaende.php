@@ -106,7 +106,7 @@ $zaehlerstaende = $db->fetchAll($sql, $params);
 
 // Header einbinden
 require_once 'includes/header.php';
-
+?>
 
 <!-- HTML ab hier -->
 <div class="py-6">
