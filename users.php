@@ -88,7 +88,7 @@ function sortLink($label, $column) {
     </div>
 
     <form method="GET" class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow mb-6">
-      <div class="w-full sm:w-auto">
+      <div class="flex-1 min-w-[200px]">
         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Suche</label>
         <input type="text" name="search" id="search" value="<?= htmlspecialchars($search) ?>" placeholder="Name oder E-Mail" class="rounded-md border-gray-300 shadow-sm focus:ring-marina-500 focus:border-marina-500">
       </div>
