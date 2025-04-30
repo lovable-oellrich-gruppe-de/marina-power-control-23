@@ -174,6 +174,7 @@ require_once 'includes/header.php';
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bereich</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mieter</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stand (kWh)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Verbrauch (kWh)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                         </tr>
@@ -193,6 +194,15 @@ require_once 'includes/header.php';
                                     <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
                                     <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
                                     <td class="px-6 py-4 text-sm text-gray-900"><?= number_format($zs['stand'], 2, ',', '.') ?> kWh</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?php if (!empty($zs['foto_url'])): ?>
+                                            <a href="#" onclick="showImageModal('<?= htmlspecialchars($zs['foto_url']) ?>'); return false;">
+                                                <img src="<?= htmlspecialchars($zs['foto_url']) ?>" alt="Foto" class="h-8 w-8 object-cover rounded shadow">
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-gray-400">–</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-900"><?= $zs['verbrauch'] !== null ? number_format($zs['verbrauch'], 2, ',', '.') . ' kWh' : '-' ?></td>
                                     <td class="px-6 py-4 text-sm font-medium">
                                         <div class="flex items-center space-x-3">
@@ -229,8 +239,26 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-50">
+    <div class="relative bg-white rounded-lg overflow-hidden shadow-lg">
+        <button onclick="closeImageModal()" class="absolute top-2 right-2 text-white bg-red-500 rounded-full px-2 py-1 text-xs hover:bg-red-600 z-10">X</button>
+        <img id="modalImage" src="" alt="Vorschau" class="max-h-screen max-w-screen p-4">
+    </div>
+</div>
 
 <script>
+function showImageModal(src) {
+    document.getElementById('modalImage').src = src;
+    document.getElementById('imageModal').classList.remove('hidden');
+    document.getElementById('imageModal').classList.add('flex');
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').classList.add('hidden');
+    document.getElementById('imageModal').classList.remove('flex');
+    document.getElementById('modalImage').src = '';
+}
+
 function confirmDelete(id, datum, zaehlerNummer) {
     document.getElementById('zaehlerDatum').textContent = datum;
     document.getElementById('zaehlerNummer').textContent = zaehlerNummer;
