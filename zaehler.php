@@ -74,9 +74,11 @@ $sql .= " ORDER BY $orderBy $orderDir";
 $zaehler = $db->fetchAll($sql, $search_params);
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
 
+// Header einbinden
 require_once 'includes/header.php';
 ?>
 
+<!-- HTML-Teil wieder eingefügt -->
 <div class="py-6">
   <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center">
@@ -138,8 +140,8 @@ require_once 'includes/header.php';
       </form>
     </div>
 
-    <!-- Tabelle wie gehabt -->
-    <!-- ... (dein bestehendes HTML für die Tabelle bleibt bestehen) -->
+    <!-- Hier sollte deine bestehende Tabelle folgen -->
+
   </div>
 </div>
 
