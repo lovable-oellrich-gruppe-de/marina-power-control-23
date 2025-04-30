@@ -58,13 +58,13 @@ if (!empty($search)) {
 }
 
 if (!empty($bereich)) {
-    $sql .= " AND b.id = ?";
+    $sql .= " AND s.bereich_id = ?";
     $search_params[] = $bereich;
 }
 
 if ($status !== '') {
     if ($status == 'aktiv') {
-        $sql .= " AND z.ist_ausgebaut = 0";
+        $sql .= " AND (z.ist_ausgebaut = 0 OR z.ist_ausgebaut IS NULL)";
     } elseif ($status == 'ausgebaut') {
         $sql .= " AND z.ist_ausgebaut = 1";
     }
@@ -73,6 +73,7 @@ if ($status !== '') {
 $sql .= " ORDER BY $orderBy $orderDir";
 $zaehler = $db->fetchAll($sql, $search_params);
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
+
 require_once 'includes/header.php';
 ?>
 
