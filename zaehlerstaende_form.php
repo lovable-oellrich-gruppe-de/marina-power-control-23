@@ -272,6 +272,7 @@ require_once 'includes/header.php';
                         <input type="file" id="foto" name="foto" accept="image/*"
                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
                                       focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
+                        <div id="foto_preview" class="mt-2"></div> <!-- Neu: Vorschau hier -->
                     </div>
                     <?php if (!empty($foto_url)): ?>
                         <div class="sm:col-span-2 mt-4">
@@ -348,32 +349,39 @@ document.getElementById('foto').addEventListener('change', function(event) {
     if (!file) return;
 
     const maxWidth = 1200; // Maximale Breite
-
     const reader = new FileReader();
+
     reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-            if (img.width <= maxWidth) {
-                // Bild ist schon klein genug
-                return;
+            // Bildvorschau anzeigen
+            const previewContainer = document.getElementById('foto_preview');
+            previewContainer.innerHTML = ''; // Vorherige Vorschau löschen
+            const previewImage = document.createElement('img');
+            previewImage.src = e.target.result;
+            previewImage.classList.add('max-h-40', 'rounded-md', 'border', 'border-gray-300');
+            previewContainer.appendChild(previewImage);
+
+            // Bild verkleinern, wenn nötig
+            if (img.width > maxWidth) {
+                const canvas = document.createElement('canvas');
+                const scale = maxWidth / img.width;
+                canvas.width = maxWidth;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob(function(blob) {
+                    const resizedFile = new File([blob], file.name, { type: file.type });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(resizedFile);
+                    document.getElementById('foto').files = dataTransfer.files;
+                }, file.type, 0.85);
             }
-
-            const canvas = document.createElement('canvas');
-            const scale = maxWidth / img.width;
-            canvas.width = maxWidth;
-            canvas.height = img.height * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            canvas.toBlob(function(blob) {
-                const resizedFile = new File([blob], file.name, {type: file.type});
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(resizedFile);
-                document.getElementById('foto').files = dataTransfer.files;
-            }, file.type, 0.85); // JPEG Qualität 85%
         };
         img.src = e.target.result;
     };
+
     reader.readAsDataURL(file);
 });
 </script>
