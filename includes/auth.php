@@ -80,8 +80,8 @@ class Auth {
         $hashedPassword = $this->hashPassword($password);
         
         // Benutzer erstellen
-        $sql = "INSERT INTO benutzer (id, email, passwort_hash, name, rolle, status) 
-                VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO benutzer (email, passwort_hash, name, rolle, status) 
+                VALUES (?, ?, ?, ?, ?)";
         
         $userId = uniqid('user_');
         $role = 'user';
