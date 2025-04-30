@@ -11,6 +11,7 @@ if (!$auth->isLoggedIn()) {
 $success_message = $_GET['success'] ?? null;
 $error_message = $_GET['error'] ?? null;
 $search = $_GET['search'] ?? '';
+$aktiv_filter = $_GET['aktiv'] ?? '';
 $orderBy = $_GET['order_by'] ?? 'name';
 $orderDir = strtoupper($_GET['order_dir'] ?? 'ASC');
 $valid_order_by = ['id', 'name', 'beschreibung', 'aktiv', 'steckdosen_count'];
@@ -44,6 +45,11 @@ if (!empty($search)) {
     $params[] = "%$search%";
 }
 
+if ($aktiv_filter !== '') {
+    $sql .= " AND aktiv = ?";
+    $params[] = (int)$aktiv_filter;
+}
+
 $sql .= " ORDER BY $orderBy $orderDir";
 $bereiche = $db->fetchAll($sql, $params);
 
@@ -72,13 +78,21 @@ require_once 'includes/header.php';
         <?php endif; ?>
 
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-            <form method="GET" action="bereiche.php" class="flex items-end gap-4">
-                <div class="w-full md:w-1/2">
+            <form method="GET" action="bereiche.php" class="flex flex-wrap gap-4 items-end">
+                <div class="w-full sm:w-auto">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Suche</label>
                     <input type="text" id="search" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Name oder Beschreibung" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
                 </div>
+                <div class="w-full sm:w-auto">
+                    <label for="aktiv" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select id="aktiv" name="aktiv" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500">
+                        <option value="">Alle</option>
+                        <option value="1" <?= $aktiv_filter === '1' ? 'selected' : '' ?>>Aktiv</option>
+                        <option value="0" <?= $aktiv_filter === '0' ? 'selected' : '' ?>>Inaktiv</option>
+                    </select>
+                </div>
                 <div class="ml-auto">
-                    <button type="submit" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">Suchen</button>
+                    <button type="submit" class="bg-marina-600 text-white px-4 py-2 rounded hover:bg-marina-700">Filtern</button>
                     <a href="bereiche.php" class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Zurücksetzen</a>
                 </div>
             </form>
