@@ -13,6 +13,28 @@ if (!$auth->isLoggedIn()) {
 $success = $_GET['success'] ?? null;
 $error = $_GET['error'] ?? null;
 
+// Sortierparameter
+$orderBy = $_GET['order_by'] ?? 'datum';
+$orderDir = strtoupper($_GET['order_dir'] ?? 'DESC');
+$validColumns = ['id', 'datum', 'zaehlernummer', 'steckdose_bezeichnung', 'bereich_name', 'mieter_name', 'stand', 'verbrauch'];
+if (!in_array($orderBy, $validColumns)) $orderBy = 'datum';
+if (!in_array($orderDir, ['ASC', 'DESC'])) $orderDir = 'DESC';
+
+// Sortier-URL-Helfer
+function sortLink($column, $label) {
+    global $orderBy, $orderDir, $_GET;
+    $newDir = ($orderBy === $column && $orderDir === 'ASC') ? 'DESC' : 'ASC';
+    $query = $_GET;
+    $query['order_by'] = $column;
+    $query['order_dir'] = $newDir;
+    $url = '?' . http_build_query($query);
+    $arrow = '';
+    if ($orderBy === $column) {
+        $arrow = $orderDir === 'ASC' ? '↑' : '↓';
+    }
+    return "<a href=\"$url\" class=\"flex items-center space-x-1\">$label<span>$arrow</span></a>";
+}
+
 // Löschen eines Zählerstands
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
@@ -78,13 +100,13 @@ $sql = "SELECT
         LEFT JOIN bereiche b ON s.bereich_id = b.id
         LEFT JOIN mieter m ON s.mieter_id = m.id
         $where_sql
-        ORDER BY zs.datum DESC, zs.id DESC";
+        ORDER BY $orderBy $orderDir, zs.id DESC";
 
 $zaehlerstaende = $db->fetchAll($sql, $params);
 
 // Header einbinden
 require_once 'includes/header.php';
-?>
+
 
 <!-- HTML ab hier -->
 <div class="py-6">
@@ -167,15 +189,15 @@ require_once 'includes/header.php';
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Datum</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zähler</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Steckdose</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bereich</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mieter</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stand (kWh)</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Verbrauch (kWh)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('id', 'ID') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('datum', 'Datum') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('stand', 'Stand (kWh)') ?></th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('verbrauch', 'Verbrauch (kWh)') ?></th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                         </tr>
                     </thead>
