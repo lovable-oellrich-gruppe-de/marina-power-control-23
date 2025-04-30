@@ -146,11 +146,27 @@ function sortLink($label, $column) {
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= date('d.m.Y H:i', strtotime($user['erstellt_am'])) ?></td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex space-x-2">
-                      <a href="users.php?action=toggle_status&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Status ändern">Status</a>
-                      <a href="users.php?action=toggle_role&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Rolle ändern">Rolle</a>
-                      <?php if ($user['id'] !== $_SESSION['user_id']): ?>
-                        <a href="#" onclick="confirmDeleteUser('<?= $user['id'] ?>', '<?= htmlspecialchars(addslashes($user['name'])) ?>')" class="text-red-600 hover:text-red-900" title="Löschen">Löschen</a>
-                      <?php endif; ?>
+                                            <a href="users.php?action=toggle_status&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Status ändern">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="users.php?action=toggle_role&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Rolle ändern">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="8.5" cy="7" r="4"></circle>
+                                                    <polyline points="17 11 19 13 23 9"></polyline>
+                                                </svg>
+                                            </a>
+                                            <?php if ($user['id'] !== $_SESSION['user_id']): ?>
+                                                <a href="#" onclick="confirmDeleteUser('<?= $user['id'] ?>', '<?= htmlspecialchars(addslashes($user['name'])) ?>')" class="text-red-600 hover:text-red-900 p-1" title="Löschen">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    </svg>
+                                                </a>
+                                            <?php endif; ?>
                     </div>
                   </td>
                 </tr>
