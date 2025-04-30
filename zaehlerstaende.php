@@ -133,7 +133,7 @@ require_once 'includes/header.php';
         <!-- Filterformular -->
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
             <form method="GET" action="zaehlerstaende.php" class="flex flex-wrap gap-4">
-                <div class="w-full md:w-auto">
+                <div class="flex-1 min-w-[200px]">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Suche</label>
                     <input type="text" id="search" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" class="w-full rounded-md border-gray-300 shadow-sm focus:border-marina-500 focus:ring focus:ring-marina-500" placeholder="Zählernummer oder Steckdose">
                 </div>
