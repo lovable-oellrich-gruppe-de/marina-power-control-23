@@ -41,7 +41,7 @@ require_once 'includes/header.php';
 <div class="flex min-h-screen flex-col items-center justify-center bg-muted/20 p-4">
     <div class="w-full max-w-md space-y-6 rounded-lg border bg-white p-6 shadow-lg">
         <div class="space-y-2 text-center">
-            <h1 class="text-3xl font-bold text-marina-800">Marina Power Control</h1>
+            <h1 class="text-3xl font-bold text-marina-800">SCD Steckdosen Verwaltung</h1>
             <p class="text-gray-500">Melden Sie sich an, um fortzufahren</p>
         </div>
         
