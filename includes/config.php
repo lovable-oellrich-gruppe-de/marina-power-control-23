@@ -7,6 +7,7 @@ define('DB_USERNAME', 'marina_user');
 define('DB_PASSWORD', 'marina_password');
 define('DB_NAME', 'marina_power');
 define('DB_PORT', 3306);
+define('SESSION_DURATION', 3600); // 1 Stunde
 
 // Sitzungsdauer in Sekunden (30 Minuten)
 define('SESSION_DURATION', 1800);
