@@ -18,14 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $rolle = $_POST['rolle'] ?? 'user';
     $password = $_POST['password'] ?? '';
+    $passwordConfirm = $_POST['password_confirm'] ?? '';
 
     // Validierung
     if (empty($name)) {
         $error = "Bitte einen Namen eingeben.";
     } elseif (empty($email)) {
         $error = "Bitte eine E-Mail-Adresse eingeben.";
-    } elseif (empty($password)) {
-        $error = "Bitte ein Passwort vergeben.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Bitte eine gültige E-Mail-Adresse eingeben.";
+    } elseif (strlen($password) < 6) {
+        $error = "Das Passwort muss mindestens 6 Zeichen lang sein.";
+    } elseif ($password !== $passwordConfirm) {
+        $error = "Die Passwörter stimmen nicht überein.";
     } else {
         // Benutzer anlegen
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -68,6 +73,7 @@ require_once 'includes/header.php';
                             type="text" 
                             id="name" 
                             name="name" 
+                            value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
@@ -79,6 +85,7 @@ require_once 'includes/header.php';
                             type="email" 
                             id="email" 
                             name="email" 
+                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
@@ -92,8 +99,8 @@ require_once 'includes/header.php';
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
-                            <option value="user">Benutzer</option>
-                            <option value="admin">Administrator</option>
+                            <option value="user" <?= ($_POST['rolle'] ?? '') === 'user' ? 'selected' : '' ?>>Benutzer</option>
+                            <option value="admin" <?= ($_POST['rolle'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrator</option>
                         </select>
                     </div>
 
@@ -103,6 +110,17 @@ require_once 'includes/header.php';
                             type="password" 
                             id="password" 
                             name="password" 
+                            required
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
+                        >
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="password_confirm" class="block text-sm font-medium text-gray-700">Passwort bestätigen *</label>
+                        <input 
+                            type="password" 
+                            id="password_confirm" 
+                            name="password_confirm" 
                             required
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"
                         >
