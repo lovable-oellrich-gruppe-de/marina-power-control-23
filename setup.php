@@ -28,7 +28,7 @@ try {
     $conn->select_db(DB_NAME);
 
     // SQL-Datei laden
-    $sqlFile = 'server-config/setup_db.sql';
+    $sqlFile = 'setup_db.sql';
     if (!file_exists($sqlFile)) {
         throw new Exception("SQL-Datei nicht gefunden: $sqlFile");
     }
