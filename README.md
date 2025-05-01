@@ -1,4 +1,5 @@
 📘 README.md – Marina Power Control Setup
+
 ✅ Schritt 1: includes/config.php anpassen
 Öffne die Datei includes/config.php und trage deine Datenbank-Zugangsdaten ein:
 
