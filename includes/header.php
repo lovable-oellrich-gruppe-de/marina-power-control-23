@@ -81,27 +81,19 @@ $current_user = $auth->getCurrentUser();
                         <?php endif; ?>
                     </nav>
                 </div>
-                <div class="flex items-center">
-                    <div class="relative">
-                        <div class="text-sm text-gray-700 flex flex-col items-start leading-tight">
-                            <span><?= htmlspecialchars($current_user['name']) ?></span>
-                            <a href="passwort-aendern.php" class="text-xs text-marina-600 hover:underline">
-                                Passwort ändern
-                            </a>
-                        </div>
-                            <div>
-                                <button type="button" class="max-w-xs bg-white rounded-full flex items-center text-sm focus:outline-none" id="user-menu-button">
-                                    <span class="sr-only">Benutzermenü öffnen</span>
-                                    <span class="h-8 w-8 rounded-full bg-marina-100 flex items-center justify-center">
-                                        <?= substr(htmlspecialchars($current_user['name']), 0, 1) ?>
-                                    </span>
-                                </button>
-                            </div>
-                            <!--<a href="profile.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Profil</a>-->
-                            <!--<a href="settings.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Einstellungen</a>-->
-                            <a href="logout.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Abmelden</a>
-                        </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-700 flex flex-col items-start leading-tight">
+                        <span><?= htmlspecialchars($current_user['name']) ?></span>
+                        <a href="passwort-aendern.php" class="text-xs text-marina-600 hover:underline">
+                            Passwort ändern
+                        </a>
                     </div>
+                    <div>
+                        <span class="h-8 w-8 rounded-full bg-marina-100 flex items-center justify-center text-sm font-semibold text-marina-800">
+                            <?= substr(htmlspecialchars($current_user['name']), 0, 1) ?>
+                        </span>
+                    </div>
+                    <a href="logout.php" class="text-sm font-medium text-gray-700 hover:text-marina-700">Abmelden</a>
                 </div>
             </div>
         </div>
