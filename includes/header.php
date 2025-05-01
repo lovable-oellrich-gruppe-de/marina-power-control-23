@@ -83,8 +83,12 @@ $current_user = $auth->getCurrentUser();
                 </div>
                 <div class="flex items-center">
                     <div class="relative">
-                        <div class="flex items-center space-x-3">
-                            <div class="text-sm text-gray-700"><?= htmlspecialchars($current_user['name']) ?></div>
+                        <div class="text-sm text-gray-700 flex flex-col items-start leading-tight">
+                            <span><?= htmlspecialchars($current_user['name']) ?></span>
+                            <a href="passwort-aendern.php" class="text-xs text-marina-600 hover:underline">
+                                Passwort ändern
+                            </a>
+                        </div>
                             <div>
                                 <button type="button" class="max-w-xs bg-white rounded-full flex items-center text-sm focus:outline-none" id="user-menu-button">
                                     <span class="sr-only">Benutzermenü öffnen</span>
