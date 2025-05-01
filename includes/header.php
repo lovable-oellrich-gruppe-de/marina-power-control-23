@@ -84,7 +84,7 @@ $current_user = $auth->getCurrentUser();
                 <div class="flex items-center space-x-4">
                     <div class="text-sm text-gray-700 flex flex-col items-start leading-tight">
                         <span><?= htmlspecialchars($current_user['name']) ?></span>
-                        <a href="passwort-aendern.php" class="text-xs text-marina-600 hover:underline">
+                        <a href="passwort_aendern.php" class="text-xs text-marina-600 hover:underline">
                             Passwort ändern
                         </a>
                     </div>
