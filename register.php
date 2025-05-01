@@ -80,6 +80,7 @@ require_once 'includes/header.php';
                         type="text" 
                         id="name" 
                         name="name" 
+                        value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" 
                         class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-marina-500 focus:ring-offset-2"
                         placeholder="Max Mustermann"
                         required
@@ -92,12 +93,13 @@ require_once 'includes/header.php';
                         type="email" 
                         id="email" 
                         name="email" 
+                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" 
                         class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-marina-500 focus:ring-offset-2"
                         placeholder="email@beispiel.de"
                         required
                     />
                 </div>
-                
+                                    
                 <div class="space-y-2">
                     <label for="password" class="text-sm font-medium">Passwort</label>
                     <input 
