@@ -97,20 +97,6 @@ require_once 'includes/header.php';
                     Registrieren
                 </a>
             </p>
-            
-            <div class="mt-6 border-t pt-4">
-                <p class="text-xs text-gray-500">
-                    Demo-Zugangsdaten:
-                </p>
-                <p class="mt-1 text-xs">
-                    Email: admin@marina-power.de<br />
-                    Passwort: admin123
-                </p>
-                <p class="mt-1 text-xs">
-                    Email: benutzer@marina-power.de<br />
-                    Passwort: benutzer123
-                </p>
-            </div>
         </div>
     </div>
 </div>
