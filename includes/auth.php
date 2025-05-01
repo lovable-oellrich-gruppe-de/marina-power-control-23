@@ -67,38 +67,35 @@ class Auth {
         // Prüfen, ob E-Mail bereits existiert
         $sql = "SELECT id FROM benutzer WHERE email = ?";
         $existingUser = $this->db->fetchOne($sql, [$email]);
-        
+    
         if ($existingUser) {
             return [
                 'success' => false,
                 'message' => 'Diese E-Mail-Adresse wird bereits verwendet'
             ];
         }
-        
+    
         // Passwort hashen
         $hashedPassword = $this->hashPassword($password);
-        
-        // Benutzer erstellen
-        $sql = "INSERT INTO benutzer (email, passwort_hash, name, rolle, status) 
+    
+        // Benutzer einfügen
+        $sql = "INSERT INTO benutzer (email, passwort_hash, name, rolle, status)
                 VALUES (?, ?, ?, ?, ?)";
-        
-        $role = 'user';
-        $status = 'pending';
-        
-        $this->db->query($sql, [$email, $hashedPassword, $name, $role, $status]);
-        
-        if ($this->db->affectedRows() > 0) {
+        $params = [$email, $hashedPassword, $name, 'user', 'pending'];
+    
+        if ($this->db->query($sql, $params)) {
             return [
                 'success' => true,
                 'message' => 'Ihr Konto wurde erstellt und wartet auf Freischaltung durch einen Administrator.'
             ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Fehler beim Schreiben in die Datenbank.'
+            ];
         }
-        
-        return [
-            'success' => false,
-            'message' => 'Bei der Registrierung ist ein Fehler aufgetreten.'
-        ];
     }
+
     
     // Passwort aktualisieren
     public function updatePassword($userId, $newPassword) {
