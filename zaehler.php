@@ -141,13 +141,13 @@ require_once 'includes/header.php';
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zählernummer</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hersteller / Modell</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Installiert am</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Letzte Wartung</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Steckdose / Bereich</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Zählernummer</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Hersteller / Modell</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Installiert am</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Letzte Wartung</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Steckdose / Bereich</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -158,38 +158,38 @@ require_once 'includes/header.php';
           <?php else: ?>
             <?php foreach ($zaehler as $z): ?>
               <tr>
-                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                <td class="px-4 py-1 text-sm font-medium text-gray-900">
                   <?= htmlspecialchars($z['zaehlernummer']) ?>
                   <?php if (!empty($z['seriennummer'])): ?>
                     <div class="text-xs text-gray-500">SN: <?= htmlspecialchars($z['seriennummer']) ?></div>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-500">
                   <?= htmlspecialchars($z['hersteller'] ?? '-') ?>
                   <?php if (!empty($z['modell'])): ?>
                     <div class="text-xs"><?= htmlspecialchars($z['modell']) ?></div>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-500">
                   <?= date('d.m.Y', strtotime($z['installiert_am'])) ?>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-500">
                   <?= !empty($z['letzte_wartung']) ? date('d.m.Y', strtotime($z['letzte_wartung'])) : '-' ?>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-500">
                   <?= htmlspecialchars($z['steckdose_bezeichnung'] ?? '-') ?>
                   <?php if (!empty($z['bereich_name'])): ?>
                     <div class="text-xs text-gray-500">(<?= htmlspecialchars($z['bereich_name']) ?>)</div>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-1">
                   <?php if ($z['ist_ausgebaut']): ?>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Ausgebaut</span>
                   <?php else: ?>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4 text-sm font-medium">
+                <td class="px-4 py-1 text-sm font-medium">
                   <div class="flex items-center space-x-4">
                     <a href="zaehler_form.php?id=<?= $z['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                       ✏️
