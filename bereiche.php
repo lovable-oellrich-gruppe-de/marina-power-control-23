@@ -112,34 +112,34 @@ require_once 'includes/header.php';
                                 return "<a href='?{$query}' class='flex items-center space-x-1'>{$label} <span>{$arrow}</span></a>";
                             }
                             ?>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('ID', 'id') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Beschreibung', 'beschreibung') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Status', 'aktiv') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Steckdosen', 'steckdosen_count') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('ID', 'id') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Beschreibung', 'beschreibung') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Status', 'aktiv') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Steckdosen', 'steckdosen_count') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (empty($bereiche)): ?>
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Keine Bereiche gefunden</td>
+                                <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-500">Keine Bereiche gefunden</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($bereiche as $b): ?>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['id']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($b['name']) ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($b['beschreibung'] ?: '-') ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['id']) ?></td>
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($b['name']) ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-500"><?= htmlspecialchars($b['beschreibung'] ?: '-') ?></td>
+                                    <td class="px-4 py-1 whitespace-nowrap">
                                         <?php if ($b['aktiv']): ?>
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
                                         <?php else: ?>
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inaktiv</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['steckdosen_count']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($b['steckdosen_count']) ?></td>
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
                                             <a href="bereiche_form.php?id=<?= $b['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
