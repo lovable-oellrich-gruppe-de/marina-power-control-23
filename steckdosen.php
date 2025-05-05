@@ -158,39 +158,39 @@ require_once 'includes/header.php';
                         return "<a href='?{$query}' class='flex items-center space-x-1'>{$label} <span>{$arrow}</span></a>";
                     }
                     ?>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <?= sortLink('ID', 'id') ?>
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <?= sortLink('Bezeichnung', 'bezeichnung') ?>
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <?= sortLink('Status', 'status') ?>
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <?= sortLink('Bereich', 'bereich_name') ?>
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <?= sortLink('Mieter', 'mieter_name') ?>
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+                    <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 <?php if (empty($steckdosen)): ?>
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-500">
                             Keine Steckdosen gefunden
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($steckdosen as $s): ?>
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($s['id']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($s['id']) ?></td>
+                            <td class="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
                                 <?= htmlspecialchars($s['bezeichnung']) ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-1 whitespace-nowrap">
                                 <?php if ($s['status'] === 'aktiv'): ?>
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                         Aktiv
@@ -205,13 +205,13 @@ require_once 'includes/header.php';
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                                 <?= htmlspecialchars($s['bereich_name']) ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                                 <?= htmlspecialchars($s['mieter_name']) ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-4 py-1 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-3">
                                     <a href="steckdosen_form.php?id=<?= $s['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
