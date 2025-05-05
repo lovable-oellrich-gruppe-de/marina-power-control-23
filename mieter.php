@@ -119,7 +119,7 @@ require_once 'includes/header.php';
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= $m['id'] ?></td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($m['vorname'] . ' ' . $m['name']) ?></td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['email']) ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['telefon'] '') ?></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['telefon'] ?? '') ?></td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['bootsname'] ?? '') ?></td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center space-x-4">
