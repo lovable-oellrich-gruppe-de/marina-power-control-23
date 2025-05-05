@@ -189,16 +189,16 @@ require_once 'includes/header.php';
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('id', 'ID') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('datum', 'Datum') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('stand', 'Stand (kWh)') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('verbrauch', 'Verbrauch (kWh)') ?></th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('id', 'ID') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('datum', 'Datum') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('stand', 'Stand (kWh)') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('verbrauch', 'Verbrauch (kWh)') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -209,14 +209,14 @@ require_once 'includes/header.php';
                         <?php else: ?>
                             <?php foreach ($zaehlerstaende as $zs): ?>
                                 <tr>
-                                    <td class="px-6 py-4 text-sm text-gray-500"><?= $zs['id'] ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= date('d.m.Y', strtotime($zs['datum'])) ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlernummer'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-500"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= number_format($zs['stand'], 2, ',', '.') ?> kWh</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-4 py-1 text-sm text-gray-500"><?= $zs['id'] ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= date('d.m.Y', strtotime($zs['datum'])) ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlernummer'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-500"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-500"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= number_format($zs['stand'], 2, ',', '.') ?> kWh</td>
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                                         <?php if (!empty($zs['foto_url'])): ?>
                                             <a href="#" onclick="showImageModal('<?= htmlspecialchars($zs['foto_url']) ?>'); return false;">
                                                 <img src="<?= htmlspecialchars($zs['foto_url']) ?>" alt="Foto" class="h-8 w-8 object-cover rounded shadow">
@@ -225,8 +225,8 @@ require_once 'includes/header.php';
                                             <span class="text-gray-400">–</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900"><?= $zs['verbrauch'] !== null ? number_format($zs['verbrauch'], 2, ',', '.') . ' kWh' : '-' ?></td>
-                                    <td class="px-6 py-4 text-sm font-medium">
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= $zs['verbrauch'] !== null ? number_format($zs['verbrauch'], 2, ',', '.') . ' kWh' : '-' ?></td>
+                                    <td class="px-4 py-1 text-sm font-medium">
                                         <div class="flex items-center space-x-3">
                                             <a href="zaehlerstaende_form.php?id=<?= $zs['id'] ?>" class="text-marina-600 hover:text-marina-900" title="Bearbeiten">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
