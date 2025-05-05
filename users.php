@@ -119,32 +119,32 @@ function sortLink($label, $column) {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('E-Mail', 'email') ?></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Rolle', 'rolle') ?></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Status', 'status') ?></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Erstellt am', 'erstellt_am') ?></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('E-Mail', 'email') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Rolle', 'rolle') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Status', 'status') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Erstellt am', 'erstellt_am') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <?php if (empty($users)): ?>
               <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Keine Benutzer gefunden</td>
+                <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-500">Keine Benutzer gefunden</td>
               </tr>
             <?php else: ?>
               <?php foreach ($users as $user): ?>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($user['name']) ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($user['name']) ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                     <?= $user['rolle'] === 'admin' ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Admin</span>' : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Benutzer</span>' ?>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
                     <?= $user['status'] === 'active' ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>' : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Ausstehend</span>' ?>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= date('d.m.Y H:i', strtotime($user['erstellt_am'])) ?></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= date('d.m.Y H:i', strtotime($user['erstellt_am'])) ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm font-medium">
                     <div class="flex space-x-2">
                                             <a href="users.php?action=toggle_status&id=<?= $user['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Status ändern">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
