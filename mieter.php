@@ -111,7 +111,7 @@ require_once 'includes/header.php';
           <tbody class="bg-white divide-y divide-gray-200">
             <?php if (empty($mieter)): ?>
               <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Keine Mieter gefunden</td>
+                <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-500">Keine Mieter gefunden</td>
               </tr>
             <?php else: ?>
               <?php foreach ($mieter as $m): ?>
