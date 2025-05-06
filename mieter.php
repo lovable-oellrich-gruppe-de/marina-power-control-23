@@ -100,28 +100,28 @@ require_once 'includes/header.php';
                 return "<a href='?{$query}' class='flex items-center space-x-1'>{$label} <span>{$arrow}</span></a>";
               }
               ?>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('ID', 'id') ?></th>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('E-Mail', 'email') ?></th>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Telefon', 'telefon') ?></th>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><?= sortLink('Bootsname', 'bootsname') ?></th>
-              <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider"><?= sortLink('ID', 'id') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider"><?= sortLink('Name', 'name') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider"><?= sortLink('E-Mail', 'email') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider"><?= sortLink('Telefon', 'telefon') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider"><?= sortLink('Bootsname', 'bootsname') ?></th>
+              <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">Aktionen</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <?php if (empty($mieter)): ?>
               <tr>
-                <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-500">Keine Mieter gefunden</td>
+                <td colspan="6" class="px-4 py-1 text-center text-sm text-gray-900">Keine Mieter gefunden</td>
               </tr>
             <?php else: ?>
               <?php foreach ($mieter as $m): ?>
                 <tr>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= $m['id'] ?></td>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($m['vorname'] . ' ' . $m['name']) ?></td>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['email']) ?></td>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['telefon'] ?? '') ?></td>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($m['bootsname'] ?? '') ?></td>
-                  <td class="px-4 py-1 whitespace-nowrap text-sm font-medium">
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900 leading-tight"><?= $m['id'] ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900 leading-tight"><?= htmlspecialchars($m['vorname'] . ' ' . $m['name']) ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900 leading-tight"><?= htmlspecialchars($m['email']) ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900 leading-tight"><?= htmlspecialchars($m['telefon'] ?? '') ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900 leading-tight"><?= htmlspecialchars($m['bootsname'] ?? '') ?></td>
+                  <td class="px-4 py-1 whitespace-nowrap text-sm">
                     <div class="flex items-center space-x-4">
                       <a href="mieter_form.php?id=<?= $m['id'] ?>" class="text-marina-600 hover:text-marina-900 p-1" title="Bearbeiten">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -152,7 +152,7 @@ require_once 'includes/header.php';
 <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
   <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
     <h3 class="text-lg font-medium text-gray-900 mb-2">Mieter löschen</h3>
-    <p class="text-gray-500 mb-4">Möchten Sie den Mieter <span id="mieterName"></span> wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+    <p class="text-gray-900 mb-4">Möchten Sie den Mieter <span id="mieterName"></span> wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
     <div class="flex justify-end space-x-3">
       <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
       <a id="deleteLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
