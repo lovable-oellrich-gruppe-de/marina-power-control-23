@@ -189,34 +189,34 @@ require_once 'includes/header.php';
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('id', 'ID') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('datum', 'Datum') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('stand', 'Stand (kWh)') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase"><?= sortLink('verbrauch', 'Verbrauch (kWh)') ?></th>
-                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('id', 'ID') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('datum', 'Datum') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('stand', 'Stand (kWh)') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Foto</th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('verbrauch', 'Verbrauch (kWh)') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Aktionen</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (empty($zaehlerstaende)): ?>
                             <tr>
-                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">Keine Zählerstände gefunden</td>
+                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-900">Keine Zählerstände gefunden</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($zaehlerstaende as $zs): ?>
                                 <tr>
-                                    <td class="px-4 py-1 text-sm text-gray-500"><?= $zs['id'] ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= $zs['id'] ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= date('d.m.Y', strtotime($zs['datum'])) ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlernummer'] ?? '-') ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? '-') ?></td>
-                                    <td class="px-4 py-1 text-sm text-gray-500"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
-                                    <td class="px-4 py-1 text-sm text-gray-500"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= number_format($zs['stand'], 2, ',', '.') ?> kWh</td>
-                                    <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-4 py-1 whitespace-nowrap text-sm text-gray-900">
                                         <?php if (!empty($zs['foto_url'])): ?>
                                             <a href="#" onclick="showImageModal('<?= htmlspecialchars($zs['foto_url']) ?>'); return false;">
                                                 <img src="<?= htmlspecialchars($zs['foto_url']) ?>" alt="Foto" class="h-8 w-8 object-cover rounded shadow">
@@ -254,7 +254,7 @@ require_once 'includes/header.php';
 <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Zählerstand löschen</h3>
-        <p class="text-gray-500 mb-4">Möchten Sie den Zählerstand vom <span id="zaehlerDatum"></span> für Zähler <span id="zaehlerNummer"></span> wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+        <p class="text-gray-900 mb-4">Möchten Sie den Zählerstand vom <span id="zaehlerDatum"></span> für Zähler <span id="zaehlerNummer"></span> wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
         <div class="flex justify-end space-x-3">
             <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
             <a id="deleteLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
