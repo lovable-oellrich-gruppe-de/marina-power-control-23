@@ -141,19 +141,19 @@ require_once 'includes/header.php';
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Zählernummer</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Hersteller / Modell</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Installiert am</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Letzte Wartung</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Steckdose / Bereich</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Aktionen</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Zählernummer</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Hersteller / Modell</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Installiert am</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Letzte Wartung</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Steckdose / Bereich</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Aktionen</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <?php if (empty($zaehler)): ?>
             <tr>
-              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Keine Zähler gefunden</td>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-900">Keine Zähler gefunden</td>
             </tr>
           <?php else: ?>
             <?php foreach ($zaehler as $z): ?>
@@ -161,25 +161,25 @@ require_once 'includes/header.php';
                 <td class="px-4 py-1 text-sm font-medium text-gray-900">
                   <?= htmlspecialchars($z['zaehlernummer']) ?>
                   <?php if (!empty($z['seriennummer'])): ?>
-                    <div class="text-xs text-gray-500">SN: <?= htmlspecialchars($z['seriennummer']) ?></div>
+                    <div class="text-xs text-gray-900">SN: <?= htmlspecialchars($z['seriennummer']) ?></div>
                   <?php endif; ?>
                 </td>
-                <td class="px-4 py-1 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-900">
                   <?= htmlspecialchars($z['hersteller'] ?? '-') ?>
                   <?php if (!empty($z['modell'])): ?>
                     <div class="text-xs"><?= htmlspecialchars($z['modell']) ?></div>
                   <?php endif; ?>
                 </td>
-                <td class="px-4 py-1 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-900">
                   <?= date('d.m.Y', strtotime($z['installiert_am'])) ?>
                 </td>
-                <td class="px-4 py-1 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-900">
                   <?= !empty($z['letzte_wartung']) ? date('d.m.Y', strtotime($z['letzte_wartung'])) : '-' ?>
                 </td>
-                <td class="px-4 py-1 text-sm text-gray-500">
+                <td class="px-4 py-1 text-sm text-gray-900">
                   <?= htmlspecialchars($z['steckdose_bezeichnung'] ?? '-') ?>
                   <?php if (!empty($z['bereich_name'])): ?>
-                    <div class="text-xs text-gray-500">(<?= htmlspecialchars($z['bereich_name']) ?>)</div>
+                    <div class="text-xs text-gray-900">(<?= htmlspecialchars($z['bereich_name']) ?>)</div>
                   <?php endif; ?>
                 </td>
                 <td class="px-4 py-1">
@@ -214,7 +214,7 @@ require_once 'includes/header.php';
     <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
       <div class="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Zähler löschen</h3>
-        <p class="text-gray-500 mb-4">Möchten Sie diesen Zähler wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+        <p class="text-gray-900 mb-4">Möchten Sie diesen Zähler wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
         <div class="flex justify-end space-x-3">
           <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Abbrechen</button>
           <a id="deleteLink" href="#" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Löschen</a>
