@@ -207,9 +207,6 @@ require_once 'includes/header.php';
                         </svg>
                       </a>
                     <?php endif; ?>
-                    <a href="zaehlerstaende.php?zaehler_id=<?= $z['id'] ?>" class="text-gray-600 hover:text-gray-900" title="Zählerstände">
-                      📊
-                    </a>
                   </div>
                 </td>
               </tr>
