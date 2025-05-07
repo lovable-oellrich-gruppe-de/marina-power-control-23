@@ -128,7 +128,7 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                             meta: labels.map(label => "Stand: <?= addslashes($letzte_stand_map[$zid][label] ?? '-') ?> kWh")
                         },<?php endforeach; ?>
                     ];
-
+                    (Chartisan:)
                     <pre><?= json_encode($werte_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?></pre>
                     new Chartisan({
                         el: '#chart-multi',
