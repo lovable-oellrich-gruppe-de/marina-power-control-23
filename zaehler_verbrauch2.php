@@ -19,8 +19,10 @@ $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, s.bezeichnung AS st
     LEFT JOIN bereiche b ON s.bereich_id = b.id
     ORDER BY z.zaehlernummer");
 
-// Nur ausgewählte Zähler laden
+// Verbrauchsdaten für alle ausgewählten Zähler laden
 $verbrauchsdaten = [];
+$labels = [];
+$werte_map = [];
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
         $daten = $db->fetchAll("SELECT z.id, z.zaehlernummer, zs.datum, zs.stand
@@ -29,9 +31,16 @@ if (!empty($selected_zaehler)) {
             WHERE z.id = ?
             ORDER BY zs.datum ASC", [$zid]);
         if ($daten) {
-            $verbrauchsdaten[$zid] = $daten;
+            foreach ($daten as $row) {
+                $datum = date('d.m.', strtotime($row['datum']));
+                $labels[$datum] = true;
+                $werte_map[$row['id']]['zaehlernummer'] = $row['zaehlernummer'];
+                $werte_map[$row['id']]['werte'][$datum] = (float)$row['stand'];
+            }
         }
     }
+    $labels = array_keys($labels);
+    sort($labels);
 }
 ?>
 
@@ -52,43 +61,34 @@ if (!empty($selected_zaehler)) {
             <button type="submit" class="mt-4 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
         </form>
 
-        <?php if (!empty($verbrauchsdaten)): ?>
-            <div class="grid grid-cols-1 gap-8">
-                <?php foreach ($verbrauchsdaten as $zid => $werte): ?>
-                    <div class="bg-white rounded-lg shadow-md p-4">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
-                            <?= htmlspecialchars($werte[0]['zaehlernummer']) ?>
-                        </h2>
-                        <div id="chart-<?= $zid ?>" style="height: 300px;"></div>
-                        <script>
-                            const data<?= $zid ?> = <?= json_encode(array_map(function($w) {
-                                return [
-                                    'datum' => date('d.m.', strtotime($w['datum'])),
-                                    'verbrauch' => (float) $w['stand'],
-                                ];
-                            }, $werte)) ?>;
+        <?php if (!empty($werte_map)): ?>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Verbrauch ausgewählter Zähler</h2>
+                <div id="chart-multi" style="height: 400px;"></div>
+                <script>
+                    const labels = <?= json_encode($labels) ?>;
+                    const datasets = [
+                        <?php foreach ($werte_map as $zid => $z): ?>{
+                            name: "<?= addslashes($z['zaehlernummer']) ?>",
+                            values: labels.map(label => <?= json_encode($z['werte']) ?>[label] ?? 0)
+                        },<?php endforeach; ?>
+                    ];
 
-                            new Chartisan({
-                                el: '#chart-<?= $zid ?>',
-                                data: {
-                                    chart: { type: 'bar' },
-                                    labels: data<?= $zid ?>.map(row => row.datum),
-                                    datasets: [{
-                                        name: 'Verbrauch',
-                                        values: data<?= $zid ?>.map(row => row.verbrauch)
-                                    }]
-                                },
-                                hooks: new ChartisanHooks()
-                                    .datasets('bar')
-                                    .colors(['#2563eb'])
-                                    .legend(false)
-                                    .tooltip()
-                                    .customTooltips(true)
-                                    .responsive(true)
-                            });
-                        </script>
-                    </div>
-                <?php endforeach; ?>
+                    new Chartisan({
+                        el: '#chart-multi',
+                        data: {
+                            chart: { type: 'bar' },
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        hooks: new ChartisanHooks()
+                            .datasets('bar')
+                            .colors(['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'])
+                            .tooltip()
+                            .customTooltips(true)
+                            .responsive(true)
+                    });
+                </script>
             </div>
         <?php elseif (!empty($selected_zaehler)): ?>
             <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded">Keine Daten für die ausgewählten Zähler gefunden.</div>
