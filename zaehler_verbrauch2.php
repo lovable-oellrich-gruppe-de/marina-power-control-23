@@ -53,17 +53,16 @@ if (!empty($selected_zaehler)) {
                     $vorheriger_stand = (float)$row['stand'];
                     $letzte_stand_map[$row['id']][$datum] = $row['stand'];
                 }
+                $debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
+                $debug_messages[] = "Startdatum: $start_date";
+                $debug_messages[] = "Enddatum: $end_date";
+                $debug_messages[] = "<pre>" . print_r($daten, true) . "</pre>";
             }
         }
     }
     $labels = array_keys($labels);
     sort($labels);
 }
-$debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
-$debug_messages[] = "Startdatum: $start_date";
-$debug_messages[] = "Enddatum: $end_date";
-$debug_messages[] = "<pre>" . print_r($daten, true) . "</pre>";
-
 ?>
 
 <div class="py-6">
