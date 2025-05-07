@@ -32,10 +32,12 @@ if (!empty($selected_zaehler)) {
             ORDER BY zs.datum ASC", [$zid]);
         if ($daten) {
             foreach ($daten as $row) {
-                $datum = date('d.m.', strtotime($row['datum']));
-                $labels[$datum] = true;
-                $werte_map[$row['id']]['zaehlernummer'] = $row['zaehlernummer'];
-                $werte_map[$row['id']]['werte'][$datum] = (float)$row['stand'];
+                if (!empty($row['datum'])) {
+                    $datum = date('d.m.', strtotime($row['datum']));
+                    $labels[$datum] = true;
+                    $werte_map[$row['id']]['zaehlernummer'] = $row['zaehlernummer'];
+                    $werte_map[$row['id']]['werte'][$datum] = (float)$row['stand'];
+                }
             }
         }
     }
