@@ -183,6 +183,7 @@ CREATE TABLE `zaehler` (
   `id` int(11) NOT NULL,
   `zaehlernummer` varchar(50) NOT NULL,
   `steckdose_id` int(11) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL,
   `typ` varchar(50) DEFAULT 'Stromzähler',
   `hersteller` varchar(100) DEFAULT NULL,
   `modell` varchar(100) DEFAULT NULL,
@@ -376,6 +377,9 @@ ALTER TABLE `steckdosen`
 --
 ALTER TABLE `zaehler`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+
+ALTER TABLE `zaehler`
+  ADD CONSTRAINT `fk_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `zaehler`(`id`) ON DELETE SET NULL;
 
 --
 -- AUTO_INCREMENT für Tabelle `zaehlerstaende`
