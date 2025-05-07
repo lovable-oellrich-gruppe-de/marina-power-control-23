@@ -23,6 +23,7 @@ $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, s.bezeichnung AS st
 $verbrauchsdaten = [];
 $labels = [];
 $werte_map = [];
+$letzte_stand_map = [];
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
         $daten = $db->fetchAll("SELECT z.id, z.zaehlernummer, zs.datum, zs.stand
@@ -30,13 +31,27 @@ if (!empty($selected_zaehler)) {
             LEFT JOIN zaehlerstaende zs ON zs.zaehler_id = z.id
             WHERE z.id = ? AND zs.datum IS NOT NULL
             ORDER BY zs.datum ASC", [$zid]);
+
+        $vorheriger_stand = null;
         if ($daten) {
             foreach ($daten as $row) {
                 if (!empty($row['datum'])) {
                     $datum = date('d.m.', strtotime($row['datum']));
                     $labels[$datum] = true;
-                    $werte_map[$row['id']]['zaehlernummer'] = $row['zaehlernummer'];
-                    $werte_map[$row['id']]['werte'][$datum] = (float)$row['stand'];
+
+                    $zaehlernummer = $row['zaehlernummer'];
+                    $werte_map[$row['id']]['zaehlernummer'] = $zaehlernummer;
+
+                    // Verbrauch berechnen
+                    if ($vorheriger_stand !== null) {
+                        $verbrauch = (float)$row['stand'] - $vorheriger_stand;
+                        $werte_map[$row['id']]['werte'][$datum] = $verbrauch > 0 ? $verbrauch : 0;
+                    } else {
+                        $werte_map[$row['id']]['werte'][$datum] = 0; // Keine Differenz berechenbar
+                    }
+
+                    $vorheriger_stand = (float)$row['stand'];
+                    $letzte_stand_map[$row['id']][$datum] = $row['stand'];
                 }
             }
         }
@@ -55,7 +70,8 @@ if (!empty($selected_zaehler)) {
             <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
             <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
                 <?php foreach ($alle_zaehler as $z): ?>
-                    <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
+                    <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
+                    >
                         <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['steckdose'] ? ' – ' . htmlspecialchars($z['steckdose']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?>
                     </option>
                 <?php endforeach; ?>
@@ -66,13 +82,14 @@ if (!empty($selected_zaehler)) {
         <?php if (!empty($werte_map)): ?>
             <div class="bg-white rounded-lg shadow-md p-4">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Verbrauch ausgewählter Zähler</h2>
-                <div id="chart-multi" style="height: 400px;"></div>
+                <div id="chart-multi" style="height: 500px;"></div>
                 <script>
                     const labels = <?= json_encode($labels) ?>;
                     const datasets = [
                         <?php foreach ($werte_map as $zid => $z): ?>{
                             name: "<?= addslashes($z['zaehlernummer']) ?>",
-                            values: labels.map(label => <?= json_encode($z['werte']) ?>[label] ?? 0)
+                            values: labels.map(label => <?= json_encode($z['werte']) ?>[label] ?? 0),
+                            meta: labels.map(label => "Stand: <?= addslashes($letzte_stand_map[$zid][label] ?? '-') ?> kWh")
                         },<?php endforeach; ?>
                     ];
 
@@ -81,13 +98,25 @@ if (!empty($selected_zaehler)) {
                         data: {
                             chart: { type: 'bar' },
                             labels: labels,
-                            datasets: datasets
+                            datasets: datasets.map(ds => ({
+                                name: ds.name,
+                                values: ds.values
+                            }))
                         },
                         hooks: new ChartisanHooks()
                             .datasets('bar')
                             .colors(['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'])
                             .tooltip()
-                            .customTooltips(true)
+                            .customTooltips({
+                                enabled: true,
+                                mode: 'index',
+                                callbacks: {
+                                    label: function(tooltipItem, data) {
+                                        const dataset = datasets[tooltipItem.datasetIndex];
+                                        return dataset.name + ': ' + tooltipItem.yLabel + ' kWh (' + dataset.meta[tooltipItem.index] + ')';
+                                    }
+                                }
+                            })
                             .responsive(true)
                     });
                 </script>
