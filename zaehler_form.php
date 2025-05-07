@@ -144,13 +144,20 @@ $steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name
     WHERE $where
     ORDER BY b.name, s.bezeichnung");
 
-$alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich_name
-    FROM zaehler z
-    LEFT JOIN steckdosen s ON z.steckdose_id = s.id
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    WHERE z.id != ?
-    ORDER BY z.zaehlernummer
-", [$zaehler_id]);
+if ($zaehler_id) {
+    $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich_name
+        FROM zaehler z
+        LEFT JOIN steckdosen s ON z.steckdose_id = s.id
+        LEFT JOIN bereiche b ON s.bereich_id = b.id
+        WHERE z.id != ?
+        ORDER BY z.zaehlernummer", [$zaehler_id]);
+} else {
+    $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich_name
+        FROM zaehler z
+        LEFT JOIN steckdosen s ON z.steckdose_id = s.id
+        LEFT JOIN bereiche b ON s.bereich_id = b.id
+        ORDER BY z.zaehlernummer");
+}
 
 require_once 'includes/header.php';
 ?>
