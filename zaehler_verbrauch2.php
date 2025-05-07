@@ -8,6 +8,7 @@ if (!$auth->isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
+$debug_messages = [];
 
 // Zählerauswahl über GET-Parameter
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
