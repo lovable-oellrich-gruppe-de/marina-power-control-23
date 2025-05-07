@@ -4,13 +4,11 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 
-// Wenn nicht angemeldet, zur Login-Seite umleiten
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
 
-// Initialisierung der Variablen
 $zaehler_id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $errors = [];
 $zaehler = [
@@ -24,25 +22,26 @@ $zaehler = [
     'seriennummer' => '',
     'max_leistung' => '',
     'ist_ausgebaut' => 0,
-    'hinweis' => ''
+    'hinweis' => '',
+    'parent_id' => null
 ];
 
-// Wenn ID vorhanden, Zähler laden
 if ($zaehler_id) {
     $loaded_zaehler = $db->fetchOne("SELECT * FROM zaehler WHERE id = ?", [$zaehler_id]);
     if ($loaded_zaehler) {
         $zaehler = $loaded_zaehler;
         if (!isset($zaehler['steckdose_id'])) {
-            $zaehler['steckdose_id'] = null; // Falls das Feld in alten Datensätzen noch fehlt
+            $zaehler['steckdose_id'] = null;
+        }
+        if (!isset($zaehler['parent_id'])) {
+            $zaehler['parent_id'] = null;
         }
     } else {
         $errors[] = "Zähler nicht gefunden.";
     }
 }
 
-// Formular wurde abgesendet
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Formulardaten einlesen
     $form_data = [
         'zaehlernummer' => trim($_POST['zaehlernummer'] ?? ''),
         'steckdose_id' => !empty($_POST['steckdose_id']) ? (int)$_POST['steckdose_id'] : null,
@@ -54,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'seriennummer' => trim($_POST['seriennummer'] ?? ''),
         'max_leistung' => trim($_POST['max_leistung'] ?? ''),
         'ist_ausgebaut' => isset($_POST['ist_ausgebaut']) ? 1 : 0,
-        'hinweis' => trim($_POST['hinweis'] ?? '')
+        'hinweis' => trim($_POST['hinweis'] ?? ''),
+        'parent_id' => !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null
     ];
 
-    // Validierung
     if (empty($form_data['zaehlernummer'])) {
         $errors[] = "Zählernummer ist erforderlich.";
     }
@@ -65,10 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Installationsdatum ist erforderlich.";
     }
 
-    // Wenn keine Fehler, speichern
     if (empty($errors)) {
         if ($zaehler_id) {
-            // Änderungen prüfen
             $datenGeaendert = false;
             foreach ($form_data as $key => $value) {
                 $dbValue = $zaehler[$key] ?? null;
@@ -81,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($datenGeaendert) {
                 $sql = "UPDATE zaehler SET 
                         zaehlernummer = ?, steckdose_id = ?, typ = ?, hersteller = ?, modell = ?, installiert_am = ?, 
-                        letzte_wartung = ?, seriennummer = ?, max_leistung = ?, ist_ausgebaut = ?, hinweis = ?
+                        letzte_wartung = ?, seriennummer = ?, max_leistung = ?, ist_ausgebaut = ?, hinweis = ?, parent_id = ?
                         WHERE id = ?";
                 $params = [
                     $form_data['zaehlernummer'],
@@ -95,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     empty($form_data['max_leistung']) ? null : $form_data['max_leistung'],
                     $form_data['ist_ausgebaut'],
                     $form_data['hinweis'],
+                    $form_data['parent_id'],
                     $zaehler_id
                 ];
                 $db->query($sql, $params);
@@ -108,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $sql = "INSERT INTO zaehler (
                         zaehlernummer, steckdose_id, typ, hersteller, modell, installiert_am, letzte_wartung, 
-                        seriennummer, max_leistung, ist_ausgebaut, hinweis
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                        seriennummer, max_leistung, ist_ausgebaut, hinweis, parent_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $params = [
                 $form_data['zaehlernummer'],
                 $form_data['steckdose_id'],
@@ -121,7 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $form_data['seriennummer'],
                 empty($form_data['max_leistung']) ? null : $form_data['max_leistung'],
                 $form_data['ist_ausgebaut'],
-                $form_data['hinweis']
+                $form_data['hinweis'],
+                $form_data['parent_id']
             ];
             $db->query($sql, $params);
             $zaehler_id = $db->lastInsertId();
@@ -131,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
 $where = "z.id IS NULL";
 if ($zaehler_id && !empty($zaehler['steckdose_id'])) {
     $where = "(z.id IS NULL OR s.id = " . (int)$zaehler['steckdose_id'] . ")";
@@ -143,9 +143,11 @@ $steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name
     WHERE $where
     ORDER BY b.name, s.bezeichnung");
 
-// Header einbinden
+$zaehlerListe = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler WHERE id != ? ORDER BY zaehlernummer", [$zaehler_id ?: 0]);
+
 require_once 'includes/header.php';
 ?>
+
 
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
@@ -246,6 +248,19 @@ require_once 'includes/header.php';
                         <textarea id="hinweis" name="hinweis" rows="3"
                                   class="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500"><?= htmlspecialchars($zaehler['hinweis']) ?></textarea>
                     </div>
+                    <div class="space-y-2">
+                        <label for="parent_id" class="block text-sm font-medium text-gray-700">Übergeordneter Zähler (optional)</label>
+                        <select id="parent_id" name="parent_id"
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
+                            <option value="">Kein übergeordneter Zähler</option>
+                            <?php foreach ($zaehlerListe as $z): ?>
+                                <option value="<?= $z['id'] ?>" <?= ((int)($zaehler['parent_id'] ?? 0) === (int)$z['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($z['zaehlernummer']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
 
                 </div>
 
