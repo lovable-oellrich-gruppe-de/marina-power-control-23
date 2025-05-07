@@ -15,11 +15,11 @@ $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 year'));
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
 // Alle Zähler laden für Auswahl
-$alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, s.bezeichnung AS steckdose, b.name AS bereich
-    FROM zaehler z
-    LEFT JOIN steckdosen s ON z.steckdose_id = s.id
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    ORDER BY z.zaehlernummer");
+$alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, steckdosen.bezeichnung AS steckdose, bereiche.name AS bereich
+    FROM zaehler
+    LEFT JOIN steckdosen ON z.steckdose_id = steckdosen.id
+    LEFT JOIN bereiche b ON steckdosen.bereich_id = bereiche.id
+    ORDER BY zaehler.zaehlernummer");
 
 // Verbrauchsdaten für alle ausgewählten Zähler laden
 $verbrauchsdaten = [];
@@ -33,6 +33,7 @@ if (!empty($selected_zaehler)) {
             LEFT JOIN zaehlerstaende zs ON zs.zaehler_id = z.id
             WHERE z.id = ? AND zs.datum BETWEEN ? AND ?
             ORDER BY zs.datum ASC", [$zid, $start_date, $end_date]);
+        error_log("Datenbankabfrage für Zähler $zid: " . count($daten) . " Einträge gefunden.");
 
         $vorheriger_stand = null;
         if ($daten) {
@@ -61,6 +62,11 @@ if (!empty($selected_zaehler)) {
     $labels = array_keys($labels);
     sort($labels);
 }
+error_log("Ausgewählte Zähler: " . implode(',', $selected_zaehler));
+error_log("Startdatum: " . ($_GET['start'] ?? 'leer'));
+error_log("Enddatum: " . ($_GET['end'] ?? 'leer'));
+error_log(print_r($daten, true));
+
 ?>
 
 <div class="py-6">
