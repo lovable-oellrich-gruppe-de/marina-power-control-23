@@ -28,7 +28,7 @@ if (!empty($selected_zaehler)) {
         $daten = $db->fetchAll("SELECT z.id, z.zaehlernummer, zs.datum, zs.stand
             FROM zaehler z
             LEFT JOIN zaehlerstaende zs ON zs.zaehler_id = z.id
-            WHERE z.id = ?
+            WHERE z.id = ? AND zs.datum IS NOT NULL
             ORDER BY zs.datum ASC", [$zid]);
         if ($daten) {
             foreach ($daten as $row) {
