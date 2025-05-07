@@ -53,8 +53,8 @@ $sql = "SELECT z.*, s.bezeichnung AS steckdose_bezeichnung, b.name AS bereich_na
 
 $search_params = [];
 if (!empty($search)) {
-    $sql .= " AND (z.zaehlernummer LIKE ? OR z.hersteller LIKE ? OR z.modell LIKE ? OR z.seriennummer LIKE ?)";
-    $search_params = array_fill(0, 4, "%$search%");
+    $sql .= " AND (z.zaehlernummer LIKE ? OR z.hersteller LIKE ? OR z.modell LIKE ? OR z.seriennummer LIKE ? OR z.hinweis LIKE ?)";
+    $search_params = array_fill(0, 5, "%$search%");
 }
 
 if (!empty($bereich)) {
@@ -147,6 +147,7 @@ require_once 'includes/header.php';
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Letzte Wartung</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Steckdose / Bereich</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Hinweis</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Aktionen</th>
           </tr>
         </thead>
@@ -188,6 +189,9 @@ require_once 'includes/header.php';
                   <?php else: ?>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
                   <?php endif; ?>
+                </td>
+                <td class="px-4 py-1 text-sm text-gray-900">
+                  <?= htmlspecialchars($z['hinweis'] ?? '-') ?>
                 </td>
                 <td class="px-4 py-1 text-sm font-medium">
                   <div class="flex items-center space-x-4">
