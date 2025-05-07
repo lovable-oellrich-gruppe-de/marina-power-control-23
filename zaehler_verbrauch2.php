@@ -40,30 +40,26 @@ if (!empty($selected_zaehler)) {
         $debug_messages[] = "Zähler $zid: " . count($daten) . " Einträge gefunden.";
         $debug_messages[] = "Daten von Zähler $zid:<pre>" . print_r($daten, true) . "</pre>";
 
-        $vorheriger_stand = null;
         $zaehlernummer = null;
-        foreach ($daten as $row) {
-            if (!empty($row['datum'])) {
-                $datum = date('Y-m-d', strtotime($row['datum']));
-                $labels[$datum] = true;
+        $werte_map[$zid]['werte'] = [];
 
-                $zaehlernummer = $row['zaehlernummer'];
-                $werte_map[$row['id']]['zaehlernummer'] = $zaehlernummer;
+        if (!empty($daten)) {
+            $zaehlernummer = $daten[0]['zaehlernummer'];
+            $werte_map[$zid]['zaehlernummer'] = $zaehlernummer;
 
-                if (!isset($werte_map[$row['id']]['werte'])) {
-                    $werte_map[$row['id']]['werte'] = [];
-                }
+            $erste = true;
+            $vorheriger_stand = 0.0; // Erster Vergleichswert ist 0
+            foreach ($daten as $row) {
+                if (!empty($row['datum'])) {
+                    $datum = date('Y-m-d', strtotime($row['datum']));
+                    $labels[$datum] = true;
 
-                // Verbrauch berechnen
-                if ($vorheriger_stand !== null) {
                     $verbrauch = (float)$row['stand'] - $vorheriger_stand;
                     $werte_map[$row['id']]['werte'][$datum] = $verbrauch >= 0 ? $verbrauch : 0;
-                } else {
-                    $werte_map[$row['id']]['werte'][$datum] = 0;
-                }
 
-                $vorheriger_stand = (float)$row['stand'];
-                $letzte_stand_map[$row['id']][$datum] = $row['stand'];
+                    $vorheriger_stand = (float)$row['stand'];
+                    $letzte_stand_map[$row['id']][$datum] = $row['stand'];
+                }
             }
         }
     }
