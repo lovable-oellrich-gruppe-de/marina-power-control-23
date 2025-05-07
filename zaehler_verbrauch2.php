@@ -11,6 +11,8 @@ if (!$auth->isLoggedIn()) {
 
 // Zählerauswahl über GET-Parameter
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
+$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 year'));
+$end_date = $_GET['end_date'] ?? date('Y-m-d');
 
 // Alle Zähler laden für Auswahl
 $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, s.bezeichnung AS steckdose, b.name AS bereich
@@ -29,8 +31,8 @@ if (!empty($selected_zaehler)) {
         $daten = $db->fetchAll("SELECT z.id, z.zaehlernummer, zs.datum, zs.stand
             FROM zaehler z
             LEFT JOIN zaehlerstaende zs ON zs.zaehler_id = z.id
-            WHERE z.id = ? AND zs.datum IS NOT NULL
-            ORDER BY zs.datum ASC", [$zid]);
+            WHERE z.id = ? AND zs.datum BETWEEN ? AND ?
+            ORDER BY zs.datum ASC", [$zid, $start_date, $end_date]);
 
         $vorheriger_stand = null;
         if ($daten) {
@@ -66,17 +68,29 @@ if (!empty($selected_zaehler)) {
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Verbrauchsanalyse</h1>
 
         <!-- Auswahlformular -->
-        <form method="GET" class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-            <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
-                <?php foreach ($alle_zaehler as $z): ?>
-                    <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
-                    >
-                        <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['steckdose'] ? ' – ' . htmlspecialchars($z['steckdose']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit" class="mt-4 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
+        <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
+                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
+                    <?php foreach ($alle_zaehler as $z): ?>
+                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
+                        >
+                            <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['steckdose'] ? ' – ' . htmlspecialchars($z['steckdose']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Zeitraum von</label>
+                <input type="date" name="start_date" value="<?= htmlspecialchars($start_date) ?>" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">bis</label>
+                <input type="date" name="end_date" value="<?= htmlspecialchars($end_date) ?>" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
+            </div>
+            <div class="md:col-span-4">
+                <button type="submit" class="mt-2 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
+            </div>
         </form>
 
         <?php if (!empty($werte_map)): ?>
