@@ -63,8 +63,8 @@ if (!empty($selected_zaehler)) {
     sort($labels);
 }
 error_log("Ausgewählte Zähler: " . implode(',', $selected_zaehler));
-error_log("Startdatum: " . ($_GET['start'] ?? 'leer'));
-error_log("Enddatum: " . ($_GET['end'] ?? 'leer'));
+error_log("Startdatum: " . ($_GET['start_date'] ?? 'leer'));
+error_log("Enddatum: " . ($_GET['end_date'] ?? 'leer'));
 error_log(print_r($daten, true));
 
 ?>
