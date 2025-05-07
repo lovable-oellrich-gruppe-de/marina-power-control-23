@@ -55,7 +55,7 @@ if (!empty($selected_zaehler)) {
                         $verbrauch = (float)$row['stand'] - $vorheriger_stand;
                         $werte_map[$row['id']]['werte'][$datum] = $verbrauch > 0 ? $verbrauch : 0;
                     } else {
-                        $werte_map[$row['id']]['werte'][$datum] = 0; // Keine Differenz berechenbar
+                        $werte_map[$row['id']]['werte'][$datum] = 0;
                     }
 
                     $vorheriger_stand = (float)$row['stand'];
@@ -72,14 +72,12 @@ $debug_messages[] = "Startdatum: $start_date";
 $debug_messages[] = "Enddatum: $end_date";
 $debug_messages[] = "Labels: <pre>" . print_r($labels, true) . "</pre>";
 $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
-
 ?>
 
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Verbrauchsanalyse</h1>
 
-        <!-- Auswahlformular -->
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
@@ -114,11 +112,6 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 </ul>
             </div>
         <?php endif; ?>
-        <?php if (!empty($werte_map)): ?>
-            <div class="mt-6 bg-gray-50 border border-gray-300 p-4 rounded text-xs font-mono whitespace-pre overflow-x-auto">
-                <?= json_encode($werte_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?>
-            </div>
-        <?php endif; ?>
 
         <?php if (!empty($werte_map)): ?>
             <div class="bg-white rounded-lg shadow-md p-4 mt-6">
@@ -126,10 +119,13 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 <div id="chart-multi" style="height: 500px;"></div>
                 <script>
                     const labels = <?= json_encode($labels) ?>;
+                    <?php foreach ($werte_map as $zid => $z): ?>
+                    const werte_<?= $zid ?> = <?= json_encode($z['werte']) ?>;
+                    <?php endforeach; ?>
                     const datasets = [
                         <?php foreach ($werte_map as $zid => $z): ?>{
                             name: "<?= addslashes($z['zaehlernummer']) ?>",
-                            values: labels.map(label => <?= json_encode($z['werte']) ?>[label] ?? 0),
+                            values: labels.map(label => werte_<?= $zid ?>[label] ?? 0),
                             meta: <?= json_encode(array_map(function ($l) use ($letzte_stand_map, $zid) {
                                 return 'Stand: ' . ($letzte_stand_map[$zid][$l] ?? '-') . ' kWh';
                             }, $labels)) ?>
