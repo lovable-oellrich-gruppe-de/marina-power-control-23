@@ -17,7 +17,7 @@ $end_date = $_GET['end_date'] ?? date('Y-m-d');
 // Alle Zähler laden für Auswahl
 $alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, steckdosen.bezeichnung AS steckdose, bereiche.name AS bereich
     FROM zaehler
-    LEFT JOIN steckdosen ON z.steckdose_id = steckdosen.id
+    LEFT JOIN steckdosen ON zaehler.steckdose_id = steckdosen.id
     LEFT JOIN bereiche b ON steckdosen.bereich_id = bereiche.id
     ORDER BY zaehler.zaehlernummer");
 
