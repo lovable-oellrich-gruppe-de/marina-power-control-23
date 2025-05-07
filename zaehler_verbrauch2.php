@@ -104,8 +104,19 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
             </div>
         </form>
 
+        <?php if (!empty($debug_messages)): ?>
+            <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
+                <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
+                <ul class="list-disc list-inside space-y-1">
+                    <?php foreach ($debug_messages as $msg): ?>
+                        <li><?= $msg ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($werte_map)): ?>
-            <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="bg-white rounded-lg shadow-md p-4 mt-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Verbrauch ausgewählter Zähler</h2>
                 <div id="chart-multi" style="height: 500px;"></div>
                 <script>
@@ -147,18 +158,7 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 </script>
             </div>
         <?php elseif (!empty($selected_zaehler)): ?>
-            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded">Keine Daten für die ausgewählten Zähler gefunden.</div>
-        <?php endif; ?>
-
-        <?php if (!empty($debug_messages)): ?>
-            <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
-                <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
-                <ul class="list-disc list-inside space-y-1">
-                    <?php foreach ($debug_messages as $msg): ?>
-                        <li><?= $msg ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Keine Daten für die ausgewählten Zähler gefunden.</div>
         <?php endif; ?>
     </div>
 </div>
