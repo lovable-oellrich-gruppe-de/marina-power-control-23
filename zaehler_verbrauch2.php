@@ -129,6 +129,7 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                         },<?php endforeach; ?>
                     ];
 
+                    <pre><?= json_encode($werte_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?></pre>
                     new Chartisan({
                         el: '#chart-multi',
                         data: {
