@@ -41,24 +41,29 @@ if (!empty($selected_zaehler)) {
         $debug_messages[] = "Daten von Zähler $zid:<pre>" . print_r($daten, true) . "</pre>";
 
         $vorheriger_stand = null;
-        if ($daten) {
-            foreach ($daten as $row) {
-                if (!empty($row['datum'])) {
-                    $datum = date('Y-m-d', strtotime($row['datum']));
-                    $labels[$datum] = true;
+        $zaehlernummer = null;
+        foreach ($daten as $row) {
+            if (!empty($row['datum'])) {
+                $datum = date('Y-m-d', strtotime($row['datum']));
+                $labels[$datum] = true;
 
-                    $zaehlernummer = $row['zaehlernummer'];
-                    $werte_map[$row['id']]['zaehlernummer'] = $zaehlernummer;
+                $zaehlernummer = $row['zaehlernummer'];
+                $werte_map[$row['id']]['zaehlernummer'] = $zaehlernummer;
 
-                    // Verbrauch berechnen
-                    if ($vorheriger_stand !== null) {
-                        $verbrauch = (float)$row['stand'] - $vorheriger_stand;
-                        $werte_map[$row['id']]['werte'][$datum] = $verbrauch > 0 ? $verbrauch : 0;
-                    }
-
-                    $vorheriger_stand = (float)$row['stand'];
-                    $letzte_stand_map[$row['id']][$datum] = $row['stand'];
+                if (!isset($werte_map[$row['id']]['werte'])) {
+                    $werte_map[$row['id']]['werte'] = [];
                 }
+
+                // Verbrauch berechnen
+                if ($vorheriger_stand !== null) {
+                    $verbrauch = (float)$row['stand'] - $vorheriger_stand;
+                    $werte_map[$row['id']]['werte'][$datum] = $verbrauch >= 0 ? $verbrauch : 0;
+                } else {
+                    $werte_map[$row['id']]['werte'][$datum] = 0;
+                }
+
+                $vorheriger_stand = (float)$row['stand'];
+                $letzte_stand_map[$row['id']][$datum] = $row['stand'];
             }
         }
     }
@@ -118,7 +123,7 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 <script>
                     const labels = <?= json_encode($labels) ?>;
                     <?php foreach ($werte_map as $zid => $z): ?>
-                    const werte_<?= $zid ?> = <?= json_encode($z['werte']) ?>;
+                    const werte_<?= $zid ?> = <?= json_encode($z['werte'] ?? []) ?>;
                     <?php endforeach; ?>
                     const datasets = [
                         <?php foreach ($werte_map as $zid => $z): ?>{
