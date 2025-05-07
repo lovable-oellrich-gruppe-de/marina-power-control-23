@@ -28,12 +28,8 @@ $werte_map = [];
 $letzte_stand_map = [];
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
-        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand
-            FROM zaehler
-            LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id
-            WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ?
-            ORDER BY zaehlerstaende.datum ASC", [$zid, $start_date, $end_date]);
-        error_log("Datenbankabfrage für Zähler $zid: " . count($daten) . " Einträge gefunden.");
+        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand FROM zaehler LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ? ORDER BY zaehlerstaende.datum ASC", [$zid, $start_date, $end_date]);
+        $debug_messages[] = "Datenbankabfrage für Zähler $zid: " . count($daten) . " Einträge gefunden.";
 
         $vorheriger_stand = null;
         if ($daten) {
@@ -62,10 +58,10 @@ if (!empty($selected_zaehler)) {
     $labels = array_keys($labels);
     sort($labels);
 }
-error_log("Ausgewählte Zähler: " . implode(',', $selected_zaehler));
-error_log("Startdatum: " . ($_GET['start_date'] ?? 'leer'));
-error_log("Enddatum: " . ($_GET['end_date'] ?? 'leer'));
-error_log(print_r($daten, true));
+$debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
+$debug_messages[] = "Startdatum: $start_date";
+$debug_messages[] = "Enddatum: $end_date";
+$debug_messages[] = "<pre>" . print_r($daten, true) . "</pre>";
 
 ?>
 
@@ -146,5 +142,16 @@ error_log(print_r($daten, true));
         <?php endif; ?>
     </div>
 </div>
+
+<?php if (!empty($debug_messages)): ?>
+    <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
+        <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
+        <ul class="list-disc list-inside space-y-1">
+            <?php foreach ($debug_messages as $msg): ?>
+                <li><?= $msg ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>
