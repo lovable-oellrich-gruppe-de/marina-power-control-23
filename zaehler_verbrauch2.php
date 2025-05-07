@@ -114,6 +114,11 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 </ul>
             </div>
         <?php endif; ?>
+        <?php if (!empty($werte_map)): ?>
+            <div class="mt-6 bg-gray-50 border border-gray-300 p-4 rounded text-xs font-mono whitespace-pre overflow-x-auto">
+                <?= json_encode($werte_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?>
+            </div>
+        <?php endif; ?>
 
         <?php if (!empty($werte_map)): ?>
             <div class="bg-white rounded-lg shadow-md p-4 mt-6">
@@ -125,11 +130,12 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                         <?php foreach ($werte_map as $zid => $z): ?>{
                             name: "<?= addslashes($z['zaehlernummer']) ?>",
                             values: labels.map(label => <?= json_encode($z['werte']) ?>[label] ?? 0),
-                            meta: labels.map(label => "Stand: <?= addslashes($letzte_stand_map[$zid][label] ?? '-') ?> kWh")
+                            meta: <?= json_encode(array_map(function ($l) use ($letzte_stand_map, $zid) {
+                                return 'Stand: ' . ($letzte_stand_map[$zid][$l] ?? '-') . ' kWh';
+                            }, $labels)) ?>
                         },<?php endforeach; ?>
                     ];
-                    (Chartisan:)
-                    <pre><?= json_encode($werte_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?></pre>
+
                     new Chartisan({
                         el: '#chart-multi',
                         data: {
