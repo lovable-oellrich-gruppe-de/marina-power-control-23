@@ -8,7 +8,6 @@ if (!$auth->isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
-$debug_messages = [];
 
 // Zählerauswahl über GET-Parameter
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
@@ -27,10 +26,19 @@ $verbrauchsdaten = [];
 $labels = [];
 $werte_map = [];
 $letzte_stand_map = [];
+$debug_messages = [];
+
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
-        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand FROM zaehler LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ? ORDER BY zaehlerstaende.datum ASC", [$zid, $start_date, $end_date]);
-        $debug_messages[] = "Datenbankabfrage für Zähler $zid: " . count($daten) . " Einträge gefunden.";
+        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand 
+            FROM zaehler 
+            LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id 
+            WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ? 
+            ORDER BY zaehlerstaende.datum ASC", 
+            [$zid, $start_date, $end_date]);
+
+        $debug_messages[] = "Zähler $zid: " . count($daten) . " Einträge gefunden.";
+        $debug_messages[] = "Daten von Zähler $zid:<pre>" . print_r($daten, true) . "</pre>";
 
         $vorheriger_stand = null;
         if ($daten) {
@@ -52,10 +60,6 @@ if (!empty($selected_zaehler)) {
 
                     $vorheriger_stand = (float)$row['stand'];
                     $letzte_stand_map[$row['id']][$datum] = $row['stand'];
-                    $debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
-                    $debug_messages[] = "Startdatum: $start_date";
-                    $debug_messages[] = "Enddatum: $end_date";
-                    $debug_messages[] = "<pre>" . print_r($daten, true) . "</pre>";
                 }
             }
         }
@@ -63,6 +67,12 @@ if (!empty($selected_zaehler)) {
     $labels = array_keys($labels);
     sort($labels);
 }
+$debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
+$debug_messages[] = "Startdatum: $start_date";
+$debug_messages[] = "Enddatum: $end_date";
+$debug_messages[] = "Labels: <pre>" . print_r($labels, true) . "</pre>";
+$debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
+
 ?>
 
 <div class="py-6">
@@ -75,8 +85,7 @@ if (!empty($selected_zaehler)) {
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
                 <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
                     <?php foreach ($alle_zaehler as $z): ?>
-                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
-                        >
+                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['steckdose'] ? ' – ' . htmlspecialchars($z['steckdose']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?>
                         </option>
                     <?php endforeach; ?>
@@ -140,18 +149,18 @@ if (!empty($selected_zaehler)) {
         <?php elseif (!empty($selected_zaehler)): ?>
             <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded">Keine Daten für die ausgewählten Zähler gefunden.</div>
         <?php endif; ?>
+
+        <?php if (!empty($debug_messages)): ?>
+            <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
+                <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
+                <ul class="list-disc list-inside space-y-1">
+                    <?php foreach ($debug_messages as $msg): ?>
+                        <li><?= $msg ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
-
-<?php if (!empty($debug_messages)): ?>
-    <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
-        <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
-        <ul class="list-disc list-inside space-y-1">
-            <?php foreach ($debug_messages as $msg): ?>
-                <li><?= $msg ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>
