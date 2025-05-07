@@ -146,8 +146,8 @@ require_once 'includes/header.php';
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Installiert am</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Letzte Wartung</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Steckdose / Bereich</th>
-            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Hinweis</th>
+            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase">Aktionen</th>
           </tr>
         </thead>
@@ -183,15 +183,15 @@ require_once 'includes/header.php';
                     <div class="text-xs text-gray-900">(<?= htmlspecialchars($z['bereich_name']) ?>)</div>
                   <?php endif; ?>
                 </td>
+                <td class="px-4 py-1 text-sm text-gray-900">
+                  <?= htmlspecialchars($z['hinweis'] ?? '-') ?>
+                </td>
                 <td class="px-4 py-1">
                   <?php if ($z['ist_ausgebaut']): ?>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Ausgebaut</span>
                   <?php else: ?>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aktiv</span>
                   <?php endif; ?>
-                </td>
-                <td class="px-4 py-1 text-sm text-gray-900">
-                  <?= htmlspecialchars($z['hinweis'] ?? '-') ?>
                 </td>
                 <td class="px-4 py-1 text-sm font-medium">
                   <div class="flex items-center space-x-4">
