@@ -18,7 +18,7 @@ $end_date = $_GET['end_date'] ?? date('Y-m-d');
 $alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, steckdosen.bezeichnung AS steckdose, bereiche.name AS bereich
     FROM zaehler
     LEFT JOIN steckdosen ON zaehler.steckdose_id = steckdosen.id
-    LEFT JOIN bereiche b ON steckdosen.bereich_id = bereiche.id
+    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
     ORDER BY zaehler.zaehlernummer");
 
 // Verbrauchsdaten für alle ausgewählten Zähler laden
@@ -28,11 +28,11 @@ $werte_map = [];
 $letzte_stand_map = [];
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
-        $daten = $db->fetchAll("SELECT z.id, z.zaehlernummer, zs.datum, zs.stand
-            FROM zaehler z
-            LEFT JOIN zaehlerstaende zs ON zs.zaehler_id = z.id
-            WHERE z.id = ? AND zs.datum BETWEEN ? AND ?
-            ORDER BY zs.datum ASC", [$zid, $start_date, $end_date]);
+        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand
+            FROM zaehler
+            LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id
+            WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ?
+            ORDER BY zaehlerstaende.datum ASC", [$zid, $start_date, $end_date]);
         error_log("Datenbankabfrage für Zähler $zid: " . count($daten) . " Einträge gefunden.");
 
         $vorheriger_stand = null;
