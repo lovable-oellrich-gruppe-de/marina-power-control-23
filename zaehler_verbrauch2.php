@@ -54,8 +54,6 @@ if (!empty($selected_zaehler)) {
                     if ($vorheriger_stand !== null) {
                         $verbrauch = (float)$row['stand'] - $vorheriger_stand;
                         $werte_map[$row['id']]['werte'][$datum] = $verbrauch > 0 ? $verbrauch : 0;
-                    } else {
-                        $werte_map[$row['id']]['werte'][$datum] = 0;
                     }
 
                     $vorheriger_stand = (float)$row['stand'];
