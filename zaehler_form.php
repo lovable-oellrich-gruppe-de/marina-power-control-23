@@ -144,8 +144,7 @@ $steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name
     WHERE $where
     ORDER BY b.name, s.bezeichnung");
 
-$alle_zaehler = $db->fetchAll("
-    SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich_name
+$alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich_name
     FROM zaehler z
     LEFT JOIN steckdosen s ON z.steckdose_id = s.id
     LEFT JOIN bereiche b ON s.bereich_id = b.id
