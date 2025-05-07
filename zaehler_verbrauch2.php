@@ -44,7 +44,7 @@ if (!empty($selected_zaehler)) {
         if ($daten) {
             foreach ($daten as $row) {
                 if (!empty($row['datum'])) {
-                    $datum = date('d.m.', strtotime($row['datum']));
+                    $datum = date('Y-m-d', strtotime($row['datum']));
                     $labels[$datum] = true;
 
                     $zaehlernummer = $row['zaehlernummer'];
