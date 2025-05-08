@@ -47,20 +47,22 @@ if (!empty($selected_zaehler)) {
             $zaehlernummer = $daten[0]['zaehlernummer'];
             $werte_map[$zid]['zaehlernummer'] = $zaehlernummer;
 
-            $vorheriger_stand = null;
+            $previous = null;
             foreach ($daten as $index => $row) {
                 if (!empty($row['datum'])) {
                     $datum = date('Y-m-d', strtotime($row['datum']));
                     $labels[$datum] = true;
 
-                    if ($vorheriger_stand === null) {
-                        $verbrauch = (float)$row['stand']; // Erster Verbrauch = Stand (von 0 ausgehend)
+                    if ($index === 0) {
+                        // Beim ersten Eintrag: absoluter Stand als Verbrauch
+                        $verbrauch = (float)$row['stand'];
                     } else {
-                        $verbrauch = (float)$row['stand'] - $vorheriger_stand;
+                        $verbrauch = (float)$row['stand'] - $previous;
                     }
+                    $verbrauch = max($verbrauch, 0);
 
-                    $werte_map[$row['id']]['werte'][$datum] = $verbrauch >= 0 ? $verbrauch : 0;
-                    $vorheriger_stand = (float)$row['stand'];
+                    $werte_map[$row['id']]['werte'][$datum] = $verbrauch;
+                    $previous = (float)$row['stand'];
                     $letzte_stand_map[$row['id']][$datum] = $row['stand'];
                 }
             }
