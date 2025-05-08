@@ -67,21 +67,31 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
 }, true);
 ?>
 
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Verbrauchsanalyse</h1>
 
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="col-span-2 relative">
+            <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-                <input type="text" id="zaehlerSearch" placeholder="Suche..." class="mb-2 p-2 border border-gray-300 rounded-md w-full">
-                <select name="zaehler[]" multiple id="zaehlerSelect" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2 h-48 overflow-auto">
+                <select name="zaehler[]" multiple id="zaehlerSelect" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500">
                     <?php foreach ($alle_zaehler as $z): ?>
                         <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <script>
+                    new TomSelect("#zaehlerSelect", {
+                        maxItems: null,
+                        plugins: ['remove_button'],
+                        searchField: 'text',
+                        placeholder: 'Zähler suchen...'
+                    });
+                </script>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zeitraum von</label>
@@ -95,17 +105,6 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 <button type="submit" class="mt-2 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
             </div>
         </form>
-
-        <script>
-            document.getElementById('zaehlerSearch').addEventListener('input', function () {
-                const filter = this.value.toLowerCase();
-                const options = document.getElementById('zaehlerSelect').options;
-                for (let i = 0; i < options.length; i++) {
-                    const txt = options[i].text.toLowerCase();
-                    options[i].style.display = txt.includes(filter) ? '' : 'none';
-                }
-            });
-        </script>
 
         <?php if (!empty($verbrauchsdaten)): ?>
             <canvas id="verbrauchChart" class="w-full h-48"></canvas>
