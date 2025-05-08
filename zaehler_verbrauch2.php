@@ -50,22 +50,26 @@ if (!empty($selected_zaehler)) {
             $datum_map = [];
             foreach ($daten as $row) {
                 $datum = date('Y-m-d', strtotime($row['datum']));
-                $datum_map[$datum] = (float)$row['stand']; // Nur letzter Wert pro Datum wird überschrieben
+                // mehrere Messungen pro Tag sammeln
+                if (!isset($datum_map[$datum])) {
+                    $datum_map[$datum] = [];
+                }
+                $datum_map[$datum][] = (float)$row['stand'];
             }
 
             $previous = null;
-            foreach ($datum_map as $datum => $stand) {
-                $labels[$datum] = true;
-                $letzte_stand_map[$zid][$datum] = $stand;
-
-                if ($previous === null) {
-                    $verbrauch = $stand;
+            foreach ($datum_map as $datum => $staende) {
+                if (count($staende) < 2) {
+                    // nur ein Stand: Verbrauch = aktueller Stand
+                    $verbrauch = $staende[0];
                 } else {
-                    $verbrauch = $stand - $previous;
+                    // mehrere: Differenz zwischen letztem und erstem Eintrag
+                    $verbrauch = end($staende) - reset($staende);
                 }
 
+                $labels[$datum] = true;
+                $letzte_stand_map[$zid][$datum] = end($staende);
                 $werte_map[$zid]['werte'][$datum] = max($verbrauch, 0);
-                $previous = $stand;
             }
         }
     }
@@ -78,6 +82,8 @@ $debug_messages[] = "Enddatum: $end_date";
 $debug_messages[] = "Labels: <pre>" . print_r($labels, true) . "</pre>";
 $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
 ?>
+
+<!-- (der restliche HTML-Teil bleibt unverändert) -->
 
 
 <div class="py-6">
