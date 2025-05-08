@@ -9,13 +9,18 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Zählerauswahl über GET-Parameter
+$is_admin = $auth->getUser()['rolle'] === 'admin';
+
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
 $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
-// Alle Zähler für Dropdown-Auswahl
-$alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehler.hinweis FROM zaehler ORDER BY zaehler.zaehlernummer");
+$alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich, m.name AS mieter
+    FROM zaehler z
+    LEFT JOIN steckdosen s ON z.steckdose_id = s.id
+    LEFT JOIN bereiche b ON s.bereich_id = b.id
+    LEFT JOIN mieter m ON s.mieter_id = m.id
+    ORDER BY z.zaehlernummer");
 
 $verbrauchsdaten = [];
 $debug_messages = [];
@@ -24,10 +29,17 @@ if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
         $daten = $db->fetchAll("SELECT datum, stand FROM zaehlerstaende WHERE zaehler_id = ? AND datum BETWEEN ? AND ? ORDER BY datum ASC, id ASC", [$zid, $start_date, $end_date]);
 
-        $zaehler_info = $db->fetchone("SELECT zaehlernummer, hinweis FROM zaehler WHERE id = ?", [$zid]);
-        $zaehlername = $zaehler_info['zaehlernummer'] . ($zaehler_info['hinweis'] ? " (" . $zaehler_info['hinweis'] . ")" : '');
+        $zaehler_info = $db->fetchAll("SELECT z.zaehlernummer, z.hinweis, b.name AS bereich, m.name AS mieter FROM zaehler z LEFT JOIN steckdosen s ON z.steckdose_id = s.id LEFT JOIN bereiche b ON s.bereich_id = b.id LEFT JOIN mieter m ON s.mieter_id = m.id WHERE z.id = ?", [$zid]);
+        $info = $zaehler_info[0] ?? [];
+        $zaehlername = $info['zaehlernummer']
+            . ($info['hinweis'] ? " – {$info['hinweis']}" : '')
+            . ($info['bereich'] ? " – {$info['bereich']}" : '')
+            . ($info['mieter'] ? " – {$info['mieter']}" : '');
 
         $debug_messages[] = "Zähler $zid: " . count($daten) . " Einträge gefunden.";
+        foreach ($daten as $eintrag) {
+            $debug_messages[] = " - " . $eintrag['datum'] . ": " . $eintrag['stand'] . " kWh";
+        }
 
         if (count($daten) < 2) {
             $verbrauchsdaten[] = [
@@ -45,11 +57,10 @@ if (!empty($selected_zaehler)) {
         $verbrauchsdaten[] = [
             'label' => $zaehlername,
             'verbrauch' => $verbrauch,
-            'tooltip' => "von $start bis $end kWh"
+            'tooltip' => "$zaehlername\nvon $start bis $end kWh"
         ];
     }
 }
-
 ?>
 
 <div class="py-6">
@@ -59,10 +70,10 @@ if (!empty($selected_zaehler)) {
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
+                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2 h-48 overflow-auto">
                     <?php foreach ($alle_zaehler as $z): ?>
                         <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?>
+                            <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -81,7 +92,7 @@ if (!empty($selected_zaehler)) {
         </form>
 
         <?php if (!empty($verbrauchsdaten)): ?>
-            <canvas id="verbrauchChart" class="w-full h-96"></canvas>
+            <canvas id="verbrauchChart" class="w-full h-64"></canvas>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 const ctx = document.getElementById('verbrauchChart').getContext('2d');
@@ -124,17 +135,19 @@ if (!empty($selected_zaehler)) {
                 });
             </script>
         <?php elseif (!empty($selected_zaehler)): ?>
-            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Keine gültigen Verbrauchsdaten im gewählten Zeitraum gefunden.</div>
+            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Hinweis: Für die ausgewählten Zähler liegen nicht genügend Zählerstände im gewählten Zeitraum vor.</div>
         <?php endif; ?>
 
-        <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
-            <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
-            <ul class="list-disc list-inside space-y-1">
-                <?php foreach ($debug_messages as $msg): ?>
-                    <li><?= $msg ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+        <?php if ($is_admin && !empty($debug_messages)): ?>
+            <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
+                <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
+                <ul class="list-disc list-inside space-y-1">
+                    <?php foreach ($debug_messages as $msg): ?>
+                        <li><?= $msg ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
