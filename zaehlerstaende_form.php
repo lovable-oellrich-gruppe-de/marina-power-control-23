@@ -102,11 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     //if (empty($steckdose_id)) {
     //    $errors[] = "Bitte eine Steckdose auswählen.";
     //}
-    if (empty($zaehler_id_Display)) {
+    if (empty($zaehler_id_display)) {
         $errors[] = "Kein Zähler für die gewählte Steckdose gefunden.";
     }
     else{
-        $zaehler_id = $zaehler_id_Display ;
+        $zaehler_id = $zaehler_id_display ;
     }
     if (empty($datum)) {
         $errors[] = "Bitte ein Datum eingeben.";
