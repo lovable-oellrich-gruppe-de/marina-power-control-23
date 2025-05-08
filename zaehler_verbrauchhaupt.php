@@ -12,7 +12,15 @@ if (!$auth->isLoggedIn()) {
 $is_admin = $auth->isAdmin();
 
 // Hauptzähler: Zähler ohne parent_id, die mindestens einen Unterzähler haben
-$hauptzaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis FROM zaehler z WHERE z.parent_id IS NULL AND EXISTS (SELECT 1 FROM zaehler u WHERE u.parent_id = z.id) ORDER BY z.zaehlernummer");
+$hauptzaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich
+FROM zaehler z
+LEFT JOIN steckdosen s ON z.steckdose_id = s.id
+LEFT JOIN bereiche b ON s.bereich_id = b.id
+WHERE z.steckdose_id IS NULL
+  AND z.ist_ausgebaut = 0
+  AND EXISTS (
+      SELECT 1 FROM zaehler u WHERE u.parent_id = z.id
+  )");
 
 $debug_messages = [];
 $hauptdaten = [];
