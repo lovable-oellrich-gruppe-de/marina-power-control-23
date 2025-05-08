@@ -12,7 +12,7 @@ if (!$auth->isLoggedIn()) {
 $is_admin = $auth->isAdmin();
 
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
-$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
+$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 year'));
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
 $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich, m.name AS mieter
