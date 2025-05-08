@@ -36,7 +36,7 @@ $steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name,
     ORDER BY b.name, s.bezeichnung");
 
 // Zähler für Anzeige laden
-$zaehler = $db->fetchAll("SELECT id, zaehlernummer FROM zaehler ORDER BY zaehlernummer");
+$zaehler = $db->fetchAll("SELECT id, zaehlernummer, hinweis FROM zaehler ORDER BY zaehlernummer");
 
 // Mietername anhand der Steckdose laden
 $mieter_name = null;
@@ -223,7 +223,7 @@ require_once 'includes/header.php';
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($zaehler as $z): ?>
                                     <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($z['zaehlernummer']) ?>
+                                        <?= htmlspecialchars($z['zaehlernummer']) ?> (<?= htmlspecialchars($s['heinweis'] ?? '') ?>)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
