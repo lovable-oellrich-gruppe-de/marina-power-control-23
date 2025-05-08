@@ -99,9 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Validierung der Eingaben
-    if (empty($steckdose_id)) {
-        $errors[] = "Bitte eine Steckdose auswählen.";
-    }
+    //if (empty($steckdose_id)) {
+    //    $errors[] = "Bitte eine Steckdose auswählen.";
+    //}
     if (empty($zaehler_id)) {
         $errors[] = "Kein Zähler für die gewählte Steckdose gefunden.";
     }
