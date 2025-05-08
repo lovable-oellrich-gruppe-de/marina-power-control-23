@@ -28,8 +28,7 @@ $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
 // Zähler für Dropdown-Listen laden (inkl. Steckdose & Bereich für Anzeige)
-$zaehler = $db->fetchAll("
-    SELECT 
+$zaehler = $db->fetchAll("SELECT 
         z.id, 
         z.zaehlernummer, 
         z.hinweis,
@@ -39,8 +38,7 @@ $zaehler = $db->fetchAll("
     FROM zaehler z
     LEFT JOIN steckdosen s ON z.steckdose_id = s.id
     LEFT JOIN bereiche b ON s.bereich_id = b.id
-    ORDER BY z.zaehlernummer
-");
+    ORDER BY z.zaehlernummer");
 
 // Bearbeiten-Modus prüfen
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
