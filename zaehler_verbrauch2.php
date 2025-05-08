@@ -54,16 +54,15 @@ if (!empty($selected_zaehler)) {
                     $labels[$datum] = true;
 
                     if ($index === 0) {
-                        // Beim ersten Eintrag: absoluter Stand als Verbrauch
                         $verbrauch = (float)$row['stand'];
                     } else {
                         $verbrauch = (float)$row['stand'] - $previous;
                     }
                     $verbrauch = max($verbrauch, 0);
 
-                    $werte_map[$row['id']]['werte'][$datum] = $verbrauch;
+                    $werte_map[$zid]['werte'][$datum] = $verbrauch;
                     $previous = (float)$row['stand'];
-                    $letzte_stand_map[$row['id']][$datum] = $row['stand'];
+                    $letzte_stand_map[$zid][$datum] = $row['stand'];
                 }
             }
         }
