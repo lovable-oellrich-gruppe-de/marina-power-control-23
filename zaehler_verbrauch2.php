@@ -50,26 +50,22 @@ if (!empty($selected_zaehler)) {
             $datum_map = [];
             foreach ($daten as $row) {
                 $datum = date('Y-m-d', strtotime($row['datum']));
-                if (!isset($datum_map[$datum])) {
-                    $datum_map[$datum] = [];
-                }
-                $datum_map[$datum][] = (float)$row['stand'];
+                $datum_map[$datum] = (float)$row['stand']; // Nur letzter Wert pro Datum wird überschrieben
             }
 
             $previous = null;
-            foreach ($datum_map as $datum => $staende) {
+            foreach ($datum_map as $datum => $stand) {
                 $labels[$datum] = true;
-                $letzte_stand_map[$zid][$datum] = end($staende);
+                $letzte_stand_map[$zid][$datum] = $stand;
 
                 if ($previous === null) {
-                    // erster Tag – Differenz aus erstem und letztem Stand oder gesamter Wert
-                    $verbrauch = end($staende);
+                    $verbrauch = $stand;
                 } else {
-                    $verbrauch = end($staende) - $previous;
+                    $verbrauch = $stand - $previous;
                 }
 
                 $werte_map[$zid]['werte'][$datum] = max($verbrauch, 0);
-                $previous = end($staende);
+                $previous = $stand;
             }
         }
     }
@@ -82,6 +78,7 @@ $debug_messages[] = "Enddatum: $end_date";
 $debug_messages[] = "Labels: <pre>" . print_r($labels, true) . "</pre>";
 $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
 ?>
+
 
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
