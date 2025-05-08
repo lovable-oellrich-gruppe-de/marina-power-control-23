@@ -16,7 +16,7 @@ $error = $_GET['error'] ?? null;
 // Sortierparameter
 $orderBy = $_GET['order_by'] ?? 'datum';
 $orderDir = strtoupper($_GET['order_dir'] ?? 'DESC');
-$validColumns = ['id', 'datum', 'zaehlernummer', 'steckdose_bezeichnung', 'bereich_name', 'mieter_name', 'stand', 'verbrauch'];
+$validColumns = ['id', 'datum', 'zaehlernummer', 'zaehlerhinweis', 'steckdose_bezeichnung', 'bereich_name', 'mieter_name', 'stand', 'verbrauch'];
 if (!in_array($orderBy, $validColumns)) $orderBy = 'datum';
 if (!in_array($orderDir, ['ASC', 'DESC'])) $orderDir = 'DESC';
 
@@ -53,7 +53,7 @@ $params = [];
 
 if (!empty($_GET['search'])) {
     $search = $_GET['search'];
-    $where_clauses[] = "(z.zaehlernummer LIKE ? OR s.bezeichnung LIKE ?)";
+    $where_clauses[] = "(z.zaehlernummer LIKE ? OR z.hinweis LIKE ? OR s.bezeichnung LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
 }
@@ -91,6 +91,7 @@ $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS vollname FROM 
 $sql = "SELECT 
             zs.*, 
             z.zaehlernummer, 
+            z.hinweis AS zaehlerhinweis,
             s.bezeichnung AS steckdose_bezeichnung, 
             b.name AS bereich_name, 
             CONCAT(m.vorname, ' ', m.name) AS mieter_name
@@ -192,6 +193,7 @@ require_once 'includes/header.php';
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('id', 'ID') ?></th>
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('datum', 'Datum') ?></th>
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('zaehlernummer', 'Zähler') ?></th>
+                            <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('zaehlerhinweis', 'Hinweis') ?></th>
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('steckdose_bezeichnung', 'Steckdose') ?></th>
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('bereich_name', 'Bereich') ?></th>
                             <th class="px-4 py-1 text-left text-xs font-medium text-gray-900 uppercase"><?= sortLink('mieter_name', 'Mieter') ?></th>
@@ -212,6 +214,7 @@ require_once 'includes/header.php';
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= $zs['id'] ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= date('d.m.Y', strtotime($zs['datum'])) ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlernummer'] ?? '-') ?></td>
+                                    <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['zaehlerhinweis'] ?? '-') ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['steckdose_bezeichnung'] ?? '-') ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['bereich_name'] ?? '-') ?></td>
                                     <td class="px-4 py-1 text-sm text-gray-900"><?= htmlspecialchars($zs['mieter_name'] ?? '-') ?></td>
