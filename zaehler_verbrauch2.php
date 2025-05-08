@@ -79,8 +79,7 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 <label for="zaehlerSelect" class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
                 <select id="zaehlerSelect" name="zaehler[]" multiple>
                     <?php foreach ($alle_zaehler as $z): ?>
-                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
-                        >
+                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
                         </option>
                     <?php endforeach; ?>
@@ -109,7 +108,9 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
         </form>
 
         <?php if (!empty($verbrauchsdaten)): ?>
-            <canvas id="verbrauchChart" class="w-full h-48"></canvas>
+            <div class="h-64">
+                <canvas id="verbrauchChart" class="w-full h-full"></canvas>
+            </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 const ctx = document.getElementById('verbrauchChart').getContext('2d');
