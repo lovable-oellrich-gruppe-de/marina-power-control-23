@@ -75,6 +75,7 @@ $current_user = $auth->getCurrentUser();
                         <a href="steckdosen.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Steckdosen</a>
                         <a href="zaehler.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Zähler</a>
                         <a href="zaehlerstaende.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Zählerstände</a>
+                        <a href="zaehler_verbrauch2.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Zählerverbrauch</a>
                         <a href="bereiche.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Bereiche</a>
                         <?php if ($auth->isAdmin()): ?>
                             <a href="users.php" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-marina-700 hover:bg-gray-50">Benutzerverwaltung</a>
