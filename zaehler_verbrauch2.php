@@ -9,7 +9,7 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-$is_admin = $auth->getUser()['rolle'] === 'admin';
+$is_admin = $auth->isAdmin();
 
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
 $start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
