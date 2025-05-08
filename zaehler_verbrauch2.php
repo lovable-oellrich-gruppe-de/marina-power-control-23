@@ -63,7 +63,7 @@ if (!empty($selected_zaehler)) {
 }
 
 $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten, function($carry, $v) {
-    return $carry && $v['verbrauch'] === 0 && strncmp($v['tooltip'], 'Nicht genug', 11) === 0;
+    return $carry && $v['verbrauch'] === 0 && strpos($v['tooltip'], 'Nicht genug') === 0;
 }, true);
 ?>
 
@@ -72,9 +72,10 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Verbrauchsanalyse</h1>
 
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="col-span-2">
+            <div class="col-span-2 relative">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2" size="10">
+                <input type="text" id="zaehlerSearch" placeholder="Suche..." class="mb-2 p-2 border border-gray-300 rounded-md w-full">
+                <select name="zaehler[]" multiple id="zaehlerSelect" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2 h-48 overflow-auto">
                     <?php foreach ($alle_zaehler as $z): ?>
                         <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
@@ -94,6 +95,17 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 <button type="submit" class="mt-2 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
             </div>
         </form>
+
+        <script>
+            document.getElementById('zaehlerSearch').addEventListener('input', function () {
+                const filter = this.value.toLowerCase();
+                const options = document.getElementById('zaehlerSelect').options;
+                for (let i = 0; i < options.length; i++) {
+                    const txt = options[i].text.toLowerCase();
+                    options[i].style.display = txt.includes(filter) ? '' : 'none';
+                }
+            });
+        </script>
 
         <?php if (!empty($verbrauchsdaten)): ?>
             <canvas id="verbrauchChart" class="w-full h-48"></canvas>
