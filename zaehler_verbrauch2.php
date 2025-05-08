@@ -11,79 +11,45 @@ if (!$auth->isLoggedIn()) {
 
 // Zählerauswahl über GET-Parameter
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
-$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 year'));
+$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
-// Alle Zähler laden für Auswahl
-$alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, steckdosen.bezeichnung AS steckdose, bereiche.name AS bereich
-    FROM zaehler
-    LEFT JOIN steckdosen ON zaehler.steckdose_id = steckdosen.id
-    LEFT JOIN bereiche ON steckdosen.bereich_id = bereiche.id
-    ORDER BY zaehler.zaehlernummer");
+// Alle Zähler für Dropdown-Auswahl
+$alle_zaehler = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehler.hinweis FROM zaehler ORDER BY zaehler.zaehlernummer");
 
-// Verbrauchsdaten für alle ausgewählten Zähler laden
 $verbrauchsdaten = [];
-$labels = [];
-$werte_map = [];
-$letzte_stand_map = [];
 $debug_messages = [];
 
 if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
-        $daten = $db->fetchAll("SELECT zaehler.id, zaehler.zaehlernummer, zaehlerstaende.datum, zaehlerstaende.stand 
-            FROM zaehler 
-            LEFT JOIN zaehlerstaende ON zaehlerstaende.zaehler_id = zaehler.id 
-            WHERE zaehler.id = ? AND zaehlerstaende.datum BETWEEN ? AND ? 
-            ORDER BY zaehlerstaende.datum ASC, zaehlerstaende.id ASC", 
-            [$zid, $start_date, $end_date]);
+        $daten = $db->fetchAll("SELECT datum, stand FROM zaehlerstaende WHERE zaehler_id = ? AND datum BETWEEN ? AND ? ORDER BY datum ASC, id ASC", [$zid, $start_date, $end_date]);
+
+        $zaehler_info = $db->fetch("SELECT zaehlernummer, hinweis FROM zaehler WHERE id = ?", [$zid]);
+        $zaehlername = $zaehler_info['zaehlernummer'] . ($zaehler_info['hinweis'] ? " (" . $zaehler_info['hinweis'] . ")" : '');
 
         $debug_messages[] = "Zähler $zid: " . count($daten) . " Einträge gefunden.";
-        $debug_messages[] = "Daten von Zähler $zid:<pre>" . print_r($daten, true) . "</pre>";
 
-        $zaehlernummer = null;
-        $werte_map[$zid]['werte'] = [];
-
-        if (!empty($daten)) {
-            $zaehlernummer = $daten[0]['zaehlernummer'];
-            $werte_map[$zid]['zaehlernummer'] = $zaehlernummer;
-
-            $datum_map = [];
-            foreach ($daten as $row) {
-                $datum = date('Y-m-d', strtotime($row['datum']));
-                if (!isset($datum_map[$datum])) {
-                    $datum_map[$datum] = [];
-                }
-                $datum_map[$datum][] = (float)$row['stand'];
-            }
-
-            $previous = null;
-            foreach ($datum_map as $datum => $staende) {
-                if (count($staende) == 1 && $previous === null) {
-                    // Erster Stand überhaupt => Differenz zu 0
-                    $verbrauch = $staende[0];
-                } elseif (count($staende) == 1) {
-                    // Ein Stand, Differenz zum vorherigen Tag
-                    $verbrauch = $staende[0] - $previous;
-                } else {
-                    // Mehrere Stände am gleichen Tag: letzter - erster
-                    $verbrauch = end($staende) - reset($staende);
-                }
-
-                $labels[$datum] = true;
-                $letzte_stand_map[$zid][$datum] = end($staende);
-                $werte_map[$zid]['werte'][$datum] = max($verbrauch, 0);
-                $previous = end($staende);
-            }
+        if (count($daten) < 2) {
+            $verbrauchsdaten[] = [
+                'label' => $zaehlername,
+                'verbrauch' => 0,
+                'tooltip' => 'Nicht genug Daten im Zeitraum'
+            ];
+            continue;
         }
+
+        $start = (float)$daten[0]['stand'];
+        $end = (float)$daten[count($daten) - 1]['stand'];
+        $verbrauch = round($end - $start, 2);
+
+        $verbrauchsdaten[] = [
+            'label' => $zaehlername,
+            'verbrauch' => $verbrauch,
+            'tooltip' => "von $start bis $end kWh"
+        ];
     }
-    $labels = array_keys($labels);
-    sort($labels);
 }
-$debug_messages[] = "Ausgewählte Zähler: " . implode(',', $selected_zaehler);
-$debug_messages[] = "Startdatum: $start_date";
-$debug_messages[] = "Enddatum: $end_date";
-$debug_messages[] = "Labels: <pre>" . print_r($labels, true) . "</pre>";
-$debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
+
 ?>
 
 <div class="py-6">
@@ -96,7 +62,7 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
                 <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
                     <?php foreach ($alle_zaehler as $z): ?>
                         <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['steckdose'] ? ' – ' . htmlspecialchars($z['steckdose']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?>
+                            <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -114,67 +80,61 @@ $debug_messages[] = "Werte Map: <pre>" . print_r($werte_map, true) . "</pre>";
             </div>
         </form>
 
-        <?php if (!empty($debug_messages)): ?>
-            <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
-                <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
-                <ul class="list-disc list-inside space-y-1">
-                    <?php foreach ($debug_messages as $msg): ?>
-                        <li><?= $msg ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-
-        <?php if (!empty($werte_map)): ?>
-            <div class="bg-white rounded-lg shadow-md p-4 mt-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Verbrauch ausgewählter Zähler</h2>
-                <div id="chart-multi" style="height: 500px;"></div>
-                <script>
-                    const labels = <?= json_encode($labels) ?>;
-                    <?php foreach ($werte_map as $zid => $z): ?>
-                    const werte_<?= $zid ?> = <?= json_encode($z['werte'] ?? []) ?>;
-                    <?php endforeach; ?>
-                    const datasets = [
-                        <?php foreach ($werte_map as $zid => $z): ?>{
-                            name: "<?= addslashes($z['zaehlernummer']) ?>",
-                            values: labels.map(label => werte_<?= $zid ?>[label] ?? 0),
-                            meta: <?= json_encode(array_map(function ($l) use ($letzte_stand_map, $zid) {
-                                return 'Stand: ' . ($letzte_stand_map[$zid][$l] ?? '-') . ' kWh';
-                            }, $labels)) ?>
-                        },<?php endforeach; ?>
-                    ];
-
-                    new Chartisan({
-                        el: '#chart-multi',
-                        data: {
-                            chart: { type: 'bar' },
-                            labels: labels,
-                            datasets: datasets.map(ds => ({
-                                name: ds.name,
-                                values: ds.values
-                            }))
-                        },
-                        hooks: new ChartisanHooks()
-                            .datasets('bar')
-                            .colors(['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'])
-                            .tooltip()
-                            .customTooltips({
-                                enabled: true,
-                                mode: 'index',
+        <?php if (!empty($verbrauchsdaten)): ?>
+            <canvas id="verbrauchChart" class="w-full h-96"></canvas>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const ctx = document.getElementById('verbrauchChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: <?= json_encode(array_column($verbrauchsdaten, 'label')) ?>,
+                        datasets: [{
+                            label: 'Verbrauch (kWh)',
+                            data: <?= json_encode(array_column($verbrauchsdaten, 'verbrauch')) ?>,
+                            backgroundColor: '#2563eb'
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: {
                                 callbacks: {
-                                    label: function(tooltipItem, data) {
-                                        const dataset = datasets[tooltipItem.datasetIndex];
-                                        return dataset.name + ': ' + tooltipItem.yLabel + ' kWh (' + dataset.meta[tooltipItem.index] + ')';
+                                    label: function(context) {
+                                        const tooltips = <?= json_encode(array_column($verbrauchsdaten, 'tooltip')) ?>;
+                                        return tooltips[context.dataIndex];
                                     }
                                 }
-                            })
-                            .responsive(true)
-                    });
-                </script>
-            </div>
+                            },
+                            title: {
+                                display: true,
+                                text: 'Verbrauch pro Zähler im gewählten Zeitraum'
+                            }
+                        },
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'kWh'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
         <?php elseif (!empty($selected_zaehler)): ?>
-            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Keine Daten für die ausgewählten Zähler gefunden.</div>
+            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Keine gültigen Verbrauchsdaten im gewählten Zeitraum gefunden.</div>
         <?php endif; ?>
+
+        <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
+            <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
+            <ul class="list-disc list-inside space-y-1">
+                <?php foreach ($debug_messages as $msg): ?>
+                    <li><?= $msg ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
     </div>
 </div>
 
