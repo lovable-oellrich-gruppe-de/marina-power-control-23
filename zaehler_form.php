@@ -69,6 +69,12 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<style>
+  #verbrauchChart {
+    height: 192px !important;
+    max-height: 192px;
+  }
+</style>
 
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
@@ -123,6 +129,7 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                         }]
                     },
                     options: {
+                        maintainAspectRatio: false,
                         plugins: {
                             tooltip: {
                                 callbacks: {
