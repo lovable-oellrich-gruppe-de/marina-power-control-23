@@ -57,7 +57,7 @@ if (!empty($selected_zaehler)) {
         $verbrauchsdaten[] = [
             'label' => $zaehlername,
             'verbrauch' => $verbrauch,
-            'tooltip' => "$zaehlername\nvon $start bis $end kWh"
+            'tooltip' => "$zaehlername\nvon $start bis $end kWh\nVerbrauch: $verbrauch kWh"
         ];
     }
 }
@@ -67,8 +67,8 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
 }, true);
 ?>
 
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
@@ -76,20 +76,22 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
 
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-                <select name="zaehler[]" multiple id="zaehlerSelect" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500">
+                <label for="zaehlerSelect" class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
+                <select id="zaehlerSelect" name="zaehler[]" multiple>
                     <?php foreach ($alle_zaehler as $z): ?>
-                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
+                        <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>
+                        >
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
                 <script>
-                    new TomSelect("#zaehlerSelect", {
-                        maxItems: null,
+                    new TomSelect('#zaehlerSelect', {
                         plugins: ['remove_button'],
-                        searchField: 'text',
-                        placeholder: 'Zähler suchen...'
+                        maxItems: null,
+                        placeholder: 'Zähler auswählen...',
+                        create: false,
+                        allowEmptyOption: true
                     });
                 </script>
             </div>
@@ -122,12 +124,13 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                         }]
                     },
                     options: {
+                        maintainAspectRatio: false,
                         plugins: {
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
                                         const tooltips = <?= json_encode(array_column($verbrauchsdaten, 'tooltip')) ?>;
-                                        return tooltips[context.dataIndex];
+                                        return tooltips[context.dataIndex].split('\n');
                                     }
                                 }
                             },
