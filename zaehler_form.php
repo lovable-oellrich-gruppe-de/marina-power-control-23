@@ -61,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hinweis = $_POST['hinweis'] ?? '';
 
     $zaehlerInfo = $db->fetchOne("SELECT s.id, CONCAT(m.vorname, ' ', m.name) AS mieter_name FROM zaehler z LEFT JOIN steckdosen s ON z.steckdose_id = s.id LEFT JOIN mieter m ON s.mieter_id = m.id WHERE z.id = ?", [$zaehler_id]);
-    $steckdose_id = $zaehlerInfo['id'] ?? null;
     $mieter_name = $zaehlerInfo['mieter_name'] ?? null;
 
     if (empty($zaehler_id)) {
@@ -140,7 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 require_once 'includes/header.php';
-
 ?>
 
 
