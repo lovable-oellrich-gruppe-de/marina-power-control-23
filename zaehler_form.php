@@ -104,6 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($verbrauch < 0) {
                 $errors[] = "Der neue Stand ist kleiner als der vorherige.";
             }
+        } else {
+            $verbrauch = null; // Kein Vorwert = kein Vergleich = keine Fehlermeldung
+            $vorheriger_id = null;
         }
     }
 
