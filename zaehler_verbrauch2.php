@@ -76,7 +76,7 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Verbrauchsanalyse</h1>
 
-        <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div class="col-span-2">
                 <label for="zaehlerSelect" class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
                 <select id="zaehlerSelect" name="zaehler[]" multiple>
@@ -104,13 +104,13 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 <label class="block text-sm font-medium text-gray-700 mb-1">bis</label>
                 <input type="date" name="end_date" value="<?= htmlspecialchars($end_date) ?>" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2">
             </div>
-            <div class="md:col-span-4">
-                <button type="submit" class="mt-2 px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
+            <div>
+                <button type="submit" class="px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">Anzeigen</button>
             </div>
         </form>
 
         <?php if (!empty($verbrauchsdaten)): ?>
-            <div class="h-48">
+            <div class="h-64">
                 <canvas id="verbrauchChart" class="w-full h-full"></canvas>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
