@@ -234,7 +234,7 @@ require_once 'includes/header.php';
                     <!-- Steckdose Auswahl -->
                     <div class="space-y-2">
                         <label for="steckdose_id" class="block text-sm font-medium text-gray-700">Steckdose *</label>
-                        <select id="steckdose_id" name="steckdose_id" required
+                        <select id="steckdose_id" name="steckdose_id" 
                             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base
                                    focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                             <option value="">Bitte wählen...</option>
