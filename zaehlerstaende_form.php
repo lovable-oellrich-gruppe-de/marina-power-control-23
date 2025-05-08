@@ -215,8 +215,8 @@ require_once 'includes/header.php';
                     <!-- Zähler Auswahl (nur lesbar / deaktiviert) -->
                     <div class="space-y-2">
                         <label for="zaehler_id" class="block text-sm font-medium text-gray-700">Zähler *</label>
-                            <!-- Sichtbares deaktiviertes Feld -->
-                            <select id="zaehler_id_display" disabled
+                            <!-- Sichtbares deaktiviertes Feld disabled -->
+                            <select id="zaehler_id_display" 
                                 class="flex h-10 w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-base
                                        focus:outline-none focus:ring-2 focus:ring-marina-500 focus:border-marina-500">
                                 <option value="">Bitte wählen...</option>
