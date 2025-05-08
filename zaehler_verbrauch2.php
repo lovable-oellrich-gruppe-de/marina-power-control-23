@@ -61,6 +61,10 @@ if (!empty($selected_zaehler)) {
         ];
     }
 }
+
+$nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten, function($carry, $v) {
+    return $carry && $v['verbrauch'] === 0 && str_st_starts_with($v['tooltip'], 'Nicht genug');
+}, true);
 ?>
 
 <div class="py-6">
@@ -70,7 +74,7 @@ if (!empty($selected_zaehler)) {
         <form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zähler auswählen</label>
-                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2 h-48 overflow-auto">
+                <select name="zaehler[]" multiple class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-marina-500 focus:border-marina-500 p-2" size="10">
                     <?php foreach ($alle_zaehler as $z): ?>
                         <option value="<?= $z['id'] ?>" <?= in_array($z['id'], $selected_zaehler) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($z['zaehlernummer']) ?><?= $z['hinweis'] ? ' – ' . htmlspecialchars($z['hinweis']) : '' ?><?= $z['bereich'] ? ' – ' . htmlspecialchars($z['bereich']) : '' ?><?= $z['mieter'] ? ' – ' . htmlspecialchars($z['mieter']) : '' ?>
@@ -92,7 +96,7 @@ if (!empty($selected_zaehler)) {
         </form>
 
         <?php if (!empty($verbrauchsdaten)): ?>
-            <canvas id="verbrauchChart" class="w-full h-64"></canvas>
+            <canvas id="verbrauchChart" class="w-full h-48"></canvas>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 const ctx = document.getElementById('verbrauchChart').getContext('2d');
@@ -134,8 +138,12 @@ if (!empty($selected_zaehler)) {
                     }
                 });
             </script>
-        <?php elseif (!empty($selected_zaehler)): ?>
-            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">Hinweis: Für die ausgewählten Zähler liegen nicht genügend Zählerstände im gewählten Zeitraum vor.</div>
+        <?php endif; ?>
+
+        <?php if ($nur_null_verbrauch): ?>
+            <div class="text-red-700 bg-red-100 border border-red-300 p-4 rounded mt-6">
+                Hinweis: Für die ausgewählten Zähler liegen nicht genügend Zählerstände im gewählten Zeitraum vor.
+            </div>
         <?php endif; ?>
 
         <?php if ($is_admin && !empty($debug_messages)): ?>
