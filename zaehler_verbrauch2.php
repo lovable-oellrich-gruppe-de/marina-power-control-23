@@ -24,7 +24,7 @@ if (!empty($selected_zaehler)) {
     foreach ($selected_zaehler as $zid) {
         $daten = $db->fetchAll("SELECT datum, stand FROM zaehlerstaende WHERE zaehler_id = ? AND datum BETWEEN ? AND ? ORDER BY datum ASC, id ASC", [$zid, $start_date, $end_date]);
 
-        $zaehler_info = $db->fetch("SELECT zaehlernummer, hinweis FROM zaehler WHERE id = ?", [$zid]);
+        $zaehler_info = $db->fetchone("SELECT zaehlernummer, hinweis FROM zaehler WHERE id = ?", [$zid]);
         $zaehlername = $zaehler_info['zaehlernummer'] . ($zaehler_info['hinweis'] ? " (" . $zaehler_info['hinweis'] . ")" : '');
 
         $debug_messages[] = "Zähler $zid: " . count($daten) . " Einträge gefunden.";
