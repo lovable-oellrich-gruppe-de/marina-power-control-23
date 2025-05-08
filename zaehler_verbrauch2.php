@@ -12,7 +12,7 @@ if (!$auth->isLoggedIn()) {
 $is_admin = $auth->isAdmin();
 
 $selected_zaehler = isset($_GET['zaehler']) && is_array($_GET['zaehler']) ? array_map('intval', $_GET['zaehler']) : [];
-$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 year'));
+$start_date = $_GET['start_date'] ?? date('Y-m-d', strtotime('-1 month'));
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
 $alle_zaehler = $db->fetchAll("SELECT z.id, z.zaehlernummer, z.hinweis, b.name AS bereich, m.name AS mieter
@@ -51,13 +51,15 @@ if (!empty($selected_zaehler)) {
         }
 
         $start = (float)$daten[0]['stand'];
+        $start_datum = $daten[0]['datum'];
         $end = (float)$daten[count($daten) - 1]['stand'];
+        $end_datum = $daten[count($daten) - 1]['datum'];
         $verbrauch = round($end - $start, 2);
 
         $verbrauchsdaten[] = [
             'label' => $zaehlername,
             'verbrauch' => $verbrauch,
-            'tooltip' => "$zaehlername\nvon $start bis $end kWh\nVerbrauch: $verbrauch kWh"
+            'tooltip' => "$zaehlername\n$start_datum: $start kWh\n$end_datum: $end kWh\nVerbrauch: $verbrauch kWh"
         ];
     }
 }
