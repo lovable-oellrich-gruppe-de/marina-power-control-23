@@ -63,7 +63,7 @@ if (!empty($selected_zaehler)) {
 }
 
 $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten, function($carry, $v) {
-    return $carry && $v['verbrauch'] === 0 && str_st_starts_with($v['tooltip'], 'Nicht genug');
+    return $carry && $v['verbrauch'] === 0 && strncmp($v['tooltip'], 'Nicht genug', 11) === 0;
 }, true);
 ?>
 
