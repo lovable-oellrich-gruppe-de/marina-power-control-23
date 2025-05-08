@@ -223,7 +223,7 @@ require_once 'includes/header.php';
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($zaehler as $z): ?>
                                     <option value="<?= $z['id'] ?>" <?= ((int)$zaehler_id === (int)$z['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($z['zaehlernummer']) ?> (<?= htmlspecialchars($s['heinweis'] ?? '') ?>)
+                                        <?= htmlspecialchars($z['zaehlernummer']) ?> (<?= htmlspecialchars($s['hinweis'] ?? '') ?>)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
