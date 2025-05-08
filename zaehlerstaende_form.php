@@ -26,6 +26,7 @@ $foto_url = '';
 $errors = [];
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
+$zaehler_id = '';
 
 // Steckdosen für Dropdown-Listen laden
 $steckdosen = $db->fetchAll("SELECT s.id, s.bezeichnung, b.name AS bereich_name, z.id AS zaehler_id, z.zaehlernummer
