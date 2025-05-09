@@ -67,7 +67,7 @@ if (!empty($selected_zaehler)) {
             'data' => [],
         ];
         foreach ($daten as $eintrag) {
-            $zeitreihe['data'][] = ['x' => $eintrag['datum'], 'y' => (float)$eintrag['stand']];
+            $zeitreihe['data'][] = ['x' => $eintrag['datum'] . 'T00:00:00', 'y' => (float)$eintrag['stand']];
         }
         $zeitreihen[] = $zeitreihe;
     }
@@ -216,16 +216,28 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                         data: lineData,
                         options: {
                             ...chart.options,
+                            interaction: {
+                                mode: 'nearest',
+                                intersect: false
+                            },
+                            parsing: false,
                             scales: {
-                                ...chart.options.scales,
                                 x: {
                                     type: 'time',
                                     time: {
-                                        unit: 'day'
+                                        unit: 'day',
+                                        tooltipFormat: 'yyyy-MM-dd'
                                     },
                                     title: {
                                         display: true,
                                         text: 'Datum'
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'kWh'
                                     }
                                 }
                             }
