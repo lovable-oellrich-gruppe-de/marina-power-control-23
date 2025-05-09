@@ -8,155 +8,117 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-$upload_dir = 'uploads/zaehlerstaende';
-if (!file_exists($upload_dir)) {
-    mkdir($upload_dir, 0777, true);
+$success = $_GET['success'] ?? null;
+$error = $_GET['error'] ?? null;
+
+$orderBy = $_GET['order_by'] ?? 'datum';
+$orderDir = strtoupper($_GET['order_dir'] ?? 'DESC');
+$validColumns = ['id', 'datum', 'zaehlernummer', 'zaehlerhinweis', 'steckdose_bezeichnung', 'bereich_name', 'mieter_name', 'stand'];
+if (!in_array($orderBy, $validColumns)) $orderBy = 'datum';
+if (!in_array($orderDir, ['ASC', 'DESC'])) $orderDir = 'DESC';
+
+function sortLink($column, $label) {
+    global $orderBy, $orderDir, $_GET;
+    $newDir = ($orderBy === $column && $orderDir === 'ASC') ? 'DESC' : 'ASC';
+    $query = $_GET;
+    $query['order_by'] = $column;
+    $query['order_dir'] = $newDir;
+    $url = '?' . http_build_query($query);
+    $arrow = '';
+    if ($orderBy === $column) {
+        $arrow = $orderDir === 'ASC' ? '↑' : '↓';
+    }
+    return "<a href=\"$url\" class=\"flex items-center space-x-1\">$label<span>$arrow</span></a>";
 }
 
-$id = null;
-$zaehler_id = '';
-$datum = date('Y-m-d');
-$stand = '';
-$hinweis = '';
-$foto_url = '';
-$errors = [];
-$pageTitle = 'Neuen Zählerstand erfassen';
-$isEdit = false;
-
-$zaehler = $db->fetchAll("SELECT 
-        z.id, 
-        z.zaehlernummer, 
-        z.hinweis,
-        s.id AS steckdose_id,
-        s.bezeichnung AS steckdose_bezeichnung,
-        b.name AS bereich_name
-    FROM zaehler z
-    LEFT JOIN steckdosen s ON z.steckdose_id = s.id
-    LEFT JOIN bereiche b ON s.bereich_id = b.id
-    ORDER BY z.zaehlernummer");
-
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $isEdit = true;
-    $pageTitle = 'Zählerstand bearbeiten';
-
-    $zs = $db->fetchOne("SELECT * FROM zaehlerstaende WHERE id = ?", [$id]);
-    if ($zs) {
-        $zaehler_id = $zs['zaehler_id'];
-        $datum = $zs['datum'];
-        $stand = $zs['stand'];
-        $hinweis = $zs['hinweis'];
-        $foto_url = $zs['foto_url'];
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $id = (int)$_GET['delete'];
+    if ($db->query("DELETE FROM zaehlerstaende WHERE id = ?", [$id])) {
+        header("Location: zaehlerstaende.php?success=" . urlencode("Zählerstand wurde erfolgreich gelöscht."));
+        exit;
     } else {
-        $errors[] = "Zählerstand nicht gefunden.";
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_user = $auth->getCurrentUser();
-
-    if (isset($_POST['delete_foto']) && $isEdit && isset($current_user) && $current_user['role'] === 'admin') {
-        $fotoInfo = $db->fetchOne("SELECT foto_url FROM zaehlerstaende WHERE id = ?", [$id]);
-        if (!empty($fotoInfo['foto_url']) && file_exists($fotoInfo['foto_url'])) {
-            unlink($fotoInfo['foto_url']);
-        }
-        $db->query("UPDATE zaehlerstaende SET foto_url = NULL WHERE id = ?", [$id]);
-        header("Location: zaehlerstaende_form.php?id=$id&success=" . urlencode("Foto wurde erfolgreich gelöscht."));
-        exit;
-    }
-
-    $zaehler_id = !empty($_POST['zaehler_id']) ? $_POST['zaehler_id'] : null;
-    $datum = $_POST['datum'] ?? '';
-    $stand = str_replace(',', '.', $_POST['stand'] ?? '');
-    $hinweis = $_POST['hinweis'] ?? '';
-
-    $steckdose_id = null;
-    $mieter_name = null;
-
-    if (!empty($zaehler_id)) {
-        $zaehlerInfo = $db->fetchOne("SELECT steckdose_id FROM zaehler WHERE id = ?", [$zaehler_id]);
-        $steckdose_id = $zaehlerInfo['steckdose_id'] ?? null;
-
-        if (!empty($steckdose_id)) {
-            $mieterInfo = $db->fetchOne("SELECT CONCAT(m.vorname, ' ', m.name) AS mieter_name FROM steckdosen s LEFT JOIN mieter m ON s.mieter_id = m.id WHERE s.id = ?", [$steckdose_id]);
-            $mieter_name = $mieterInfo['mieter_name'] ?? null;
-        }
-    }
-
-    if (empty($zaehler_id)) {
-        $errors[] = "Bitte einen Zähler auswählen.";
-    }
-    if (empty($datum)) {
-        $errors[] = "Bitte ein Datum eingeben.";
-    }
-    if (!is_numeric($stand)) {
-        $errors[] = "Der Zählerstand muss eine Zahl sein.";
-    }
-
-    if (isset($_FILES['foto']) && $_FILES['foto']['size'] > 0) {
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        $max_size = 5 * 1024 * 1024;
-
-        if (!in_array($_FILES['foto']['type'], $allowed_types)) {
-            $errors[] = "Ungültiges Dateiformat.";
-        } elseif ($_FILES['foto']['size'] > $max_size) {
-            $errors[] = "Die Datei ist zu groß (maximal 5MB).";
-        } else {
-            $file_extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-            $unique_filename = uniqid() . '_' . date('Ymd') . '.' . $file_extension;
-            $upload_path = $upload_dir . '/' . $unique_filename;
-
-            if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
-                $foto_url = $upload_path;
-            } else {
-                $errors[] = "Fehler beim Hochladen des Fotos.";
-            }
-        }
-    }
-
-    if (empty($errors)) {
-        $vorheriger = $db->fetchOne("SELECT stand, datum FROM zaehlerstaende WHERE zaehler_id = ? AND datum < ? ORDER BY datum DESC, id DESC LIMIT 1", [$zaehler_id, $datum]);
-        if ($vorheriger && $stand < $vorheriger['stand']) {
-            $errors[] = "Der neue Stand ist kleiner als der bisherige Stand vom " . $vorheriger['datum'] . ".";
-        }
-    }
-
-    if (empty($errors)) {
-        $abgelesen_von_id = $current_user['id'];
-
-        if ($isEdit) {
-            $params = [$zaehler_id, $datum, $stand, $abgelesen_von_id, $hinweis, $mieter_name];
-            $sql = "UPDATE zaehlerstaende SET zaehler_id=?, datum=?, stand=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
-            if (!empty($foto_url)) {
-                $sql .= ", foto_url=?";
-                $params[] = $foto_url;
-            }
-            $sql .= " WHERE id=?";
-            $params[] = $id;
-
-            $db->query($sql, $params);
-            $success = "Zählerstand wurde erfolgreich aktualisiert.";
-        } else {
-            $params = [$zaehler_id, $datum, $stand, $abgelesen_von_id, $hinweis, $mieter_name];
-            $columns = "zaehler_id, datum, stand, abgelesen_von_id, hinweis, mieter_name";
-            $placeholders = "?, ?, ?, ?, ?, ?";
-            if (!empty($foto_url)) {
-                $columns .= ", foto_url";
-                $placeholders .= ", ?";
-                $params[] = $foto_url;
-            }
-            $db->query("INSERT INTO zaehlerstaende ($columns) VALUES ($placeholders)", $params);
-            $success = "Zählerstand wurde erfolgreich gespeichert.";
-        }
-
-        header("Location: zaehlerstaende.php?success=" . urlencode($success));
+        header("Location: zaehlerstaende.php?error=" . urlencode("Fehler beim Löschen des Zählerstands."));
         exit;
     }
 }
+
+$where_clauses = [];
+$params = [];
+
+if (!empty($_GET['search'])) {
+    $search = $_GET['search'];
+    $where_clauses[] = "(z.zaehlernummer LIKE ? OR z.hinweis LIKE ? OR s.bezeichnung LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+}
+
+if (!empty($_GET['bereich'])) {
+    $where_clauses[] = "s.bereich_id = ?";
+    $params[] = (int)$_GET['bereich'];
+}
+
+if (!empty($_GET['mieter'])) {
+    $where_clauses[] = "s.mieter_id = ?";
+    $params[] = (int)$_GET['mieter'];
+}
+
+if (!empty($_GET['von'])) {
+    $where_clauses[] = "zs.datum >= ?";
+    $params[] = $_GET['von'];
+}
+
+if (!empty($_GET['bis'])) {
+    $where_clauses[] = "zs.datum <= ?";
+    $params[] = $_GET['bis'];
+}
+
+$where_sql = '';
+if ($where_clauses) {
+    $where_sql = 'WHERE ' . implode(' AND ', $where_clauses);
+}
+
+$bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
+$mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS vollname FROM mieter ORDER BY name");
+
+$sql = "SELECT 
+            zs.*, 
+            z.zaehlernummer, 
+            z.hinweis AS zaehlerhinweis,
+            s.bezeichnung AS steckdose_bezeichnung, 
+            b.name AS bereich_name, 
+            CONCAT(m.vorname, ' ', m.name) AS mieter_name
+        FROM zaehlerstaende zs
+        LEFT JOIN zaehler z ON zs.zaehler_id = z.id
+        LEFT JOIN steckdosen s ON zs.steckdose_id = s.id
+        LEFT JOIN bereiche b ON s.bereich_id = b.id
+        LEFT JOIN mieter m ON s.mieter_id = m.id
+        $where_sql
+        ORDER BY $orderBy $orderDir, zs.id DESC";
+
+$zaehlerstaende = $db->fetchAll($sql, $params);
+
+// Verbrauch berechnen
+$verbrauch_liste = [];
+foreach ($zaehlerstaende as $index => $row) {
+    if (!isset($verbrauch_liste[$row['zaehler_id']])) {
+        $verbrauch_liste[$row['zaehler_id']] = [];
+    }
+    $verbrauch_liste[$row['zaehler_id']][] = $row;
+}
+
+foreach ($verbrauch_liste as $zaehler_id => &$liste) {
+    usort($liste, fn($a, $b) => strtotime($a['datum']) <=> strtotime($b['datum']));
+    for ($i = 1; $i < count($liste); $i++) {
+        $liste[$i]['verbrauch'] = $liste[$i]['stand'] - $liste[$i - 1]['stand'];
+    }
+    $liste[0]['verbrauch'] = null;
+}
+
+$zaehlerstaende = array_merge(...array_values($verbrauch_liste));
 
 require_once 'includes/header.php';
 ?>
-
 <!-- HTML ab hier -->
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
