@@ -242,6 +242,7 @@ if (!empty($selected_zaehler)) {
                     x: {
                         type: 'time',
                         time: {
+                            parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
                             unit: 'day',
                             tooltipFormat: 'yyyy-MM-dd'
                         },
