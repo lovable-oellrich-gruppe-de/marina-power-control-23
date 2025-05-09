@@ -141,7 +141,15 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 };
             
                 const lineData = {
-                    datasets: <?= json_encode($zeitreihen) ?>
+                    datasets: <?= json_encode(array_map(function($reihe) {
+                        return array_merge($reihe, [
+                            'borderColor' => '#0ea5e9',
+                            'fill' => false,
+                            'tension' => 0.3,
+                            'pointRadius' => 4,
+                            'pointHoverRadius' => 6
+                        ]);
+                    }, $zeitreihen)) ?>
                 };
             
                 const defaultOptions = {
@@ -154,7 +162,8 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                                         const tooltips = <?= json_encode(array_column($verbrauchsdaten, 'tooltip')) ?>;
                                         return tooltips[context.dataIndex].split('\n');
                                     } else {
-                                        return context.formattedValue + ' kWh';
+                                        const point = context.raw;
+                                        return context.dataset.label + ': ' + point.y + ' kWh';
                                     }
                                 }
                             }
@@ -257,6 +266,7 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                     });
                 });
             </script>
+
         <?php endif; ?>
 
         <?php if ($nur_null_verbrauch): ?>
