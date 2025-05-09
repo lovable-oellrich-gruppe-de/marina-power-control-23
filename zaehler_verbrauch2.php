@@ -248,7 +248,7 @@ if (!empty($selected_zaehler)) {
                     mode: 'nearest',
                     intersect: false
                 },
-                parsing: false,
+                //parsing: false,
                 spanGaps: true,
                 scales: {
                     x: {
