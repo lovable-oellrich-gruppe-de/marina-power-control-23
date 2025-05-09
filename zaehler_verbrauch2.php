@@ -194,14 +194,23 @@ if (!empty($selected_zaehler)) {
                 chart.destroy();
                 chartType = 'bar';
                 chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: barData,
+                    type: 'line',
+                    data: lineData,
                     options: {
                         ...defaultOptions,
+                        spanGaps: true,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
                         scales: {
                             x: {
-                                type: 'category',
-                                title: { display: true, text: 'Zähler' }
+                                type: 'time',
+                                time: {
+                                    unit: 'day',
+                                    tooltipFormat: 'yyyy-MM-dd'
+                                },
+                                title: { display: true, text: 'Datum' }
                             },
                             y: {
                                 beginAtZero: true,
