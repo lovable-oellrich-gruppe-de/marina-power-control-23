@@ -144,7 +144,7 @@ if (!empty($selected_zaehler)) {
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script>
     Chart.register(
-        Chart.TimeScale, // ← wichtig!
+        Chart.TimeScale,
         Chart.LineElement,
         Chart.PointElement,
         Chart.LineController,
@@ -153,8 +153,7 @@ if (!empty($selected_zaehler)) {
         Chart.Title,
         Chart.Tooltip
     );
-</script>
-<script>
+
     const ctx = document.getElementById('verbrauchChart').getContext('2d');
 
     const barData = {
@@ -195,6 +194,17 @@ if (!empty($selected_zaehler)) {
         responsive: true
     };
 
+    function activateButton(activeId, inactiveId) {
+        const active = document.getElementById(activeId);
+        const inactive = document.getElementById(inactiveId);
+
+        active.classList.remove('bg-gray-300', 'text-gray-900');
+        active.classList.add('bg-blue-600', 'text-white');
+
+        inactive.classList.remove('bg-blue-600', 'text-white');
+        inactive.classList.add('bg-gray-300', 'text-gray-900');
+    }
+
     let chartType = 'bar';
     let chart = new Chart(ctx, {
         type: 'bar',
@@ -234,6 +244,7 @@ if (!empty($selected_zaehler)) {
                 }
             }
         });
+        activateButton('barBtn', 'lineBtn');
     });
 
     document.getElementById('lineBtn').addEventListener('click', () => {
@@ -248,7 +259,6 @@ if (!empty($selected_zaehler)) {
                     mode: 'nearest',
                     intersect: false
                 },
-                //parsing: false,
                 spanGaps: true,
                 scales: {
                     x: {
@@ -267,6 +277,7 @@ if (!empty($selected_zaehler)) {
                 }
             }
         });
+        activateButton('lineBtn', 'barBtn');
     });
 </script>
 
