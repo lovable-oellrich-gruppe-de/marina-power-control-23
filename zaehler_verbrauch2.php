@@ -127,132 +127,6 @@ if (!empty($selected_zaehler)) {
             <canvas id="verbrauchChart" class="w-full h-full"></canvas>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-        <script>
-            const ctx = document.getElementById('verbrauchChart').getContext('2d');
-
-            const barData = {
-                labels: <?= json_encode(array_column($verbrauchsdaten, 'label')) ?>,
-                datasets: [{
-                    label: 'Verbrauch (kWh)',
-                    data: <?= json_encode(array_column($verbrauchsdaten, 'verbrauch')) ?>,
-                    backgroundColor: '#2563eb'
-                }]
-            };
-
-            const lineData = {
-                datasets: <?= json_encode($zeitreihen, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) ?>
-            };
-
-            console.log("Line Data", lineData);
-
-            const defaultOptions = {
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                if (chartType === 'bar') {
-                                    const tooltips = <?= json_encode(array_column($verbrauchsdaten, 'tooltip')) ?>;
-                                    return tooltips[context.dataIndex].split('\n');
-                                } else {
-                                    const point = context.raw;
-                                    return context.dataset.label + ': ' + point.y + ' kWh';
-                                }
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Verbrauchsdaten'
-                    }
-                },
-                responsive: true
-            };
-
-            let chartType = 'bar';
-            let chart = new Chart(ctx, {
-                type: 'bar',
-                data: barData,
-                options: {
-                    ...defaultOptions,
-                    scales: {
-                        x: {
-                            type: 'category',
-                            title: { display: true, text: 'Zähler' }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'kWh' }
-                        }
-                    }
-                }
-            });
-
-            document.getElementById('barBtn').addEventListener('click', () => {
-                chart.destroy();
-                chartType = 'bar';
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: lineData,
-                    options: {
-                        ...defaultOptions,
-                        spanGaps: true,
-                        interaction: {
-                            mode: 'nearest',
-                            intersect: false
-                        },
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'day',
-                                    tooltipFormat: 'yyyy-MM-dd'
-                                },
-                                title: { display: true, text: 'Datum' }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'kWh' }
-                            }
-                        }
-                    }
-                });
-            });
-
-            document.getElementById('lineBtn').addEventListener('click', () => {
-                chart.destroy();
-                chartType = 'line';
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: lineData,
-                    options: {
-                        ...defaultOptions,
-                        interaction: {
-                            mode: 'nearest',
-                            intersect: false
-                        },
-                        parsing: false,
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'day',
-                                    tooltipFormat: 'yyyy-MM-dd'
-                                },
-                                title: { display: true, text: 'Datum' }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'kWh' }
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-
         <?php if ($is_admin && !empty($debug_messages)): ?>
             <div class="mt-6 bg-gray-100 border border-gray-400 text-sm text-gray-800 p-4 rounded">
                 <h2 class="font-semibold mb-2">Debug-Ausgaben</h2>
@@ -265,5 +139,122 @@ if (!empty($selected_zaehler)) {
         <?php endif; ?>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script>
+    const ctx = document.getElementById('verbrauchChart').getContext('2d');
+
+    const barData = {
+        labels: <?= json_encode(array_column($verbrauchsdaten, 'label')) ?>,
+        datasets: [{
+            label: 'Verbrauch (kWh)',
+            data: <?= json_encode(array_column($verbrauchsdaten, 'verbrauch')) ?>,
+            backgroundColor: '#2563eb'
+        }]
+    };
+
+    const lineData = {
+        datasets: <?= json_encode($zeitreihen, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) ?>
+    };
+
+    const tooltips = <?= json_encode(array_column($verbrauchsdaten, 'tooltip')) ?>;
+
+    const defaultOptions = {
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        if (chartType === 'bar') {
+                            return tooltips[context.dataIndex].split('\n');
+                        } else {
+                            const point = context.raw;
+                            return context.dataset.label + ': ' + point.y + ' kWh';
+                        }
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Verbrauchsdaten'
+            }
+        },
+        responsive: true
+    };
+
+    let chartType = 'bar';
+    let chart = new Chart(ctx, {
+        type: 'bar',
+        data: barData,
+        options: {
+            ...defaultOptions,
+            scales: {
+                x: {
+                    type: 'category',
+                    title: { display: true, text: 'Zähler' }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'kWh' }
+                }
+            }
+        }
+    });
+
+    document.getElementById('barBtn').addEventListener('click', () => {
+        chart.destroy();
+        chartType = 'bar';
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: barData,
+            options: {
+                ...defaultOptions,
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: { display: true, text: 'Zähler' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'kWh' }
+                    }
+                }
+            }
+        });
+    });
+
+    document.getElementById('lineBtn').addEventListener('click', () => {
+        chart.destroy();
+        chartType = 'line';
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: lineData,
+            options: {
+                ...defaultOptions,
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                parsing: false,
+                spanGaps: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'yyyy-MM-dd'
+                        },
+                        title: { display: true, text: 'Datum' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'kWh' }
+                    }
+                }
+            }
+        });
+    });
+</script>
 
 <?php require_once 'includes/footer.php'; ?>
