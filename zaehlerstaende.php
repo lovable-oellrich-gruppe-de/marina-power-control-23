@@ -56,6 +56,7 @@ if (!empty($_GET['search'])) {
     $where_clauses[] = "(z.zaehlernummer LIKE ? OR z.hinweis LIKE ? OR s.bezeichnung LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
+    $params[] = "%$search%";
 }
 
 if (!empty($_GET['bereich'])) {
