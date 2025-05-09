@@ -143,6 +143,18 @@ if (!empty($selected_zaehler)) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script>
+    Chart.register(
+        Chart.TimeScale, // ← wichtig!
+        Chart.LineElement,
+        Chart.PointElement,
+        Chart.LineController,
+        Chart.CategoryScale,
+        Chart.LinearScale,
+        Chart.Title,
+        Chart.Tooltip
+    );
+</script>
+<script>
     const ctx = document.getElementById('verbrauchChart').getContext('2d');
 
     const barData = {
