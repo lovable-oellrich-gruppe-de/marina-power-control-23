@@ -1,22 +1,18 @@
 <?php
-// Wichtige Includes
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
 
-// Wenn nicht angemeldet, zur Login-Seite umleiten
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
 
-// Ordner für Foto-Uploads erstellen, falls noch nicht vorhanden
 $upload_dir = 'uploads/zaehlerstaende';
 if (!file_exists($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
 
-// Initialisierung der Variablen
 $id = null;
 $zaehler_id = '';
 $datum = date('Y-m-d');
@@ -27,7 +23,6 @@ $errors = [];
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 
-// Zähler für Dropdown-Listen laden (inkl. Steckdose & Bereich für Anzeige)
 $zaehler = $db->fetchAll("SELECT 
         z.id, 
         z.zaehlernummer, 
@@ -40,7 +35,6 @@ $zaehler = $db->fetchAll("SELECT
     LEFT JOIN bereiche b ON s.bereich_id = b.id
     ORDER BY z.zaehlernummer");
 
-// Bearbeiten-Modus prüfen
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = (int)$_GET['id'];
     $isEdit = true;
@@ -58,11 +52,9 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     }
 }
 
-// Formularverarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current_user = $auth->getCurrentUser(); // Aktuellen Benutzer abrufen
+    $current_user = $auth->getCurrentUser();
 
-    // Admin kann Foto löschen
     if (isset($_POST['delete_foto']) && $isEdit && isset($current_user) && $current_user['role'] === 'admin') {
         $fotoInfo = $db->fetchOne("SELECT foto_url FROM zaehlerstaende WHERE id = ?", [$id]);
         if (!empty($fotoInfo['foto_url']) && file_exists($fotoInfo['foto_url'])) {
@@ -78,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stand = str_replace(',', '.', $_POST['stand'] ?? '');
     $hinweis = $_POST['hinweis'] ?? '';
 
-    // Zähler-Infos holen (inkl. Steckdose & Mieter, falls vorhanden)
     $steckdose_id = null;
     $mieter_name = null;
 
@@ -92,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Validierung
     if (empty($zaehler_id)) {
         $errors[] = "Bitte einen Zähler auswählen.";
     }
@@ -103,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Der Zählerstand muss eine Zahl sein.";
     }
 
-    // Foto-Upload verarbeiten
     if (isset($_FILES['foto']) && $_FILES['foto']['size'] > 0) {
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
         $max_size = 5 * 1024 * 1024;
@@ -125,27 +114,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Verbrauch berechnen (Differenz zum letzten Eintrag)
     if (empty($errors)) {
-        $verbrauch = null;
-        $vorheriger = $db->fetchOne("SELECT id, stand FROM zaehlerstaende WHERE zaehler_id = ? AND datum < ? ORDER BY datum DESC, id DESC LIMIT 1", [$zaehler_id, $datum]);
-        $vorheriger_id = $vorheriger['id'] ?? null;
-
-        if ($vorheriger) {
-            $verbrauch = $stand - $vorheriger['stand'];
-            if ($verbrauch < 0) {
-                $errors[] = "Der neue Stand ist kleiner als der vorherige.";
-            }
+        $vorheriger = $db->fetchOne("SELECT stand, datum FROM zaehlerstaende WHERE zaehler_id = ? AND datum < ? ORDER BY datum DESC, id DESC LIMIT 1", [$zaehler_id, $datum]);
+        if ($vorheriger && $stand < $vorheriger['stand']) {
+            $errors[] = "Der neue Stand ist kleiner als der bisherige Stand vom " . $vorheriger['datum'] . ".";
         }
     }
 
-    // Speichern oder Aktualisieren
     if (empty($errors)) {
         $abgelesen_von_id = $current_user['id'];
 
         if ($isEdit) {
-            $params = [$zaehler_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis, $mieter_name];
-            $sql = "UPDATE zaehlerstaende SET zaehler_id=?, datum=?, stand=?, vorheriger_id=?, verbrauch=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
+            $params = [$zaehler_id, $datum, $stand, $abgelesen_von_id, $hinweis, $mieter_name];
+            $sql = "UPDATE zaehlerstaende SET zaehler_id=?, datum=?, stand=?, abgelesen_von_id=?, hinweis=?, mieter_name=?";
             if (!empty($foto_url)) {
                 $sql .= ", foto_url=?";
                 $params[] = $foto_url;
@@ -156,9 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->query($sql, $params);
             $success = "Zählerstand wurde erfolgreich aktualisiert.";
         } else {
-            $params = [$zaehler_id, $datum, $stand, $vorheriger_id, $verbrauch, $abgelesen_von_id, $hinweis, $mieter_name];
-            $columns = "zaehler_id, datum, stand, vorheriger_id, verbrauch, abgelesen_von_id, hinweis, mieter_name";
-            $placeholders = "?, ?, ?, ?, ?, ?, ?, ?";
+            $params = [$zaehler_id, $datum, $stand, $abgelesen_von_id, $hinweis, $mieter_name];
+            $columns = "zaehler_id, datum, stand, abgelesen_von_id, hinweis, mieter_name";
+            $placeholders = "?, ?, ?, ?, ?, ?";
             if (!empty($foto_url)) {
                 $columns .= ", foto_url";
                 $placeholders .= ", ?";
@@ -173,9 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Header einbinden
 require_once 'includes/header.php';
 ?>
+
 
 <!-- Styles und Scripts für Tom Select -->
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
