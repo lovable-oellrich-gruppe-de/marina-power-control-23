@@ -127,6 +127,7 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                 <canvas id="verbrauchChart" class="w-full h-full"></canvas>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
             <script>
                 const ctx = document.getElementById('verbrauchChart').getContext('2d');
                 const barData = {
@@ -168,11 +169,10 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                         responsive: true,
                         scales: {
                             x: {
-                                type: chartType === 'bar' ? 'category' : 'time',
-                                time: chartType === 'line' ? { unit: 'day' } : undefined,
+                                type: 'category',
                                 title: {
                                     display: true,
-                                    text: 'Datum'
+                                    text: 'Zähler'
                                 }
                             },
                             y: {
@@ -192,16 +192,44 @@ $nur_null_verbrauch = !empty($verbrauchsdaten) && array_reduce($verbrauchsdaten,
                     chart = new Chart(ctx, {
                         type: 'bar',
                         data: barData,
-                        options: chart.options
+                        options: {
+                            ...chart.options,
+                            scales: {
+                                ...chart.options.scales,
+                                x: {
+                                    type: 'category',
+                                    title: {
+                                        display: true,
+                                        text: 'Zähler'
+                                    }
+                                }
+                            }
+                        }
                     });
                 });
+
                 document.getElementById('lineBtn').addEventListener('click', () => {
                     chart.destroy();
                     chartType = 'line';
                     chart = new Chart(ctx, {
                         type: 'line',
                         data: lineData,
-                        options: chart.options
+                        options: {
+                            ...chart.options,
+                            scales: {
+                                ...chart.options.scales,
+                                x: {
+                                    type: 'time',
+                                    time: {
+                                        unit: 'day'
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Datum'
+                                    }
+                                }
+                            }
+                        }
                     });
                 });
             </script>
