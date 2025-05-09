@@ -64,10 +64,13 @@ if (!empty($selected_zaehler)) {
             ];
         }
 
+        $farbe = sprintf('#%06X', mt_rand(0, 0xFFFFFF));
         $zeitreihen[] = [
             'label' => $zaehlername,
             'data' => $punkte,
-            'borderColor' => '#0ea5e9',
+            'borderColor' => $farbe,
+            'backgroundColor' => $farbe,
+            'showLine' => true,
             'fill' => false,
             'tension' => 0.3,
             'pointRadius' => 4,
@@ -141,6 +144,8 @@ if (!empty($selected_zaehler)) {
             const lineData = {
                 datasets: <?= json_encode($zeitreihen, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) ?>
             };
+
+            console.log("Line Data", lineData);
 
             const defaultOptions = {
                 maintainAspectRatio: false,
