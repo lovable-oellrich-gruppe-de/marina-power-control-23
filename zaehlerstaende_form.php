@@ -2,6 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
+session_start();
 
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');
@@ -19,7 +20,8 @@ $datum = date('Y-m-d');
 $stand = '';
 $hinweis = '';
 $foto_url = '';
-$errors = [];
+$errors = $_SESSION['form_errors'] ?? [];
+unset($_SESSION['form_errors']);
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
 $repeat = isset($_POST['repeat']) && $_POST['repeat'] === '1';
@@ -151,11 +153,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($repeat) {
-            header("Location: zaehlerstaende_form.php?success=" . urlencode($success) . "&datum=" . urlencode($datum));
+            $_SESSION['form_success'] = $success;
+            header("Location: zaehlerstaende_form.php?datum=" . urlencode($datum));
         } else {
             header("Location: zaehlerstaende.php?success=" . urlencode($success));
         }
         exit;
+    } else {
+        if ($repeat) {
+            $_SESSION['form_errors'] = $errors;
+            header("Location: zaehlerstaende_form.php?datum=" . urlencode($datum));
+            exit;
+        }
     }
 }
 
@@ -181,6 +190,13 @@ require_once 'includes/header.php';
         Zurück zur Übersicht
       </a>
     </div>
+
+    <?php if (!empty($_SESSION['form_success'])): ?>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <?= htmlspecialchars($_SESSION['form_success']) ?>
+      </div>
+      <?php unset($_SESSION['form_success']); ?>
+    <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
