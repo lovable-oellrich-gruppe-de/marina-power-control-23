@@ -126,6 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $db->query($sql, $params);
             $zaehler_id = $db->lastInsertId();
 
+            // Automatisch Zählerstand = 0 zum Einbaudatum speichern
+            $db->query("INSERT INTO zaehlerstaende (zaehler_id, datum, stand, abgelesen_von_id, hinweis, mieter_name) VALUES (?, ?, 0, ?, 'Erfassung bei Erstellung', NULL)", [$zaehler_id, $form_data['installiert_am'], $auth->getCurrentUser()['id']]);
+
             header("Location: zaehler.php?success=" . urlencode("Zähler wurde erfolgreich erstellt."));
             exit;
         }
