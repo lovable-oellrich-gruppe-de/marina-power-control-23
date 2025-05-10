@@ -2,7 +2,10 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/db.php';
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!$auth->isLoggedIn()) {
     header('Location: login.php');
@@ -174,6 +177,7 @@ if (isset($_GET['datum'])) {
 
 require_once 'includes/header.php';
 ?>
+
 
 
 
