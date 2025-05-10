@@ -22,6 +22,7 @@ $foto_url = '';
 $errors = [];
 $pageTitle = 'Neuen Zählerstand erfassen';
 $isEdit = false;
+$repeat = isset($_POST['repeat']) && $_POST['repeat'] === '1';
 
 $zaehler = $db->fetchAll("SELECT 
         z.id, 
@@ -149,13 +150,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Zählerstand wurde erfolgreich gespeichert.";
         }
 
-        header("Location: zaehlerstaende.php?success=" . urlencode($success));
+        if ($repeat) {
+            header("Location: zaehlerstaende_form.php?success=" . urlencode($success) . "&datum=" . urlencode($datum));
+        } else {
+            header("Location: zaehlerstaende.php?success=" . urlencode($success));
+        }
         exit;
     }
 }
 
+if (isset($_GET['datum'])) {
+    $datum = $_GET['datum'];
+}
+
 require_once 'includes/header.php';
 ?>
+
 
 
 <!-- Styles und Scripts für Tom Select -->
