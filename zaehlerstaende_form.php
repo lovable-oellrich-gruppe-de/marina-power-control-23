@@ -275,6 +275,11 @@ require_once 'includes/header.php';
           <button type="submit" class="px-4 py-2 bg-marina-600 text-white rounded hover:bg-marina-700">
             <?= $isEdit ? 'Aktualisieren' : 'Speichern' ?>
           </button>
+          <?php if (!$isEdit): ?>
+            <button type="submit" name="repeat" value="1" class="px-4 py-2 bg-marina-500 text-white rounded hover:bg-marina-600">
+              Speichern & neuen Stand erfassen
+            </button>
+          <?php endif; ?>
         </div>
       </form>
     </div>
