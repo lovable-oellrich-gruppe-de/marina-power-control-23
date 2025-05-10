@@ -81,6 +81,21 @@ if ($where_clauses) {
 $bereiche = $db->fetchAll("SELECT id, name FROM bereiche ORDER BY name");
 $mieter = $db->fetchAll("SELECT id, CONCAT(vorname, ' ', name) AS vollname FROM mieter ORDER BY name");
 
+// Verbrauch vorberechnen (unabhängig von Sortierung)
+$verbrauchMap = [];
+$verbrauchRows = $db->fetchAll("SELECT id, zaehler_id, datum, stand FROM zaehlerstaende ORDER BY zaehler_id ASC, datum ASC");
+$lastStand = [];
+foreach ($verbrauchRows as $row) {
+    $zid = $row['zaehler_id'];
+    $id = $row['id'];
+    if (!isset($lastStand[$zid])) {
+        $verbrauchMap[$id] = null;
+    } else {
+        $verbrauchMap[$id] = $row['stand'] - $lastStand[$zid];
+    }
+    $lastStand[$zid] = $row['stand'];
+}
+
 $sql = "SELECT 
             zs.*, 
             z.zaehlernummer, 
@@ -97,21 +112,15 @@ $sql = "SELECT
         ORDER BY $orderBy $orderDir, zs.id DESC";
 
 $zaehlerstaende = $db->fetchAll($sql, $params);
-
-$lastStand = [];
-foreach ($zaehlerstaende as $index => &$row) {
-    $zaehlerId = $row['zaehler_id'];
-    if (!isset($lastStand[$zaehlerId])) {
-        $row['verbrauch'] = null;
-    } else {
-        $row['verbrauch'] = $row['stand'] - $lastStand[$zaehlerId];
-    }
-    $lastStand[$zaehlerId] = $row['stand'];
+foreach ($zaehlerstaende as &$row) {
+    $row['verbrauch'] = $verbrauchMap[$row['id']] ?? null;
 }
 unset($row);
 
 require_once 'includes/header.php';
 ?>
+
+
 <!-- HTML ab hier -->
 <div class="py-6">
     <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
