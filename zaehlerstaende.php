@@ -98,24 +98,17 @@ $sql = "SELECT
 
 $zaehlerstaende = $db->fetchAll($sql, $params);
 
-// Verbrauch berechnen
-$verbrauch_liste = [];
-foreach ($zaehlerstaende as $index => $row) {
-    if (!isset($verbrauch_liste[$row['zaehler_id']])) {
-        $verbrauch_liste[$row['zaehler_id']] = [];
+$lastStand = [];
+foreach ($zaehlerstaende as $index => &$row) {
+    $zaehlerId = $row['zaehler_id'];
+    if (!isset($lastStand[$zaehlerId])) {
+        $row['verbrauch'] = null;
+    } else {
+        $row['verbrauch'] = $row['stand'] - $lastStand[$zaehlerId];
     }
-    $verbrauch_liste[$row['zaehler_id']][] = $row;
+    $lastStand[$zaehlerId] = $row['stand'];
 }
-
-foreach ($verbrauch_liste as $zaehler_id => &$liste) {
-    usort($liste, fn($a, $b) => strtotime($a['datum']) <=> strtotime($b['datum']));
-    for ($i = 1; $i < count($liste); $i++) {
-        $liste[$i]['verbrauch'] = $liste[$i]['stand'] - $liste[$i - 1]['stand'];
-    }
-    $liste[0]['verbrauch'] = null;
-}
-
-$zaehlerstaende = array_merge(...array_values($verbrauch_liste));
+unset($row);
 
 require_once 'includes/header.php';
 ?>
